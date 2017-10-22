@@ -4,7 +4,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <RunGraphQLCodeGen>true</RunGraphQLCodeGen>
+    <RunGraphQLCodeGen>false</RunGraphQLCodeGen>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

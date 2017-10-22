@@ -9,6 +9,19 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 {
     internal class Field : IGraphQLInitter
     {
+        internal static Field TypeName(GraphQLDocument doc)
+        {
+            var field = new Field("__typename");
+            field.Type = new ValueTypeReference
+            {
+                Type = doc.ResolveType("String"),
+                CanCollectionBeNull = false,
+                CanValueBeNull = false,
+                IsCollection = false
+            };
+            return field;
+        }
+
         private GraphQLFieldDefinition definition;
         private GraphQLInputValueDefinition definitionInput;
 
@@ -17,8 +30,12 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
         public bool IsMethod => Arguments.Any();
 
-        public ValueType Type { get; set; }
-
+        public ValueTypeReference Type { get; set; }
+        private Field(string name)
+        {
+            this.Name = name;
+            this.Arguments = Enumerable.Empty<Argument>();
+        }
         public Field(GraphQLFieldDefinition definition)
         {
             this.definition = definition;
@@ -35,11 +52,13 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
         public void Resolve(GraphQLDocument doc)
         {
+            if (this.Name == "__typename") { return; }
+
             if (definition != null)
             {
                 Type = doc.ResolveValueType(definition.Type);
             }
-            else
+            else if (definitionInput != null)
             {
                 Type = doc.ResolveValueType(definitionInput.Type);
             }

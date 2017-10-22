@@ -37,9 +37,9 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
         private List<IGraphQLType> types;
 
-        internal ValueType ResolveValueType(GraphQLType type)
+        internal ValueTypeReference ResolveValueType(GraphQLType type)
         {
-            var result = new ValueType();
+            var result = new ValueTypeReference();
             UnPackType(type, result);
 
             return result;
@@ -68,18 +68,23 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
         internal IGraphQLType ResolveType(GraphQLNamedType type)
         {
-            var result = types.SingleOrDefault(x => x.Name == type.Name?.Value);
+            return ResolveType(type.Name.Value);
+        }
+
+        internal IGraphQLType ResolveType(string typeName)
+        {
+            var result = types.SingleOrDefault(x => x.Name == typeName);
 
             if (result == null)
             {
                 WellknownScalarType wellknownType;
-                if (!Enum.TryParse(type.Name?.Value, out wellknownType))
+                if (!Enum.TryParse(typeName, out wellknownType))
                 {
                     wellknownType = WellknownScalarType.OTHER;
                 }
                 result = new ScalarType()
                 {
-                    Name = type.Name.Value,
+                    Name = typeName,
                     WellknownType = wellknownType
                 };
                 types.Add(result);
@@ -89,7 +94,8 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             return result;
         }
 
-        private void UnPackType(GraphQLType type, ValueType target)
+
+        private void UnPackType(GraphQLType type, ValueTypeReference target)
         {
             if (type is GraphQLNonNullType nonNullType)
             {
@@ -164,7 +170,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         ID
     }
 
-    internal class ValueType
+    internal class ValueTypeReference
     {
         public bool CanValueBeNull { get; set; }
         public bool IsCollection { get; set; }

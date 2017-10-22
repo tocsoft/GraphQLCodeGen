@@ -1,0 +1,20 @@
+query ($type : SearchType!, $query : String!) {
+  viewer {
+    login
+  }
+  search(first : 10, type : $type, query : $query){
+    nodes{
+      __typename
+			... on Issue {
+        author {
+          login
+        }
+      }
+      ... on PullRequest{
+        author {
+          login
+        }
+      }
+    }
+  }
+}

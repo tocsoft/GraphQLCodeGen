@@ -44,7 +44,7 @@ namespace Tocsoft.GraphQLCodeGen
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
         public class LocatedNamedSource

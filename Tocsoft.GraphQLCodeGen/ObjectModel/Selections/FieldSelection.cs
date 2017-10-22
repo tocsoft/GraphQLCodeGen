@@ -41,11 +41,20 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
 
         internal void Resolve(GraphQLDocument doc, IGraphQLFieldCollection rootType)
         {
-            Type = rootType.Fields.Single(x => x.Name == op.Name.Value);
-
+            if (op.Name.Value == "__typename")
+            {
+                // special case here
+                Type = Field.TypeName(doc);
+            }
+            else
+            {
+                // this is special we need to treat it as such
+                Type = rootType.Fields.Single(x => x.Name == op.Name.Value);
+            }
             if(Selection != null)
             {
-                Selection.Resolve(doc, Type.Type.Type as IGraphQLFieldCollection);
+                var root = Type.Type.Type as IGraphQLType;
+                Selection.Resolve(doc, root);
             }
 
             //if(selection != null)

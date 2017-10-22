@@ -13,12 +13,14 @@ namespace Tocsoft.GraphQLCodeGen.Models
         public string Namespace { get; private set; }
         public string ClassName { get; private set; }
 
-        private Dictionary<string, TypeViewModel> typeLookup;
-        private Dictionary<IGraphQLType, TypeViewModel> inputTypeLookup;
-        private List<TypeViewModel> typeCollection;
+        private Dictionary<string, TypeViewModel> typeLookup = new Dictionary<string, TypeViewModel>();
+        private Dictionary<IGraphQLType, string> inputTypeLookup = new Dictionary<IGraphQLType, string>();
+        private List<TypeViewModel> typeCollection = new List<TypeViewModel>();
+        private List<EnumViewModel> enumCollection = new List<EnumViewModel>();
         private List<OperationViewModel> operationCollection;
 
         public IEnumerable<TypeViewModel> Types => typeCollection;
+        public IEnumerable<EnumViewModel> Enums => enumCollection;
         public IEnumerable<OperationViewModel> Operations => operationCollection;
 
         internal ViewModel(GraphQLDocument query, CodeGeneratorSettings settings)
@@ -27,7 +29,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
             ClassName = settings.ClassName;
 
             this.typeLookup = new Dictionary<string, TypeViewModel>();
-            this.inputTypeLookup = new Dictionary<IGraphQLType, TypeViewModel>();
+            this.inputTypeLookup = new Dictionary<IGraphQLType, string>();
             this.typeCollection = new List<TypeViewModel>();
             // lets name each set
 
@@ -111,7 +113,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
             return type.Name;
         }
 
-        private TypeReferenceModel GenerateTypeReference(ObjectModel.ValueType type)
+        private TypeReferenceModel GenerateTypeReference(ObjectModel.ValueTypeReference type)
         {
             var result = new TypeReferenceModel();
             if (type.Type is ScalarType ts)
@@ -135,7 +137,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
         {
             if (inputTypeLookup.ContainsKey(type))
             {
-                return inputTypeLookup[type].Name;
+                return inputTypeLookup[type];
             }
 
             //lets make sure it exists
@@ -155,9 +157,19 @@ namespace Tocsoft.GraphQLCodeGen.Models
                          }).ToList()
                 };
 
-                inputTypeLookup.Add(type, typeVm);
+                inputTypeLookup.Add(type, typeVm.Name);
                 typeCollection.Add(typeVm);
 
+                return typeVm.Name;
+            }
+            else if (type is EnumType enumObj)
+            {
+                var typeVm = new EnumViewModel(name)
+                {
+                    Values = enumObj.Values
+                };
+                inputTypeLookup.Add(type, typeVm.Name);
+                enumCollection.Add(typeVm);
                 return typeVm.Name;
             }
             else
@@ -203,15 +215,30 @@ namespace Tocsoft.GraphQLCodeGen.Models
         public TypeReferenceModel Type { get; set; }
     }
 
+    public class EnumViewModel
+    {
+        public EnumViewModel(string name)
+        {
+            // typename register needed to ensure types don't clash
+            Name = name;
+        }
+
+        // a type is a list of fields and and unique name
+        public string Name { get; set; }
+        public IEnumerable<string> Values { get; set; }
+    }
+
     public class TypeViewModel
     {
-        //TODO support enum types
         // do we need to support interface or union types in the client, don't think we do
         public TypeViewModel(string name)
         {
             // typename register needed to ensure types don't clash
             Name = name;
         }
+
+        //public IEnumerable<TypeViewModel> InheritsFrom { get; set; }
+        //public bool IsInterface { get; set; }
 
         // a type is a list of fields and and unique name
         public string Name { get; set; }

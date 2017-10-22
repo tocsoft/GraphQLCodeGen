@@ -12,7 +12,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         private GraphQLOperationDefinition operation;
 
         public string Name { get; set; }
-        public IDictionary<string, ValueType> Paramaters { get; set; }
+        public IDictionary<string, ValueTypeReference> Paramaters { get; set; }
 
         public SetSelection Selection { get; set; }
         public string Query { get; private set; }

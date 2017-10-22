@@ -11,7 +11,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
         public string Name { get; private set; }
         public string DefaultValue { get; private set; }
-        public ValueType Type { get; private set; }
+        public ValueTypeReference Type { get; private set; }
 
         public Argument(GraphQLInputValueDefinition definition)
         {
