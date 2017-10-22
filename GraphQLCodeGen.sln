@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample", "Sample\Sample.csproj", "{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tocsoft.GraphQLCodeGen", "Tocsoft.GraphQLCodeGen\Tocsoft.GraphQLCodeGen.csproj", "{D69FE978-9EB5-418D-882C-A427AFE315B0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tocsoft.GraphQLCodeGen.MsBuild", "Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj", "{72A4A7AD-19C7-4587-9383-8E7262EA83CA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tocsoft.GraphQLCodeGen.Cli", "Tocsoft.GraphQLCodeGen.Cli\Tocsoft.GraphQLCodeGen.Cli.csproj", "{9C5F3C88-B20A-4AEC-8FF3-8DCA58C1A4AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D69FE978-9EB5-418D-882C-A427AFE315B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D69FE978-9EB5-418D-882C-A427AFE315B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D69FE978-9EB5-418D-882C-A427AFE315B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D69FE978-9EB5-418D-882C-A427AFE315B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72A4A7AD-19C7-4587-9383-8E7262EA83CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72A4A7AD-19C7-4587-9383-8E7262EA83CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72A4A7AD-19C7-4587-9383-8E7262EA83CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72A4A7AD-19C7-4587-9383-8E7262EA83CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C5F3C88-B20A-4AEC-8FF3-8DCA58C1A4AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C5F3C88-B20A-4AEC-8FF3-8DCA58C1A4AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C5F3C88-B20A-4AEC-8FF3-8DCA58C1A4AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C5F3C88-B20A-4AEC-8FF3-8DCA58C1A4AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {72C34B68-AEAC-4CA9-920D-BF5D3FE4BAA6}
+	EndGlobalSection
+EndGlobal

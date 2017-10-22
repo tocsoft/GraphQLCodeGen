@@ -1,0 +1,8 @@
+﻿{
+  "namespace": "Sample.Client.GitHub",
+  "classname": "GitHubClient",
+  "output": "generated.cs", // this is relative to this file
+  "source": "*.gql",
+  "schema": "schema.json",
+  "template": "csharp"
+}

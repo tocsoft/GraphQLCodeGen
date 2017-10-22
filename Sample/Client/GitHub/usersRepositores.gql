@@ -1,0 +1,13 @@
+query ($login:String!, $repoCount: Int!){
+  user(login: $login){
+    login,
+    bio,
+    repositories(first : $repoCount){
+      nodes{
+        id,
+        name,
+        updatedAt
+      }
+    }
+  }
+}

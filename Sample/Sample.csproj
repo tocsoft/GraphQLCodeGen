@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="$(MSBuildProjectDirectory)\..\Tocsoft.GraphQLCodeGen.MsBuild\test.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RunGraphQLCodeGen>true</RunGraphQLCodeGen>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Client\GitHub\gqlsettings.json">
+      <Generator>MSBuild:GenerateGraphQLClient</Generator>
+    </None>
+  </ItemGroup>
+
+
+  <Import Project="$(MSBuildProjectDirectory)\..\Tocsoft.GraphQLCodeGen.MsBuild\test.target" />
+</Project>

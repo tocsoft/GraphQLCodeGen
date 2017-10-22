@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp1.0</GraphQLCodeGenAssemblyFolderRuntime>
+    <GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net46</GraphQLCodeGenAssemblyFolderRuntime>
+    <GraphQLCodeGenAssemblyFolder Condition =" '$(GraphQLCodeGenAssemblyFolder)' == '' ">$(MSBuildThisFileDirectory)..\tasks\$(GraphQLCodeGenAssemblyFolder)</GraphQLCodeGenAssemblyFolder>
+
+    <GraphQLCodeGenAssembly>$(GraphQLCodeGenAssemblyFolder)\Tocsoft.GraphQLCodeGen.MsBuild.dll</GraphQLCodeGenAssembly>
+    <RunGraphQLCodeGen Condition="'$(RunGraphQLCodeGen)' == ''">true</RunGraphQLCodeGen>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <Compile>
+      <Generator>MSBuild:GenerateGraphQLClient</Generator>
+    </Compile>
+  </ItemDefinitionGroup>
+
+
+  <ItemGroup>
+    <None Update="**\*.gql">
+      <Generator>MSBuild:GenerateGraphQLClient</Generator>
+    </None>
+    <None Update="gqlsettings.json">
+      <Generator>MSBuild:GenerateGraphQLClient</Generator>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Update="**\*.gql">
+      <Generator>MSBuild:GenerateGraphQLClient</Generator>
+    </Content>
+    <Content Update="gqlsettings.json">
+      <Generator>MSBuild:GenerateGraphQLClient</Generator>
+    </Content>
+  </ItemGroup>
+</Project>

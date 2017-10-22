@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp1.0;net46</TargetFrameworks>
+    <IncludeBuiltProjectOutputGroup>true</IncludeBuiltProjectOutputGroup>
+    <OutputType>Library</OutputType>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <!-- Change the default location where NuGet will put the build output -->
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeP2POutput</TargetsForTfmSpecificBuildOutput>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Tocsoft</Authors>
+    <Company>Tocsoft</Company>
+    <Description>msbuild targets for converting graphql queries to a strangle typed c# library</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.3.409" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.3.409" />
+    <PackageReference Include="System.IO.FileSystem" />
+    
+    <PackageReference Update="@(PackageReference)"></PackageReference>
+    
+    <PackageReference Update="System.IO.FileSystem" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tocsoft.GraphQLCodeGen\Tocsoft.GraphQLCodeGen.csproj">
+      <PrivateAssets>All</PrivateAssets>
+      <Private>true</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    
+    <Content Include="build\*.*" PackagePath="build\" />
+    <Content Include="buildMultiTargeting\*.*" PackagePath="buildMultiTargeting\" />
+  </ItemGroup>
+  <Target Name="IncludeP2POutput">
+    <ItemGroup>
+      <BuildOutputInPackage Include="$(OutputPath)publish\**\*.*" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="PublishProjectIfFrameworkSet" DependsOnTargets="Publish" Condition=" '$(TargetFramework)' != '' " />
+
+  <Target Name="PublishProjectForAllFrameworksIfFrameworkUnset" Condition=" '$(TargetFramework)' == '' ">
+    <ItemGroup>
+      <_PublishFramework Include="$(TargetFrameworks)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Publish" Properties="TargetFramework=%(_PublishFramework.Identity)" />
+  </Target>
+
+  <Target Name="PublishAll" DependsOnTargets="PublishProjectIfFrameworkSet;PublishProjectForAllFrameworksIfFrameworkUnset" AfterTargets="build" />
+
+</Project>
