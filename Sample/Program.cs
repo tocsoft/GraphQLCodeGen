@@ -33,7 +33,7 @@ namespace Sample
 
             //var hasStared = await client.AddStarAsync(id);
             var user = await client.CurrentUserAsync();
-
+            var b = user.Viewer.Bio;
         }
     }
 }

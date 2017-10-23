@@ -3,15 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample", "Sample\Sample.csproj", "{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tocsoft.GraphQLCodeGen", "Tocsoft.GraphQLCodeGen\Tocsoft.GraphQLCodeGen.csproj", "{D69FE978-9EB5-418D-882C-A427AFE315B0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tocsoft.GraphQLCodeGen.MsBuild", "Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj", "{72A4A7AD-19C7-4587-9383-8E7262EA83CA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tocsoft.GraphQLCodeGen.Cli", "Tocsoft.GraphQLCodeGen.Cli\Tocsoft.GraphQLCodeGen.Cli.csproj", "{9C5F3C88-B20A-4AEC-8FF3-8DCA58C1A4AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tocsoft.GraphQLCodeGen.Tests", "Tocsoft.GraphQLCodeGen.Tests\Tocsoft.GraphQLCodeGen.Tests.csproj", "{6A53636B-4E5D-4B4F-B570-28AA1614E77B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tocsoft.GraphQLCodeGen.Tests", "Tocsoft.GraphQLCodeGen.Tests\Tocsoft.GraphQLCodeGen.Tests.csproj", "{6A53636B-4E5D-4B4F-B570-28AA1614E77B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FC21B6D1-7061-45D1-B2D2-01C779B47B62}"
 	ProjectSection(SolutionItems) = preProject
@@ -29,10 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8AC3D09-334E-45CB-84D3-61EFCBFC3E83}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D69FE978-9EB5-418D-882C-A427AFE315B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D69FE978-9EB5-418D-882C-A427AFE315B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D69FE978-9EB5-418D-882C-A427AFE315B0}.Release|Any CPU.ActiveCfg = Release|Any CPU

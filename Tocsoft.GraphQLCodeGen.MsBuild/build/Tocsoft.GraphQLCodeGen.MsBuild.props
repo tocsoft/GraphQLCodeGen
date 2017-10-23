@@ -3,7 +3,7 @@
   <PropertyGroup>
     <GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp1.0</GraphQLCodeGenAssemblyFolderRuntime>
     <GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net46</GraphQLCodeGenAssemblyFolderRuntime>
-    <GraphQLCodeGenAssemblyFolder Condition =" '$(GraphQLCodeGenAssemblyFolder)' == '' ">$(MSBuildThisFileDirectory)..\tasks\$(GraphQLCodeGenAssemblyFolder)</GraphQLCodeGenAssemblyFolder>
+    <GraphQLCodeGenAssemblyFolder Condition =" '$(GraphQLCodeGenAssemblyFolder)' == '' ">$(MSBuildThisFileDirectory)..\tasks\$(GraphQLCodeGenAssemblyFolderRuntime)</GraphQLCodeGenAssemblyFolder>
 
     <GraphQLCodeGenAssembly>$(GraphQLCodeGenAssemblyFolder)\Tocsoft.GraphQLCodeGen.MsBuild.dll</GraphQLCodeGenAssembly>
     <RunGraphQLCodeGen Condition="'$(RunGraphQLCodeGen)' == ''">true</RunGraphQLCodeGen>

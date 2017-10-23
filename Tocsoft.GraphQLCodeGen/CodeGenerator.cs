@@ -42,7 +42,7 @@ namespace Tocsoft.GraphQLCodeGen
             }
 
             var fileResult = new TemplateEngine(templateName).Generate(model);
-
+            
             File.WriteAllText(settings.OutputPath, fileResult);
         }
 

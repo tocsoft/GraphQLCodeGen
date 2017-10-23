@@ -2,10 +2,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <PrepareResourcesDependsOn>
+    <!--<PrepareResourcesDependsOn>
       GenerateGraphQLClient
       $(PrepareResourcesDependsOn)
-    </PrepareResourcesDependsOn>
+    </PrepareResourcesDependsOn>-->
 
     <CoreCompileDependsOn>
       GenerateGraphQLClient;
@@ -16,13 +16,14 @@
   <UsingTask TaskName="GenerateGraphQLClient" AssemblyFile="$(GraphQLCodeGenAssembly)" />
 
   <Target Name="GenerateGraphQLClient" DependsOnTargets="ResolveReferences" BeforeTargets="CoreCompile" Condition="'$(RunGraphQLCodeGen)' == 'true'">
-    <Message Text="Generating GraphQL Client code" Importance="high" />
+    <Message Text="Generating GraphQL Client code" />
     <PropertyGroup>
       <GraphQLCodeGenSettings Condition="'$(GraphQLCodeGenSettings)' == '' " >$(MSBuildProjectDirectory)\**\gqlsettings.json</GraphQLCodeGenSettings>
     </PropertyGroup>
 
     <GenerateGraphQLClient SettingPaths="$(GraphQLCodeGenSettings)"
-      IntermediateOutputDirectory="$(IntermediateOutputPath)">
+      IntermediateOutputDirectory="$(IntermediateOutputPath)"
+      RootCliFolder="$(GraphQLCodeGenRootCliFolder)">
       <Output TaskParameter="GeneratedCompile" ItemName="GeneratedCodeFromAttribute_Compile" />
       <Output TaskParameter="GeneratedCompile" ItemName="FileWrites" />
     </GenerateGraphQLClient>

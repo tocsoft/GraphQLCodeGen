@@ -1,0 +1,16 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Tocsoft.GraphQLCodeGen.MsBuild</id>
+    <version>$version$</version>
+    <authors>Tocsoft</authors>
+    <description>msbuild target for generating clinet libraries from targeting graphql server.</description>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+  </metadata>
+  <files>
+    <file src="build\*.*" target="build" />
+    <file src="buildMultiTargeting\*.*" target="buildMultiTargeting" />
+    <file src="bin\$configuration$\**\*.*" target="tasks" />
+    <file src="..\Tocsoft.GraphQLCodeGen.Cli\bin\$configuration$\**\*.*" target="tasks\tool\" />
+  </files>
+</package>
