@@ -2,7 +2,14 @@ query ($login:String!, $repoCount: Int!){
   user(login: $login){
     login,
     bio,
-    repositories(first : $repoCount){
+    first :repositories(first : $repoCount){
+      nodes{
+        id,
+        name,
+        updatedAt
+      }
+    },
+	last :repositories(last : $repoCount){
       nodes{
         id,
         name,

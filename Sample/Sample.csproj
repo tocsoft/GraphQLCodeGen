@@ -26,5 +26,5 @@
   </ItemGroup>
 
 
-  <Import Project="$(MSBuildProjectDirectory)\..\Tocsoft.GraphQLCodeGen.MsBuild\test.target" />
+  <Import Project="$(MSBuildProjectDirectory)\..\Tocsoft.GraphQLCodeGen.MsBuild\test.targets" />
 </Project>

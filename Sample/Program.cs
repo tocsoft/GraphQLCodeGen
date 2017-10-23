@@ -24,12 +24,15 @@ namespace Sample
             };
 
             httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+
             var client = new Client.GitHub.GitHubClient(httpClient);
-            var result = await client.UsersRepositoresAsync("tocsoft", 100);
-            var repo = result.User.Repositories.Nodes.First();
+            var result = await client.UsersRepositoresAsync("tocsoft", 10);
+            var repo = result.User.First.Nodes.First();
             var id = repo.Id;
 
-            var hasStared = await client.AddStarAsync(id);
+            //var hasStared = await client.AddStarAsync(id);
+            var user = await client.CurrentUserAsync();
 
         }
     }
