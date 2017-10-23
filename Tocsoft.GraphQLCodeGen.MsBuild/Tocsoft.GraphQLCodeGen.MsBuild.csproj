@@ -17,11 +17,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework" Version="15.3.409" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.3.409" />
-    <PackageReference Include="System.IO.FileSystem" />
-    
-    <PackageReference Update="@(PackageReference)"></PackageReference>
-    
     <PackageReference Update="System.IO.FileSystem" Version="4.3.0" />
+
+    <PackageReference Update="@(PackageReference)">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
