@@ -63,6 +63,12 @@ namespace {{Namespace}}
 
 
 	{{/each}}
+
+	{{#each Enums}}
+		{{> Enum}}
+
+
+	{{/each}}
 }
 
 {{!# Type}}
@@ -73,15 +79,20 @@ namespace {{Namespace}}
 		{{/each}}
 	}
 
+{{!# Enum}}
+	public enum {{pascalCase Name}}
+	{
+		{{#each Values}}
+		{{.}},
+		{{/each}}
+	}
+
 {{!# Operation}}
 		public async Task<{{> TypeReference ResultType}}> {{pascalCase Name}}Async({{> ArgumentList Arguments}})
 		{
-			const string query = @"{{replace Query '"' '""'}}";
-			// request logic in here
-			// deserialize object graph here
 			var response = await this.client.PostAsync("", new StringContent(JsonConvert.SerializeObject(new GraphQLRequest()
             {
-                query = query,
+                query = @"{{replace Query '"' '""'}}",
                 variables = new Dictionary<string, object> {
                    {{#each Arguments}}
 					{ @"{{replace Name '"' '""'}}", {{camelCase Name}} },
