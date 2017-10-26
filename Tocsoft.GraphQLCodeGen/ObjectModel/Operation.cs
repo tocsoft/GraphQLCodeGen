@@ -38,7 +38,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
         public void Resolve(GraphQLDocument doc)
         {
-            Paramaters = operation.VariableDefinitions.ToDictionary(x => x.Variable.Name.Value, x => doc.ResolveValueType(x.Type));
+            Paramaters = operation.VariableDefinitions?.ToDictionary(x => x.Variable.Name.Value, x => doc.ResolveValueType(x.Type)) ?? new Dictionary<string, ValueTypeReference>();
 
             var rootType = doc.ResolveType(operation.Operation) as IGraphQLFieldCollection;
            
