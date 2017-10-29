@@ -3,12 +3,6 @@
   "classname": "GitHubClient",
   "output": "generated.cs", // this is relative to this file
   "source": "*.gql",
-  "schema": {
-    "Location" : "https://api.github.com/graphql",
-    "Headers" : {
-      "User-Agent" : "Introspection Agent",
-      "Authorization" : "Bearer 337c317412ca9830150b39cbe9052eb040dfa0ed"
-    }
-  },
+  "schema": "schema.json",
   "template": "csharp"
 }
