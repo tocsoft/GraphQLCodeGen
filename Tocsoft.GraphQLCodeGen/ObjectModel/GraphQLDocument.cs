@@ -97,28 +97,34 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
         private void UnPackType(GraphQLType type, ValueTypeReference target)
         {
-            if (type is GraphQLNonNullType nonNullType)
+            try
             {
-                target.CanValueBeNull = true;
-                UnPackType(nonNullType.Type, target);
-            }
-            else if (type is GraphQLListType listType)
-            {
-                target.IsCollection = true;
-                if (target.CanValueBeNull)
+                if (type is GraphQLNonNullType nonNullType)
                 {
-                    target.CanValueBeNull = false;
-                    target.CanCollectionBeNull = true;
+                    target.CanValueBeNull = true;
+                    UnPackType(nonNullType.Type, target);
                 }
-                UnPackType(listType.Type, target);
-            }
-            else if (type is GraphQLNamedType namedType)
+                else if (type is GraphQLListType listType)
+                {
+                    target.IsCollection = true;
+                    if (target.CanValueBeNull)
+                    {
+                        target.CanValueBeNull = false;
+                        target.CanCollectionBeNull = true;
+                    }
+                    UnPackType(listType.Type, target);
+                }
+                else if (type is GraphQLNamedType namedType)
+                {
+                    target.Type = ResolveType(namedType);
+                }
+                else
+                {
+                    throw new Exception("dunno???");
+                }
+            }catch(Exception ex)
             {
-                target.Type = ResolveType(namedType);
-            }
-            else
-            {
-                throw new Exception("dunno???");
+                throw;
             }
         }
         private object VisitSelectionSet(GraphQLParser.AST.ASTNode node)

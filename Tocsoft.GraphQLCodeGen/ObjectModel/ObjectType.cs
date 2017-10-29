@@ -40,11 +40,17 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             if (this.definition != null)
             {
                 this.Interfaces = ResolveInterfaces(doc).ToList();
-                this.Fields = this.definition.Fields.Select(x => new Field(x)).ToList();
+                this.Fields = this.definition.Fields.Select(x =>
+                {
+                    return new Field(x);
+                }).ToList();
             }
             else            if (this.definitionInput != null)
             {
-                this.Fields = this.definitionInput.Fields.Select(x => new Field(x)).ToList();
+                this.Fields = this.definitionInput.Fields.Select(x =>
+                {
+                    return new Field(x);
+                }).ToList();
             }
 
             foreach (var f in this.Fields) { f.Resolve(doc); }

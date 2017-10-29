@@ -56,6 +56,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
             if (definition != null)
             {
+
                 Type = doc.ResolveValueType(definition.Type);
             }
             else if (definitionInput != null)

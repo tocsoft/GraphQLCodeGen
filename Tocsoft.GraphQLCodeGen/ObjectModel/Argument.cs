@@ -23,7 +23,17 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         public void Resolve(GraphQLDocument doc)
         {
             this.Type = doc.ResolveValueType(definition.Type);
-            DefaultValue = definition.DefaultValue?.ToString();
+
+            if(definition.DefaultValue is GraphQLParser.AST.GraphQLScalarValue sv)
+            {
+                DefaultValue = sv.Value;
+            }
+            else
+            {
+                DefaultValue = definition.DefaultValue?.ToString();
+            }
+
+
             this.Type = doc.ResolveValueType(definition.Type);
         }
 
