@@ -1,4 +1,6 @@
 ﻿using GraphQLParser;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Tocsoft.GraphQLCodeGen.SchemaIntrospection;
 using static Tocsoft.GraphQLCodeGen.IntrospectedSchemeParser;
 
 namespace Tocsoft.GraphQLCodeGen
@@ -13,18 +16,31 @@ namespace Tocsoft.GraphQLCodeGen
     public class CodeGenerator
     {
         private readonly CodeGeneratorSettings settings;
+        private readonly IEnumerable<SchemaIntrospection.IIntrosepctionProvider> introspectionProviders;
 
         public CodeGenerator(CodeGeneratorSettings settings)
+            : this(settings, new IIntrosepctionProvider[] {
+                new SchemaIntrospection.JsonIntrospection(),
+                new SchemaIntrospection.HttpIntrospection(),
+                new SchemaIntrospection.SchemaFileIntrospection()
+            })
         {
-            this.settings = settings;
         }
 
-        public void Generate()
+        public CodeGenerator(CodeGeneratorSettings settings, IEnumerable<SchemaIntrospection.IIntrosepctionProvider> introspectionProviders)
         {
+            this.settings = settings;
+            this.introspectionProviders = introspectionProviders;
+        }
+
+        public async Task GenerateAsync()
+        {
+            var provider = introspectionProviders.Single(x => x.SchemaType == settings.Schema.SchemaType());
+
+            var schema = await provider.LoadSchema(settings.Schema);
             // we need to load in the scheme
-            var schema = JsonToTypeDefinition(File.ReadAllText(settings.SchemaPath));
             var sources = new List<NamedSource>();
-            sources.Add(new NamedSource() { Path = settings.SchemaPath, Body = schema });
+            sources.Add(new NamedSource() { Path = settings.Schema.Location, Body = schema });
 
             foreach (var s in settings.SourcePaths)
             {
@@ -42,7 +58,7 @@ namespace Tocsoft.GraphQLCodeGen
             }
 
             var fileResult = new TemplateEngine(templateName).Generate(model);
-            
+
             File.WriteAllText(settings.OutputPath, fileResult);
         }
 
@@ -55,9 +71,10 @@ namespace Tocsoft.GraphQLCodeGen
         public string ClassName { get; set; }
         public string OutputPath { get; set; }
         public IEnumerable<string> SourcePaths { get; set; }
-        public string SchemaPath { get; set; }
+
         public string Template { get; set; }
         public string SourcePath { get; set; }
+        public CodeGeneratorSettingsLoader.SchemaSource Schema { get; internal set; }
     }
 
     public class CodeGeneratorSettingsLoader
@@ -83,7 +100,14 @@ namespace Tocsoft.GraphQLCodeGen
             var simple = Newtonsoft.Json.JsonConvert.DeserializeObject<SimpleSettings>(json);
 
             var settings = new CodeGeneratorSettings();
-            settings.SchemaPath = GetPath(dir, simple.Schema);
+
+            if (simple.Schema.SchemaType() != SchemaSource.SchemaTypes.Http)
+            {
+                // we are not and url based location then it must be a path
+                simple.Schema.Location = GetPath(dir, simple.Schema.Location);
+            }
+
+            settings.Schema = simple.Schema;
             settings.OutputPath = GetPath(dir, simple.Output);
             settings.SourcePaths = GetPaths(dir, simple.Source);
             settings.ClassName = simple.Classname;
@@ -141,12 +165,107 @@ namespace Tocsoft.GraphQLCodeGen
         public class SimpleSettings
         {
             public string Namespace { get; set; }
+
             public string Classname { get; set; }
+
             public string Output { get; set; }
+
             public string Source { get; set; }
-            public string Schema { get; set; }
+
+            [JsonConverter(typeof(SchemaSourceJsonConverter))]
+            public SchemaSource Schema { get; set; }
+
             public string Template { get; set; }
         }
 
+
+        public class SchemaSource
+        {
+            // we guess based on the string value what type of introspectino to do,
+            // if its http/https then its a http introspection
+            // if its a file path its eather a schema or json file
+            // if its a dll then its a GraphQL conventions schema and other paramaters kick in
+            public string Location { get; set; }
+
+            /// <summary>
+            /// for http based introspection then we use the headers
+            /// </summary>
+            public Dictionary<string, string> Headers { get; set; }
+
+            /// <summary>
+            /// for dll based introspection this is the list of types that make up the queries
+            /// </summary>
+            public string[] QueryType { get; set; }
+
+            /// <summary>
+            /// for dll based introspection this is the list of types that make up the queries
+            /// </summary>
+            public string[] MutationType { get; set; }
+
+            public SchemaTypes SchemaType()
+            {
+                if (Location.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                {
+                    return SchemaTypes.Http;
+                }
+
+                if (Location.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || Location.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return SchemaTypes.Dll;
+                }
+
+                if (Location.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                {
+                    return SchemaTypes.Json;
+                }
+
+                return SchemaTypes.GraphQLSchemaFile;
+            }
+
+            public enum SchemaTypes
+            {
+                Http,
+                Dll,
+                Json,
+                GraphQLSchemaFile
+            }
+        }
+
+        public class SchemaSourceJsonConverter : JsonConverter
+        {
+            public override bool CanWrite => false;
+
+            public override bool CanConvert(Type objectType)
+            {
+                return typeof(SchemaSource) == objectType;
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                JToken token = JToken.Load(reader);
+                var result = (existingValue as SchemaSource ?? new SchemaSource());
+
+                if (token is Newtonsoft.Json.Linq.JObject obj)
+                {
+                    var temp = token.ToObject<SchemaSource>();
+
+                    result.Location = temp.Location;
+                    result.MutationType = temp.MutationType;
+                    result.QueryType = temp.QueryType;
+                    result.Headers = temp.Headers;
+                }
+                else if (token is Newtonsoft.Json.Linq.JValue value)
+                {
+                    result.Location = value.Value.ToString();
+                }
+
+                return result;
+            }
+
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ namespace Tocsoft.GraphQLCodeGen.Cli
             sourceArgument = app.Argument("source", "The settings file for gerating the code from", true);
             msbuildMode= app.Option("--msbuild-outputdir", "The directory", CommandOptionType.SingleValue);
             
-            app.OnExecute((Func<int>)OnExecuteAsync);
+            app.OnExecute((Func<Task<int>>)OnExecuteAsync);
 
             return app.Execute(args);
         }
@@ -28,7 +28,7 @@ namespace Tocsoft.GraphQLCodeGen.Cli
         private static CommandOption msbuildMode;
         private static CommandLineApplication app;
 
-        public static int OnExecuteAsync()
+        public static async Task<int> OnExecuteAsync()
         {
             var settings = settingsLoader.LoadFromPath(sourceArgument.Value);
             foreach (var s in settings)
@@ -43,7 +43,7 @@ namespace Tocsoft.GraphQLCodeGen.Cli
 
                 var generator = new CodeGenerator(s);
 
-                generator.Generate();
+                await generator.GenerateAsync();
             }
 
             return 0;
