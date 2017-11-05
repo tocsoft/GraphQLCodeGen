@@ -1,0 +1,9 @@
+{
+  "name": "tocsoft.graphql-codegen",
+  "version": "1.0.0",
+  "description": "Provides access to the GraphQLCodeGen cli application",
+  "main": "app.js",
+  "author": {
+    "name": "tocsoft"
+  }
+}

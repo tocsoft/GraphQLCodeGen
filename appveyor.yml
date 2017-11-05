@@ -15,7 +15,7 @@ build_script:
 
 after_build:
   - cmd: appveyor PushArtifact "artifacts\Tocsoft.GraphQLCodeGen.MsBuild.%GitVersion_NuGetVersion%.nupkg"
-
+  
 deploy:
   - provider: NuGet
     server: https://www.myget.org/F/tocsoft/api/v2/package

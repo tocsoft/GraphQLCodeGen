@@ -1,0 +1,3 @@
+﻿# Tocsoft.GraphQLCodeGen.Npm
+
+

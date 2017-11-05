@@ -10,7 +10,7 @@
   {
     "namespace": "Sample.Client.GitHub",
     "classname": "GitHubClient",
-    "output": "generated.ts", // this is relative to this file
+    "output": "generated-real.ts", // this is relative to this file
     "source": "*.gql",
     "schema": "schema.json",
     "template": "typescript"

@@ -287,3 +287,8 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 /Sample/Client/GitHub/generated.cs
+/Tocsoft.GraphQLCodeGen.Npm/binaries
+/Sample/Client/GitHubTypescript/generated.ts
+/Sample/Client/GitHubTypescript/generated.cs
+/Sample/Client/GitHubTypescript/generated-real.ts
+/Sample/Client/GitHub/generated.ts

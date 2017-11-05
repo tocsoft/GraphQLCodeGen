@@ -1,0 +1,123 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">14.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <Name>Tocsoft.GraphQLCodeGen.Npm</Name>
+    <RootNamespace>Tocsoft.GraphQLCodeGen.Npm</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>66960fde-b8b7-4a89-95e5-b71b2a276276</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>app.js</StartupFile>
+    <StartWebBrowser>False</StartWebBrowser>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <StartWebBrowser>false</StartWebBrowser>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app.js" />
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\GraphQL-Parser.dll">
+      <Link>bin\GraphQL-Parser.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Handlebars.dll">
+      <Link>bin\Handlebars.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Microsoft.Extensions.CommandLineUtils.dll">
+      <Link>bin\Microsoft.Extensions.CommandLineUtils.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Microsoft.Win32.Primitives.dll">
+      <Link>bin\Microsoft.Win32.Primitives.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Newtonsoft.Json.dll">
+      <Link>bin\Newtonsoft.Json.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.AppContext.dll">
+      <Link>bin\System.AppContext.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Console.dll">
+      <Link>bin\System.Console.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Diagnostics.DiagnosticSource.dll">
+      <Link>bin\System.Diagnostics.DiagnosticSource.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Globalization.Calendars.dll">
+      <Link>bin\System.Globalization.Calendars.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.IO.Compression.dll">
+      <Link>bin\System.IO.Compression.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.IO.Compression.ZipFile.dll">
+      <Link>bin\System.IO.Compression.ZipFile.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.IO.FileSystem.dll">
+      <Link>bin\System.IO.FileSystem.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.IO.FileSystem.Primitives.dll">
+      <Link>bin\System.IO.FileSystem.Primitives.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Net.Http.dll">
+      <Link>bin\System.Net.Http.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Net.Sockets.dll">
+      <Link>bin\System.Net.Sockets.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Runtime.InteropServices.RuntimeInformation.dll">
+      <Link>bin\System.Runtime.InteropServices.RuntimeInformation.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Security.Cryptography.Algorithms.dll">
+      <Link>bin\System.Security.Cryptography.Algorithms.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Security.Cryptography.Encoding.dll">
+      <Link>bin\System.Security.Cryptography.Encoding.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Security.Cryptography.Primitives.dll">
+      <Link>bin\System.Security.Cryptography.Primitives.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Security.Cryptography.X509Certificates.dll">
+      <Link>bin\System.Security.Cryptography.X509Certificates.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.ValueTuple.dll">
+      <Link>bin\System.ValueTuple.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\System.Xml.ReaderWriter.dll">
+      <Link>bin\System.Xml.ReaderWriter.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Tocsoft.GraphQLCodeGen.Cli.exe">
+      <Link>bin\Tocsoft.GraphQLCodeGen.Cli.exe</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Tocsoft.GraphQLCodeGen.Cli.exe.config">
+      <Link>bin\Tocsoft.GraphQLCodeGen.Cli.exe.config</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Tocsoft.GraphQLCodeGen.Cli.pdb">
+      <Link>bin\Tocsoft.GraphQLCodeGen.Cli.pdb</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Tocsoft.GraphQLCodeGen.dll">
+      <Link>bin\Tocsoft.GraphQLCodeGen.dll</Link>
+    </Content>
+    <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Tocsoft.GraphQLCodeGen.pdb">
+      <Link>bin\Tocsoft.GraphQLCodeGen.pdb</Link>
+    </Content>
+    <Content Include=".npmrc" />
+    <Content Include="package.json" />
+    <Content Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\" />
+  </ItemGroup>
+  <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
+</Project>

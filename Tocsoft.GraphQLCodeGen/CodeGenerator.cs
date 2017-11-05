@@ -88,33 +88,35 @@ namespace Tocsoft.GraphQLCodeGen
         {
             var paths = GetPaths(Directory.GetCurrentDirectory(), path);
 
-            return paths.Select(LoadSingleFromPath).ToList();
+            return paths.SelectMany(LoadFromResolvedPath).ToList();
         }
 
-        public CodeGeneratorSettings LoadSingleFromPath(string path)
+        private IEnumerable<CodeGeneratorSettings> LoadFromResolvedPath(string path)
         {
             // rootPath
             var dir = Path.GetDirectoryName(path);
 
             var json = File.ReadAllText(path);
-            var simple = Newtonsoft.Json.JsonConvert.DeserializeObject<SimpleSettings>(json);
+            
+            var simpleList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SimpleSettings>>(json, new SingleOrArrayConverter<SimpleSettings>());
+            foreach (var simple in simpleList) {
+                var settings = new CodeGeneratorSettings();
 
-            var settings = new CodeGeneratorSettings();
+                if (simple.Schema.SchemaType() != SchemaSource.SchemaTypes.Http)
+                {
+                    // we are not and url based location then it must be a path
+                    simple.Schema.Location = GetPath(dir, simple.Schema.Location);
+                }
 
-            if (simple.Schema.SchemaType() != SchemaSource.SchemaTypes.Http)
-            {
-                // we are not and url based location then it must be a path
-                simple.Schema.Location = GetPath(dir, simple.Schema.Location);
+                settings.Schema = simple.Schema;
+                settings.OutputPath = GetPath(dir, simple.Output);
+                settings.SourcePaths = GetPaths(dir, simple.Source);
+                settings.ClassName = simple.Classname;
+                settings.Namespace = simple.Namespace;
+                settings.Template = simple.Template;
+                settings.SettingsPath = path;
+                yield return settings;
             }
-
-            settings.Schema = simple.Schema;
-            settings.OutputPath = GetPath(dir, simple.Output);
-            settings.SourcePaths = GetPaths(dir, simple.Source);
-            settings.ClassName = simple.Classname;
-            settings.Namespace = simple.Namespace;
-            settings.Template = simple.Template;
-            settings.SettingsPath = path;
-            return settings;
         }
 
         private IEnumerable<string> GetPaths(string root, string path)
@@ -266,6 +268,34 @@ namespace Tocsoft.GraphQLCodeGen
             {
                 throw new NotImplementedException();
             }
+        }
+    }
+
+    class SingleOrArrayConverter<T> : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return (objectType == typeof(List<T>));
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            JToken token = JToken.Load(reader);
+            if (token.Type == JTokenType.Array)
+            {
+                return token.ToObject<List<T>>();
+            }
+            return new List<T> { token.ToObject<T>() };
+        }
+
+        public override bool CanWrite
+        {
+            get { return false; }
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
         }
     }
 }

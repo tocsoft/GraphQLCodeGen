@@ -37,10 +37,10 @@ namespace Tocsoft.GraphQLCodeGen.Models
             foreach (var op in query.Operations)
             {
 
-                List<ArgumentViewModel> argCollection = new List<ArgumentViewModel>();
+                List<NamedTypeViewModel> argCollection = new List<NamedTypeViewModel>();
                 foreach (var arg in op.Paramaters)
                 {
-                    argCollection.Add(new ArgumentViewModel
+                    argCollection.Add(new NamedTypeViewModel
                     {
                         Name = arg.Key,
                         Type = GenerateTypeReference(arg.Value)
@@ -101,7 +101,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
 
             var type = new TypeViewModel(name)
             {
-                Fields = selection.Fields.Select(x => new FieldViewModel()
+                Fields = selection.Fields.Select(x => new NamedTypeViewModel()
                 {
                     Name = x.Name,
                     Type = GenerateTypeReference(x)
@@ -149,7 +149,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
                 var typeVm = new TypeViewModel(name)
                 {
                     Fields = obj.Fields.Select(x =>
-                         new FieldViewModel()
+                         new NamedTypeViewModel()
                          {
                              Name = x.Name,
                              Type = GenerateTypeReference(x.Type)
@@ -197,7 +197,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
     {
         public string Name { get; set; }
         public TypeReferenceModel ResultType { get; internal set; }
-        public List<ArgumentViewModel> Arguments { get; internal set; }
+        public List<NamedTypeViewModel> Arguments { get; internal set; }
         public string Query { get; internal set; }
         public string NamedQuery { get; internal set; }
 
@@ -208,7 +208,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
     }
 
 
-    public class ArgumentViewModel
+    public class NamedTypeViewModel
     {
         //arguent & field are the same
         public string Name { get; set; }
@@ -242,15 +242,9 @@ namespace Tocsoft.GraphQLCodeGen.Models
 
         // a type is a list of fields and and unique name
         public string Name { get; set; }
-        public IEnumerable<FieldViewModel> Fields { get; set; }
+        public IEnumerable<NamedTypeViewModel> Fields { get; set; }
     }
 
-    public class FieldViewModel
-    {
-        // a field is a name +  a named type + wether that is a list result an/or nullable
-        public string Name { get; set; }
-        public TypeReferenceModel Type { get; set; }
-    }
 
     public class TypeReferenceModel
     {

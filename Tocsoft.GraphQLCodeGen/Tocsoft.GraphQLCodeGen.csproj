@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Templates\typescript.template" />
     <EmbeddedResource Include="Templates\CSharp.template" />
   </ItemGroup>
 
