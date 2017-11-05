@@ -34,6 +34,7 @@ deploy:
     repo: npm
     package: "tocsoft.graphql-codegen"
     version: "%GitVersion_NuGetVersion%"
+    publish: true
     artifact: /.*\.tgz/
     override: true
 
