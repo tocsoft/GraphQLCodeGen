@@ -32,7 +32,8 @@ deploy:
         secure: 7Mqct00QenIi+iiZCwDdBZja7YjY1co7TqPVqoklMAkxia37hgnPG0cV6486xPQA
     subject: tocsoft
     repo: npm
-    package: tocsoft.graphql-codegen"
+    package: "tocsoft.graphql-codegen"
+    version: "%GitVersion_NuGetVersion%"
     artifact: /.*\.tgz/
     override: true
 
