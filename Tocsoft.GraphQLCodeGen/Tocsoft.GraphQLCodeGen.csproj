@@ -13,8 +13,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Templates\typescript.template" />
-    <EmbeddedResource Include="Templates\CSharp.template" />
+    <None Remove="Templates\ts\typescript.template" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\ts\typescript.template" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\cs\CSharp.template" />
   </ItemGroup>
 
   <ItemGroup>

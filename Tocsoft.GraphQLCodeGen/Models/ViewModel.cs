@@ -118,13 +118,21 @@ namespace Tocsoft.GraphQLCodeGen.Models
             var result = new TypeReferenceModel();
             if (type.Type is ScalarType ts)
             {
-                result.IsScaler = true;
                 result.TypeName = ts.Name;
+                result.IsScaler = true;
+                result.IsEnum = false;
+            }
+            else if (type.Type is EnumType te)
+            {
+                result.TypeName = GenerateType(type.Type);
+                result.IsScaler = false;
+                result.IsEnum = true;
             }
             else
             {
                 result.TypeName = GenerateType(type.Type);
                 result.IsScaler = false;
+                result.IsEnum = false;
             }
 
             result.CanCollectionBeNull = type.CanCollectionBeNull;
@@ -253,5 +261,6 @@ namespace Tocsoft.GraphQLCodeGen.Models
         public bool IsCollection { get; set; }
         public bool CanCollectionBeNull { get; set; }
         public bool IsScaler { get; set; }
+        public bool IsEnum { get; set; }
     }
 }

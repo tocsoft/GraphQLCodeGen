@@ -12,7 +12,7 @@ namespace Tocsoft.GraphQLCodeGen
     {
         private IHandlebars engine;
 
-        public TemplateEngine(string templateName)
+        public TemplateEngine(IEnumerable<string> templates)
         {
 
             this.engine = HandlebarsDotNet.Handlebars.Create(new HandlebarsConfiguration
@@ -39,7 +39,7 @@ namespace Tocsoft.GraphQLCodeGen
             {
                 var toReplace = args[1].ToString();
                 var toReplaceWith = args[2].ToString();
-                
+
                 writer.WriteSafeString(args[0].ToString().Replace(toReplace, toReplaceWith));
             });
 
@@ -60,7 +60,11 @@ namespace Tocsoft.GraphQLCodeGen
             //    }
             //});
 
-            ProcessTemplate(LoadTemplate(templateName));
+            foreach (var templatePath in templates)
+            {
+                var templateContents = LoadTemplate(templatePath);
+                ProcessTemplate(templateContents);
+            }
         }
 
         private class NullEncoder : ITextEncoder
@@ -75,6 +79,7 @@ namespace Tocsoft.GraphQLCodeGen
 
         public string Generate(object model)
         {
+            var template = engine.Compile("{{> Main}}");
             return template.Invoke(model);
         }
 
@@ -135,12 +140,10 @@ namespace Tocsoft.GraphQLCodeGen
             string LoadTemplateResource(string temp)
             {
                 var typeinfo = typeof(CodeGenerator).GetTypeInfo();
-                var resourceName = "Templates." + temp;
 
-                var realName = typeinfo.Assembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith(resourceName, StringComparison.OrdinalIgnoreCase));
-                if (realName != null)
+                if (typeinfo.Assembly.GetManifestResourceNames().Contains(temp))
                 {
-                    using (var s = new StreamReader(typeinfo.Assembly.GetManifestResourceStream(realName)))
+                    using (var s = new StreamReader(typeinfo.Assembly.GetManifestResourceStream(temp)))
                     {
                         return s.ReadToEnd();
                     }
@@ -148,11 +151,8 @@ namespace Tocsoft.GraphQLCodeGen
                 return null;
             }
 
-            var altName = template + ".template";
             return LoadTemplateDisk(template) ??
-                LoadTemplateDisk(altName) ??
-                LoadTemplateResource(template) ??
-                LoadTemplateResource(altName);
+                LoadTemplateResource(template);
         }
     }
 }

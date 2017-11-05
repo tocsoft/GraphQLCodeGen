@@ -51,13 +51,8 @@ namespace Tocsoft.GraphQLCodeGen
             var doc = Parse(sources);
 
             var model = new Models.ViewModel(doc, settings);
-            var templateName = settings.Template;
-            if (settings.Template == null)
-            {
-                // lets guess at a template based on file extension
-            }
 
-            var fileResult = new TemplateEngine(templateName).Generate(model);
+            var fileResult = new TemplateEngine(settings.Templates).Generate(model);
 
             File.WriteAllText(settings.OutputPath, fileResult);
         }
@@ -72,7 +67,7 @@ namespace Tocsoft.GraphQLCodeGen
         public string OutputPath { get; set; }
         public IEnumerable<string> SourcePaths { get; set; }
 
-        public string Template { get; set; }
+        public IEnumerable<string> Templates { get; set; }
         public string SourcePath { get; set; }
         public CodeGeneratorSettingsLoader.SchemaSource Schema { get; internal set; }
     }
@@ -113,7 +108,19 @@ namespace Tocsoft.GraphQLCodeGen
                 settings.SourcePaths = GetPaths(dir, simple.Source);
                 settings.ClassName = simple.Classname;
                 settings.Namespace = simple.Namespace;
-                settings.Template = simple.Template;
+
+                // we create a list of paths/resources based on the collection of named templates and the default set loaded in from the source file
+                var type = Path.GetExtension(settings.OutputPath).Trim('.').ToLower();
+                var info = typeof(CodeGeneratorSettings).GetTypeInfo();
+                var templateSet = info.Namespace + ".Templates." + type+".";
+                List<string> templateFiles = new List<string>();
+                var templates = typeof(CodeGeneratorSettings).GetTypeInfo().Assembly.GetManifestResourceNames().Where(x => x.StartsWith(templateSet, StringComparison.OrdinalIgnoreCase));
+                templateFiles.AddRange(templates);
+
+                var templatePaths = simple.Template.SelectMany(x => GetPaths(dir, x)).ToList();
+                templateFiles.AddRange(templatePaths);
+
+                settings.Templates = templateFiles;
                 settings.SettingsPath = path;
                 yield return settings;
             }
@@ -121,6 +128,10 @@ namespace Tocsoft.GraphQLCodeGen
 
         private IEnumerable<string> GetPaths(string root, string path)
         {
+            if(path.StartsWith(".\\") || path.StartsWith(".//"))
+            {
+                path = path.Substring(2);
+            }
             var prefix = "";
             var toFind = new[] { '*', '[', '{' };
             var matches = path.Select((x, i) => (x, i, isMatch: toFind.Contains(x)));
@@ -177,7 +188,8 @@ namespace Tocsoft.GraphQLCodeGen
             [JsonConverter(typeof(SchemaSourceJsonConverter))]
             public SchemaSource Schema { get; set; }
 
-            public string Template { get; set; }
+            [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+            public List<string> Template { get; set; }
         }
 
 
