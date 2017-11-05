@@ -26,6 +26,15 @@ deploy:
     artifact: /.*\.nupkg/
     on:
       branch: master
+  - provider: BinTray
+    username: tocsoft
+    api_key:
+        secure: 7Mqct00QenIi+iiZCwDdBZja7YjY1co7TqPVqoklMAkxia37hgnPG0cV6486xPQA
+    subject: tocsoft
+    repo: npm
+    package: tocsoft.graphql-codegen"
+    artifact: /.*\.tgz/
+    override: true
 
 # prevent the double build when a branch has an active PR
 skip_branch_with_pr: true
