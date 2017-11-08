@@ -23,7 +23,7 @@ PUSHD Tocsoft.GraphQLCodeGen.Npm
 
 REM lets copy the published files from the release folders into a binaries folder ready from publish
 
-xcopy ..\Tocsoft.GraphQLCodeGen.Cli\bin\Release\net46\publish binaries\net46 /IYS
+xcopy ..\Tocsoft.GraphQLCodeGen.Cli\bin\Release\net461\publish binaries\net461 /IYS
 xcopy ..\Tocsoft.GraphQLCodeGen.Cli\bin\Release\netcoreapp1.0\publish binaries\netcoreapp1.0 /IYS
 
 call npm version 0.0.1 

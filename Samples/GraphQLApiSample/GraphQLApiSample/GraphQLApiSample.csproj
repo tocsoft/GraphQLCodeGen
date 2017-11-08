@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp1.0;net461</TargetFrameworks>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject />
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GraphQL.Conventions" Version="1.3.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="GraphQLApi\" />
+  </ItemGroup>
+
+</Project>

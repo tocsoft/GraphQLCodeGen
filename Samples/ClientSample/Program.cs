@@ -11,7 +11,6 @@ namespace Sample
         {
             // lets create a simple console application that can sho github data
 
-
             var accesstoken = args[0];
 
             var httpClient = new HttpClient()

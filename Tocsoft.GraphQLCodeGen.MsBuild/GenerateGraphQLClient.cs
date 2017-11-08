@@ -13,9 +13,10 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
 {
     public class GenerateGraphQLClient : Task
     {
-        //static CodeGeneratorSettingsLoader settingsLoader = new CodeGeneratorSettingsLoader();
         [Required]
-        public string SettingPaths { get; set; }
+        public ITaskItem[] Content { get; set; }
+        [Required]
+        public ITaskItem[] None { get; set; }
 
         public string RootCliFolder { get; set; }
 
@@ -27,27 +28,50 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
 
         public override bool Execute()
         {
-            var exeFolder = Path.GetDirectoryName(new Uri(typeof(GenerateGraphQLClient).GetTypeInfo().Assembly.Location).LocalPath);
-            if (string.IsNullOrWhiteSpace(RootCliFolder))
+            // list all source settings files
+            // upldate this to include *.gql/*.graphql if/when i update it to support metadata in config file
+            IEnumerable<ITaskItem> settings =
+                this.None.Union(this.Content)
+                .Where(x => x.GetMetadata("Generator") == "MSBuild:GenerateGraphQLClient")
+                .Where(x => x.ItemSpec.EndsWith(".json"));
+
+            string exeFolder = Path.GetDirectoryName(new Uri(typeof(GenerateGraphQLClient).GetTypeInfo().Assembly.Location).LocalPath);
+            if (string.IsNullOrWhiteSpace(this.RootCliFolder))
             {
-                RootCliFolder = Path.GetFullPath(Path.Combine(exeFolder, "..\\tool\\"));
+                this.RootCliFolder = Path.GetFullPath(Path.Combine(exeFolder, "..\\binaries\\"));
             }
-            var exePath = Path.Combine(RootCliFolder, "net46\\publish\\Tocsoft.GraphQLCodeGen.Cli.exe");
 
-            var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var arguments = $"\"{SettingPaths}\" --msbuild-outputdir \"{Path.GetFullPath(tempFolder).TrimEnd(new[] { '\\', '/' })}\"";
+            // has fullframewrok
+            bool fullFramework = false;
+            string windir = Environment.GetEnvironmentVariable("windir");
+            if (!string.IsNullOrWhiteSpace(windir))
+            {
+                if (Directory.Exists(Path.Combine(windir, "Microsoft.NET")))
+                {
+                    fullFramework = true;
+                }
+            }
 
-            var realexe = exePath;
-#if NETCOREAPP1_0
-            realexe = "dotnet";
-            arguments = $"\"{Path.Combine(RootCliFolder, "netcoreapp1.0\\publish\\Tocsoft.GraphQLCodeGen.Cli.dll")}\" {arguments}";
-#endif
-            Log.LogMessage(MessageImportance.Low, "Executing  \"{0}\" {1}", realexe, arguments);
+            string exePath = Path.Combine(this.RootCliFolder, "net461\\Tocsoft.GraphQLCodeGen.Cli.exe");
+
+            string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+            string settingArgs = string.Join(" ", settings.Select(x => $"\"{Path.GetFullPath(x.ItemSpec)}\""));
+            string arguments = $"{settingArgs} --msbuild-outputdir \"{Path.GetFullPath(tempFolder).TrimEnd(new[] { '\\', '/' })}\"";
+
+            string realexe = exePath;
+            if (!fullFramework)
+            {
+                realexe = "dotnet";
+                arguments = $"\"{Path.Combine(this.RootCliFolder, "netcoreapp1.0\\Tocsoft.GraphQLCodeGen.Cli.dll")}\" {arguments}";
+            }
+
+            this.Log.LogMessage(MessageImportance.Low, "Executing  \"{0}\" {1}", realexe, arguments);
 
             try
             {
                 Directory.CreateDirectory(tempFolder);
-                var process = Process.Start(new ProcessStartInfo(realexe, arguments)
+                Process process = Process.Start(new ProcessStartInfo(realexe, arguments)
                 {
                     UseShellExecute = false,
                     RedirectStandardOutput = true
@@ -56,38 +80,39 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                 if (!process.HasExited)
                 {
                     process.Kill();
-                    Log.LogMessage(MessageImportance.Low, "Executing  \"{0}\" {1} taking too long", realexe, arguments);
+                    this.Log.LogMessage(MessageImportance.Low, "Executing  \"{0}\" {1} taking too long", realexe, arguments);
 
                     return false;
                 }
 
-                var filesoutput = process.StandardOutput.ReadToEnd();
-                Log.LogMessage(MessageImportance.High, "generated = {0}", filesoutput);
+                string filesoutput = process.StandardOutput.ReadToEnd();
+                this.Log.LogMessage(MessageImportance.High, "generated = {0}", filesoutput);
 
-                var files = filesoutput
+                IEnumerable<string> files = filesoutput
                 .Replace("\r", "")
-                .Split('\n');
+                .Split('\n')
+                .Where(x=>x.EndsWith(".cs", StringComparison.OrdinalIgnoreCase)); // only fiddle with csharp files
 
-                var actualFiles = files.Where(x => !string.IsNullOrEmpty(x) && File.Exists(x));
-                var fullIntermediateOutputDirectory = Path.GetFullPath(Path.Combine(IntermediateOutputDirectory,"GraphQLCodeGen"));
+                IEnumerable<string> actualFiles = files.Where(x => !string.IsNullOrEmpty(x) && File.Exists(x));
+                string fullIntermediateOutputDirectory = Path.GetFullPath(Path.Combine(this.IntermediateOutputDirectory, "GraphQLCodeGen"));
                 Directory.CreateDirectory(fullIntermediateOutputDirectory);
-                var sha = SHA256.Create();
+                SHA256 sha = SHA256.Create();
                 List<TaskItem> generateFiles = new List<TaskItem>();
-                foreach (var f in actualFiles)
+                foreach (string f in actualFiles)
                 {
-                    var fileName = Path.GetFileName(f);
-                    var newFileContent = File.ReadAllText(f);
-                    var hashFile = Path.Combine(fullIntermediateOutputDirectory, fileName + ".hash");
-                    var filedirty = true;
-                    var actualHash = GetSha256Hash(sha, newFileContent); // TODO skip section while hashing (generated date etc)
+                    string fileName = Path.GetFileName(f);
+                    string newFileContent = File.ReadAllText(f);
+                    string hashFile = Path.Combine(fullIntermediateOutputDirectory, fileName + ".hash");
+                    bool filedirty = true;
+                    string actualHash = GetSha256Hash(sha, newFileContent); // TODO skip section while hashing (generated date etc)
                     if (File.Exists(hashFile))
                     {
-                        var hash = File.ReadAllText(hashFile);
+                        string hash = File.ReadAllText(hashFile);
                         filedirty = hash != actualHash;
                     }
                     File.WriteAllText(hashFile, actualHash);
 
-                    var targetPAth = Path.Combine(fullIntermediateOutputDirectory, fileName);
+                    string targetPAth = Path.Combine(fullIntermediateOutputDirectory, fileName);
                     if (filedirty)
                     {
                         File.WriteAllText(targetPAth, newFileContent);
@@ -98,13 +123,13 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
 
                 // lets create a cache of files to makesure we don't keep overwriteing the same fiel on disk mutiple times and causing a rebuild
 
-                GeneratedCompile = generateFiles.ToArray();
+                this.GeneratedCompile = generateFiles.ToArray();
 
                 return true;
             }
             finally
             {
-               Directory.Delete(tempFolder, true);
+                Directory.Delete(tempFolder, true);
             }
         }
 

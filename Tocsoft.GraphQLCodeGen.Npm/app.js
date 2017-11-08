@@ -31,7 +31,7 @@ if (fs.existsSync(__dirname + '/binaries')) {
 var binaryPath = "";
 if (hasFullDotNet) {
     if (isDevMode) {
-        binaryPath = __dirname + '../Tocsoft.GraphQLCodeGen.Cli/bin/debug/net46/Tocsoft.GraphQLCodeGen.Cli.exe';
+        binaryPath = __dirname + '../Tocsoft.GraphQLCodeGen.Cli/bin/debug/net461/Tocsoft.GraphQLCodeGen.Cli.exe';
     } else {
         binaryPath = __dirname + '/binaries/net46/Tocsoft.GraphQLCodeGen.Cli.exe';
     }

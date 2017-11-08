@@ -20,8 +20,9 @@
     <PropertyGroup>
       <GraphQLCodeGenSettings Condition="'$(GraphQLCodeGenSettings)' == '' " >$(MSBuildProjectDirectory)\**\gqlsettings.json</GraphQLCodeGenSettings>
     </PropertyGroup>
-
-    <GenerateGraphQLClient SettingPaths="$(GraphQLCodeGenSettings)"
+    <GenerateGraphQLClient
+      Content="@(Content)"
+      None="@(None)"
       IntermediateOutputDirectory="$(IntermediateOutputPath)"
       RootCliFolder="$(GraphQLCodeGenRootCliFolder)">
       <Output TaskParameter="GeneratedCompile" ItemName="GeneratedCodeFromAttribute_Compile" />

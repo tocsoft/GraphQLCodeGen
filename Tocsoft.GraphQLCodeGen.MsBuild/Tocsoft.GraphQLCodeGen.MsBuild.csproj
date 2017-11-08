@@ -27,6 +27,8 @@
     </PackageReference>
     <ProjectReference Include="..\Tocsoft.GraphQLCodeGen.Cli\Tocsoft.GraphQLCodeGen.Cli.csproj">
       <PrivateAssets>All</PrivateAssets>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
     </ProjectReference>
   </ItemGroup>
 

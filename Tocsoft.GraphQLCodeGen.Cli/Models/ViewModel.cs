@@ -1,0 +1,266 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using Tocsoft.GraphQLCodeGen.ObjectModel;
+using Tocsoft.GraphQLCodeGen.ObjectModel.Selections;
+
+namespace Tocsoft.GraphQLCodeGen.Models
+{
+    public class ViewModel
+    {
+        public string Namespace { get; private set; }
+        public string ClassName { get; private set; }
+
+        private Dictionary<string, TypeViewModel> typeLookup = new Dictionary<string, TypeViewModel>();
+        private Dictionary<IGraphQLType, string> inputTypeLookup = new Dictionary<IGraphQLType, string>();
+        private List<TypeViewModel> typeCollection = new List<TypeViewModel>();
+        private List<EnumViewModel> enumCollection = new List<EnumViewModel>();
+        private List<OperationViewModel> operationCollection;
+
+        public IEnumerable<TypeViewModel> Types => this.typeCollection;
+        public IEnumerable<EnumViewModel> Enums => this.enumCollection;
+        public IEnumerable<OperationViewModel> Operations => this.operationCollection;
+
+        internal ViewModel(GraphQLDocument query, CodeGeneratorSettings settings)
+        {
+            this.Namespace = settings.Namespace;
+            this.ClassName = settings.ClassName;
+
+            this.typeLookup = new Dictionary<string, TypeViewModel>();
+            this.inputTypeLookup = new Dictionary<IGraphQLType, string>();
+            this.typeCollection = new List<TypeViewModel>();
+            // lets name each set
+
+            this.operationCollection = new List<OperationViewModel>();
+            foreach (Operation op in query.Operations)
+            {
+
+                List<NamedTypeViewModel> argCollection = new List<NamedTypeViewModel>();
+                foreach (KeyValuePair<string, ValueTypeReference> arg in op.Paramaters)
+                {
+                    argCollection.Add(new NamedTypeViewModel
+                    {
+                        Name = arg.Key,
+                        Type = GenerateTypeReference(arg.Value)
+                    });
+                }
+
+                string name = Path.GetFileNameWithoutExtension(op.Path);
+                string opName = $"{name}_{op.Name }".Trim('_');
+                OperationViewModel opVM = new OperationViewModel()
+                {
+                    Name = opName,
+                    Arguments = argCollection,
+                    Query = op.Query,
+                    NamedQuery = op.Name ?? string.Empty,
+                    ResultType = new TypeReferenceModel
+                    {
+                        IsCollection = false,
+                        CanCollectionBeNull = false,
+                        CanValueBeNull = false,
+                        TypeName = GenerateType(op.Selection, opName)
+                    }
+                };
+
+                this.operationCollection.Add(opVM);
+            }
+
+            // lets convert each to a type with a back track to lookup a type based on unique reference
+
+            // I need type definitions for Operation Result and Argument types graphs
+        }
+
+        private TypeReferenceModel GenerateTypeReference(FieldSelection field)
+        {
+            if (field.Selection == null) // this is a leaf thus can be a projection
+            {
+                return GenerateTypeReference(field.Type.Type);
+            }
+            else
+            {
+                return new TypeReferenceModel
+                {
+                    CanCollectionBeNull = field.Type.Type.CanCollectionBeNull,
+                    IsCollection = field.Type.Type.IsCollection,
+                    CanValueBeNull = field.Type.Type.CanValueBeNull,
+                    TypeName = GenerateType(field.Selection)
+                };
+            }
+        }
+
+        private string GenerateType(SetSelection selection, string operationName = null)
+        {
+            if (this.typeLookup.ContainsKey($"{operationName}_{selection.UniqueIdentifier}"))
+            {
+                return this.typeLookup[$"{operationName}_{selection.UniqueIdentifier}"]?.Name;
+            }
+
+            string name = FindBestName(operationName ?? selection.RootType.Name, "Result");
+
+            TypeViewModel type = new TypeViewModel(name)
+            {
+                Fields = selection.Fields.Select(x => new NamedTypeViewModel()
+                {
+                    Name = x.Name,
+                    Type = GenerateTypeReference(x)
+                }).ToList()
+            };
+            this.typeLookup.Add($"{operationName}_{selection.UniqueIdentifier}", type);
+            this.typeCollection.Add(type);
+
+            return type.Name;
+        }
+
+        private TypeReferenceModel GenerateTypeReference(ObjectModel.ValueTypeReference type)
+        {
+            TypeReferenceModel result = new TypeReferenceModel();
+            if (type.Type is ScalarType ts)
+            {
+                result.TypeName = ts.Name;
+                result.IsScaler = true;
+                result.IsEnum = false;
+            }
+            else if (type.Type is EnumType te)
+            {
+                result.TypeName = GenerateType(type.Type);
+                result.IsScaler = false;
+                result.IsEnum = true;
+            }
+            else
+            {
+                result.TypeName = GenerateType(type.Type);
+                result.IsScaler = false;
+                result.IsEnum = false;
+            }
+
+            result.CanCollectionBeNull = type.CanCollectionBeNull;
+            result.IsCollection = type.IsCollection;
+            result.CanValueBeNull = type.CanValueBeNull;
+            return result;
+        }
+
+        private string GenerateType(IGraphQLType type)
+        {
+            if (this.inputTypeLookup.ContainsKey(type))
+            {
+                return this.inputTypeLookup[type];
+            }
+
+            //lets make sure it exists
+            string name = FindBestName(type.Name, "");
+
+            if (type is IGraphQLFieldCollection obj)
+            {
+
+                TypeViewModel typeVm = new TypeViewModel(name)
+                {
+                    Fields = obj.Fields.Select(x =>
+                         new NamedTypeViewModel()
+                         {
+                             Name = x.Name,
+                             Type = GenerateTypeReference(x.Type)
+
+                         }).ToList()
+                };
+
+                this.inputTypeLookup.Add(type, typeVm.Name);
+                this.typeCollection.Add(typeVm);
+
+                return typeVm.Name;
+            }
+            else if (type is EnumType enumObj)
+            {
+                EnumViewModel typeVm = new EnumViewModel(name)
+                {
+                    Values = enumObj.Values
+                };
+                this.inputTypeLookup.Add(type, typeVm.Name);
+                this.enumCollection.Add(typeVm);
+                return typeVm.Name;
+            }
+            else
+            {
+                throw new Exception("unkown type");
+                // probably an enum type
+            }
+        }
+
+
+        private string FindBestName(string sourceName, string postFix)
+        {
+            string fieldName = $"{sourceName}{postFix}";
+            int count = 0;
+            while (this.typeCollection.Any(x => x.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase)))
+            {
+                count++;
+                fieldName = $"{sourceName}{count}{postFix}";
+            }
+            return fieldName;
+        }
+    }
+
+    public class OperationViewModel
+    {
+        public string Name { get; set; }
+        public TypeReferenceModel ResultType { get; internal set; }
+        public List<NamedTypeViewModel> Arguments { get; internal set; }
+        public string Query { get; internal set; }
+        public string NamedQuery { get; internal set; }
+
+        public OperationViewModel()
+        {
+
+        }
+    }
+
+
+    public class NamedTypeViewModel
+    {
+        //arguent & field are the same
+        public string Name { get; set; }
+        public TypeReferenceModel Type { get; set; }
+    }
+
+    public class EnumViewModel
+    {
+        public EnumViewModel(string name)
+        {
+            // typename register needed to ensure types don't clash
+            this.Name = name;
+        }
+
+        // a type is a list of fields and and unique name
+        public string Name { get; set; }
+        public IEnumerable<string> Values { get; set; }
+    }
+
+    public class TypeViewModel
+    {
+        // do we need to support interface or union types in the client, don't think we do
+        public TypeViewModel(string name)
+        {
+            // typename register needed to ensure types don't clash
+            this.Name = name;
+        }
+
+        //public IEnumerable<TypeViewModel> InheritsFrom { get; set; }
+        //public bool IsInterface { get; set; }
+
+        // a type is a list of fields and and unique name
+        public string Name { get; set; }
+        public IEnumerable<NamedTypeViewModel> Fields { get; set; }
+    }
+
+
+    public class TypeReferenceModel
+    {
+        public string TypeName { get; set; }
+        public bool CanValueBeNull { get; set; }
+        public bool IsCollection { get; set; }
+        public bool CanCollectionBeNull { get; set; }
+        public bool IsScaler { get; set; }
+        public bool IsEnum { get; set; }
+    }
+}

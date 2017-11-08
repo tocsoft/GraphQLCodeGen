@@ -1,0 +1,154 @@
+﻿{{!# Main}}
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Linq;
+
+namespace {{Namespace}}
+{
+	public sealed class {{ClassName}}
+	{
+		private HttpClient client;
+		public {{pascalCase ClassName}}(HttpClient client)
+		{
+			this.client = client;
+		}
+		
+		internal sealed class GraphQLRequest
+        {
+			public string query {get;set;}
+			public Dictionary<string, object> variables {get;set;}
+		}
+		
+        internal sealed class GraphQLResponse<T>
+        {
+            public IEnumerable<GraphQLResponseError> errors { get; set; }
+            public T data { get; set; }
+
+        }
+        internal sealed class GraphQLResponseError
+        {
+            public string Message { get; set; }
+        }
+
+		{{#each Operations}}
+			{{> Operation}}
+
+
+		{{/each}}
+	}
+	
+    public sealed class {{ClassName}}Exception : Exception
+    {
+        public HttpResponseMessage Response { get; private set; }
+        public IEnumerable<string> ErrorMessages { get; private set; }
+
+        public {{ClassName}}Exception(HttpResponseMessage response)
+            : base("Error running graphql query, see response for more details")
+        {
+            this.Response = response;
+        }
+
+        public {{ClassName}}Exception(IEnumerable<string> errorMessages, HttpResponseMessage response)
+            : base("Error running graphql query, error messages or response for more details")
+        {
+            this.Response = response;
+            this.ErrorMessages = errorMessages;
+        }
+    }
+
+	{{#each Types}}
+		{{> Type}}
+
+
+	{{/each}}
+
+	{{#each Enums}}
+		{{> Enum}}
+
+
+	{{/each}}
+}
+
+{{!# Type}}
+	public sealed class {{pascalCase Name}}
+	{
+		{{#each Fields}}
+		public {{> TypeReference Type}} {{pascalCase Name}} { get; set; }
+		{{/each}}
+	}
+
+{{!# Enum}}
+	public enum {{pascalCase Name}}
+	{
+		{{#each Values}}
+		{{.}},
+		{{/each}}
+	}
+
+{{!# Operation}}
+		public async Task<{{> TypeReference ResultType}}> {{pascalCase Name}}Async({{> ArgumentList Arguments}})
+		{
+			var response = await this.client.PostAsync("", new StringContent(JsonConvert.SerializeObject(new GraphQLRequest()
+            {
+                query = @"{{replace Query '"' '""'}}",
+                variables = new Dictionary<string, object> {
+                   {{#each Arguments}}
+					{ @"{{replace Name '"' '""'}}", {{camelCase Name}} },
+				   {{/each}}
+                }
+            })));
+
+			if (!response.IsSuccessStatusCode)
+            {
+                throw new {{../ClassName}}Exception(response);
+            }
+
+            var jsonResult = await response.Content.ReadAsStringAsync();
+			
+			var result = JsonConvert.DeserializeObject<GraphQLResponse<{{> TypeReference ResultType}}>>(jsonResult);
+            if (result == null)
+            {
+                throw new {{../ClassName}}Exception(response);
+            }
+            if (result.errors?.Any() == true) {
+                throw new {{../ClassName}}Exception(result.errors.Select(x=>x.Message), response);
+            }
+            
+            return result.data;
+		}
+		
+{{!# ArgumentList}}
+	{{~#each~ .}}
+		{{~#unless @first}}, {{/unless~}}{{> TypeReference Type}} {{camelCase Name}}
+	{{~/each~}}
+	
+{{!# TypeReference}}
+	{{~#if IsScaler}}{{ > (concat 'TypeReference_' TypeName) }}{{/if~}}
+	{{~#unless IsScaler}}{{> RenderTypeReference name=TypeName fixCase=true isValueType=false isCollection=IsCollection nullable=CanValueBeNull }}{{/unless}}
+
+{{!# TypeReference_Int}}
+	{{~> RenderTypeReference name='int' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull }}
+	
+{{!# TypeReference_String}}
+	{{~> RenderTypeReference name='string' isValueType=false fixCase=false isCollection=IsCollection nullable=CanValueBeNull }}
+
+{{!# TypeReference_ID}}
+	{{~> RenderTypeReference name='string' isValueType=false fixCase=false isCollection=IsCollection nullable=CanValueBeNull }}
+
+{{!# TypeReference_Float}}
+	{{~> RenderTypeReference name='float' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull }}
+
+{{!# TypeReference_Boolean}}
+	{{~> RenderTypeReference name='bool' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull }}
+	
+{{!# TypeReference_DateTime}}
+	{{~> RenderTypeReference name='DateTime' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull }}
+	
+{{!# RenderTypeReference}}
+	{{~#if isCollection }}IEnumerable<{{/if~}}
+	{{#if fixCase}}{{pascalCase name}}{{/if}}{{#unless fixCase}}{{name}}{{/unless}}
+	{{~#if isValueType}}{{#if nullable}}?{{/if}}{{/if~}}
+	{{~#if isCollection}}>{{/if}}

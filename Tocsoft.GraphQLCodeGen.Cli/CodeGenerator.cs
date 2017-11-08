@@ -22,6 +22,7 @@ namespace Tocsoft.GraphQLCodeGen
             : this(settings, new IIntrosepctionProvider[] {
                 new SchemaIntrospection.JsonIntrospection(),
                 new SchemaIntrospection.HttpIntrospection(),
+                new SchemaIntrospection.DllIntrospection(),
                 new SchemaIntrospection.SchemaFileIntrospection()
             })
         {
@@ -35,27 +36,27 @@ namespace Tocsoft.GraphQLCodeGen
 
         public async Task GenerateAsync()
         {
-            var provider = introspectionProviders.Single(x => x.SchemaType == settings.Schema.SchemaType());
+            IIntrosepctionProvider provider = this.introspectionProviders.Single(x => x.SchemaType == this.settings.Schema.SchemaType());
 
-            var schema = await provider.LoadSchema(settings.Schema);
+            string schema = await provider.LoadSchema(this.settings.Schema);
             // we need to load in the scheme
-            var sources = new List<NamedSource>();
-            sources.Add(new NamedSource() { Path = settings.Schema.Location, Body = schema });
+            List<NamedSource> sources = new List<NamedSource>();
+            sources.Add(new NamedSource() { Path = this.settings.Schema.Location, Body = schema });
 
-            foreach (var s in settings.SourcePaths)
+            foreach (string s in this.settings.SourcePaths)
             {
                 sources.Add(new NamedSource() { Path = s, Body = File.ReadAllText(s) });
             }
             // we want to track the file that the operation is loaded from
             // lets make a locatino index look up table and provide it
-            var doc = Parse(sources);
+            ObjectModel.GraphQLDocument doc = Parse(sources);
 
-            var model = new Models.ViewModel(doc, settings);
+            Models.ViewModel model = new Models.ViewModel(doc, this.settings);
 
-            var fileResult = new TemplateEngine(settings.Templates).Generate(model);
+            string fileResult = new TemplateEngine(this.settings.Templates).Generate(model);
 
-            Directory.CreateDirectory(Path.GetDirectoryName(settings.OutputPath));
-            File.WriteAllText(settings.OutputPath, fileResult);
+            Directory.CreateDirectory(Path.GetDirectoryName(this.settings.OutputPath));
+            File.WriteAllText(this.settings.OutputPath, fileResult);
         }
 
     }
@@ -87,44 +88,44 @@ namespace Tocsoft.GraphQLCodeGen
 
         public IEnumerable<CodeGeneratorSettings> LoadFromPath(string path)
         {
-            var paths = GetPaths(Directory.GetCurrentDirectory(), path);
+            IEnumerable<string> paths = GlobExpander.FindFiles(Directory.GetCurrentDirectory(), path);
 
-            return paths.SelectMany(LoadFromResolvedPath).ToList();
+            return paths.SelectMany(this.LoadFromResolvedPath).ToList();
         }
 
         private IEnumerable<CodeGeneratorSettings> LoadFromResolvedPath(string path)
         {
             // rootPath
-            var dir = Path.GetDirectoryName(path);
+            string dir = Path.GetDirectoryName(path);
 
-            var json = File.ReadAllText(path);
+            string json = File.ReadAllText(path);
 
-            var simpleList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SimpleSettings>>(json, new SingleOrArrayConverter<SimpleSettings>());
-            foreach (var simple in simpleList)
+            List<SimpleSettings> simpleList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SimpleSettings>>(json, new SingleOrArrayConverter<SimpleSettings>());
+            foreach (SimpleSettings simple in simpleList)
             {
-                var settings = new CodeGeneratorSettings();
+                CodeGeneratorSettings settings = new CodeGeneratorSettings();
 
                 if (simple.Schema.SchemaType() != SchemaSource.SchemaTypes.Http)
                 {
                     // we are not and url based location then it must be a path
-                    simple.Schema.Location = GetPath(dir, simple.Schema.Location);
+                    simple.Schema.Location = GlobExpander.FindFile(dir, simple.Schema.Location);
                 }
 
                 settings.Schema = simple.Schema;
-                settings.OutputPath = GetPath(dir, simple.Output);
-                settings.SourcePaths = GetPaths(dir, simple.Source);
+                settings.OutputPath = Path.Combine(dir, simple.Output);
+                settings.SourcePaths = GlobExpander.FindFiles(dir, simple.Source);
                 settings.ClassName = simple.Classname;
                 settings.Namespace = simple.Namespace;
 
                 // we create a list of paths/resources based on the collection of named templates and the default set loaded in from the source file
-                var type = Path.GetExtension(settings.OutputPath).Trim('.').ToLower();
-                var info = typeof(CodeGeneratorSettings).GetTypeInfo();
-                var templateSet = info.Namespace + ".Templates." + type + ".";
+                string type = Path.GetExtension(settings.OutputPath).Trim('.').ToLower();
+                TypeInfo info = typeof(CodeGeneratorSettings).GetTypeInfo();
+                string templateSet = info.Namespace + ".Templates." + type + ".";
                 List<string> templateFiles = new List<string>();
-                var templates = typeof(CodeGeneratorSettings).GetTypeInfo().Assembly.GetManifestResourceNames().Where(x => x.StartsWith(templateSet, StringComparison.OrdinalIgnoreCase));
+                IEnumerable<string> templates = typeof(CodeGeneratorSettings).GetTypeInfo().Assembly.GetManifestResourceNames().Where(x => x.StartsWith(templateSet, StringComparison.OrdinalIgnoreCase));
                 templateFiles.AddRange(templates);
 
-                var templatePaths = simple.Template.SelectMany(x => GetPaths(dir, x)).ToList();
+                List<string> templatePaths = simple.Template.SelectMany(x => GlobExpander.FindFiles(dir, x)).ToList();
                 templateFiles.AddRange(templatePaths);
 
                 settings.Templates = templateFiles;
@@ -132,55 +133,7 @@ namespace Tocsoft.GraphQLCodeGen
                 yield return settings;
             }
         }
-
-        private IEnumerable<string> GetPaths(string root, string path)
-        {
-            if (path.StartsWith(".\\") || path.StartsWith(".//"))
-            {
-                path = path.Substring(2);
-            }
-            var prefix = "";
-            var toFind = new[] { '*', '[', '{' };
-            var matches = path.Select((x, i) => (x, i, isMatch: toFind.Contains(x)));
-
-            if (matches.Any())
-            {
-                var match = path.Select((x, i) => (x, i, isMatch: toFind.Contains(x)))
-                    .FirstOrDefault(x => x.isMatch);
-
-                prefix = path.Substring(0, match.i);
-                path = path.Substring(match.i);
-                root = GetPath(root, prefix);
-            }
-
-            if (Path.IsPathRooted(path))
-            {
-                return new[] { Path.GetFullPath(path) };
-            }
-            else
-            {
-                var rootPAth = Path.GetFullPath(root);
-                var glob = new Glob.Glob(path);
-                var files = Directory.GetFiles(rootPAth, "*.*", SearchOption.AllDirectories);
-                var filesMapped = files.Select(x => new
-                {
-                    p = x,
-                    sub = x.Substring(rootPAth.Length)
-                });
-                var filter = filesMapped.Where(x => glob.IsMatch(x.sub));
-                return filter.Select(x => x.p).ToList();
-            }
-        }
-        private string GetPath(string root, string path)
-        {
-            if (Path.IsPathRooted(path))
-            {
-                return Path.GetFullPath(path);
-            }
-
-            return Path.GetFullPath(Path.Combine(root, path));
-        }
-
+        
 
         public class SimpleSettings
         {
@@ -225,17 +178,17 @@ namespace Tocsoft.GraphQLCodeGen
 
             public SchemaTypes SchemaType()
             {
-                if (Location.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                if (this.Location.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 {
                     return SchemaTypes.Http;
                 }
 
-                if (Location.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || Location.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                if (this.Location.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || this.Location.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 {
                     return SchemaTypes.Dll;
                 }
 
-                if (Location.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                if (this.Location.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                 {
                     return SchemaTypes.Json;
                 }
@@ -264,11 +217,11 @@ namespace Tocsoft.GraphQLCodeGen
             public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
             {
                 JToken token = JToken.Load(reader);
-                var result = (existingValue as SchemaSource ?? new SchemaSource());
+                SchemaSource result = (existingValue as SchemaSource ?? new SchemaSource());
 
                 if (token is Newtonsoft.Json.Linq.JObject obj)
                 {
-                    var temp = token.ToObject<SchemaSource>();
+                    SchemaSource temp = token.ToObject<SchemaSource>();
 
                     result.Location = temp.Location;
                     result.MutationType = temp.MutationType;
