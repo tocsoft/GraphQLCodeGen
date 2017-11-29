@@ -33,7 +33,7 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
             IEnumerable<ITaskItem> settings =
                 this.None.Union(this.Content)
                 .Where(x => x.GetMetadata("Generator") == "MSBuild:GenerateGraphQLClient")
-                .Where(x => x.ItemSpec.EndsWith(".json"));
+                .Where(x => x.ItemSpec.EndsWith(".gql") || x.ItemSpec.EndsWith(".graphql"));
 
             string exeFolder = Path.GetDirectoryName(new Uri(typeof(GenerateGraphQLClient).GetTypeInfo().Assembly.Location).LocalPath);
             if (string.IsNullOrWhiteSpace(this.RootCliFolder))

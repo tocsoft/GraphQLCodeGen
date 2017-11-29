@@ -1,15 +1,13 @@
 ﻿[
   {
-    "namespace": "Sample.Client.GitHub",
-    "classname": "GitHubClient",
+    "classname": "Sample.Client.GitHub.GitHubClient",
     "output": "generated.cs", // this is relative to this file
     "source": "*.gql",
     "schema": "schema.json",
     "template": "csharp"
   },
   {
-    "namespace": "Sample.Client.GitHub",
-    "classname": "GitHubClient",
+    "classname": "Sample.Client.GitHub.GitHubClient",
     "output": "generated.ts", // this is relative to this file
     "source": "*.gql1",
     "schema": {

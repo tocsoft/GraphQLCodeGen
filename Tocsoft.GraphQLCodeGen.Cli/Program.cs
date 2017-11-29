@@ -46,7 +46,12 @@ namespace Tocsoft.GraphQLCodeGen.Cli
 
             app.OnExecute(async () =>
             {
-                IEnumerable<CodeGeneratorSettings> settings = settingsLoader.LoadFromPaths(sourceArgument.Values);
+                // based on the list of *.gql/*.graphql files we extract settings 
+                // from comment headers and based on that we generate blocks of settings
+                // the same query each setting value can be repeated and that will cause 
+                // the collection to be duplicated too.
+
+                IEnumerable<CodeGeneratorSettings> settings = settingsLoader.GenerateSettings(sourceArgument.Values);
                 List<string> generatedFiles = new List<string>();
                 foreach (CodeGeneratorSettings s in settings)
                 {

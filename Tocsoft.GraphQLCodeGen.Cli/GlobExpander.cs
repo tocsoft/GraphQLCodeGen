@@ -13,7 +13,7 @@ namespace Tocsoft.GraphQLCodeGen
             string root = Directory.GetCurrentDirectory();
             return FindFiles(root, pattern);
         }
-        public static IEnumerable<string> FindFiles(string root,  IEnumerable<string> patterns)
+        public static IEnumerable<string> FindFiles(string root, IEnumerable<string> patterns)
         {
             return FindFilesInternal(root, patterns).ToList();
         }
@@ -42,11 +42,11 @@ namespace Tocsoft.GraphQLCodeGen
 
         private static IEnumerable<string> FindFilesInternal(string root, IEnumerable<string> pattern)
         {
-            return pattern.SelectMany(p=>FindFilesInternal(root, p)).Distinct();
+            return pattern.SelectMany(p => FindFilesInternal(root, p)).Distinct();
         }
         private static IEnumerable<string> FindFilesInternal(string root, string pattern)
         {
-            if (pattern.StartsWith(".\\") || pattern.StartsWith(".//"))
+            if (pattern.StartsWith(".\\") || pattern.StartsWith("./"))
             {
                 pattern = pattern.Substring(2);
             }
@@ -54,7 +54,12 @@ namespace Tocsoft.GraphQLCodeGen
             char[] toFind = new[] { '*', '[', '{' };
             var matches = pattern.Select((x, i) => new { x, i, isMatch = toFind.Contains(x) });
 
-            if (matches.Any(x=>x.isMatch))
+            if (!matches.Any(x => x.isMatch))
+            {
+                // we don't actually match any parts which means we are actuaslly only a single file
+                yield return GetPath(root, pattern);
+            }
+            else
             {
                 var match = pattern.Select((x, i) => new { x, i, isMatch = toFind.Contains(x) })
                     .FirstOrDefault(x => x.isMatch);
@@ -62,27 +67,28 @@ namespace Tocsoft.GraphQLCodeGen
                 prefix = ((string)pattern).Substring(0, match.i);
                 pattern = ((string)pattern).Substring(match.i);
                 root = GetPath(root, prefix);
-            }
 
-            if (Path.IsPathRooted(pattern))
-            {
-                yield return Path.GetFullPath(pattern);
-            }
-            else
-            {
-                string rootPath = Path.GetFullPath(root);
-                Glob.Glob glob = new Glob.Glob(pattern);
-                IEnumerable<string> files = Directory.EnumerateFiles(rootPath, "*.*", SearchOption.AllDirectories);
-
-                foreach (string f in files)
+                if (Path.IsPathRooted(pattern))
                 {
-                    string sub = f.Substring(rootPath.Length);
+                    yield return Path.GetFullPath(pattern);
+                }
+                else
+                {
+                    string rootPath = Path.GetFullPath(root);
+                    Glob.Glob glob = new Glob.Glob(pattern);
+                    IEnumerable<string> files = Directory.EnumerateFiles(rootPath, "*.*", SearchOption.AllDirectories);
 
-                    if (glob.IsMatch(sub))
+                    foreach (string f in files)
                     {
-                        yield return f;
+                        string sub = f.Substring(rootPath.Length);
+
+                        if (glob.IsMatch(sub))
+                        {
+                            yield return f;
+                        }
                     }
                 }
+
             }
         }
 
