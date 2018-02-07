@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQLApiSample", "GraphQLApiSample\GraphQLApiSample.csproj", "{ED5F7410-7D28-4EA9-AE70-DDD5B45D2FFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQLApiSample", "GraphQLApiSample\GraphQLApiSample.csproj", "{ED5F7410-7D28-4EA9-AE70-DDD5B45D2FFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample", "..\ClientSample\Sample.csproj", "{A729BB88-11EF-4ACD-9740-46B1F19181E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{ED5F7410-7D28-4EA9-AE70-DDD5B45D2FFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED5F7410-7D28-4EA9-AE70-DDD5B45D2FFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED5F7410-7D28-4EA9-AE70-DDD5B45D2FFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A729BB88-11EF-4ACD-9740-46B1F19181E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A729BB88-11EF-4ACD-9740-46B1F19181E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A729BB88-11EF-4ACD-9740-46B1F19181E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A729BB88-11EF-4ACD-9740-46B1F19181E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

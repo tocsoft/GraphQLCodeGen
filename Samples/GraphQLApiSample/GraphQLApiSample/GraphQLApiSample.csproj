@@ -7,14 +7,12 @@
     <StartupObject />
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="GraphQL.Conventions" Version="1.3.9" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="GraphQLApi\" />
-  </ItemGroup>
 
 </Project>

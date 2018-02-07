@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -80,7 +81,8 @@ namespace Tocsoft.GraphQLCodeGen
 
         }
 
-        private List<string> DefaultTemplates(string outputPath) {
+        private List<string> DefaultTemplates(string outputPath)
+        {
             string type = Path.GetExtension(outputPath).Trim('.').ToLower();
             TypeInfo info = typeof(CodeGeneratorSettings).GetTypeInfo();
             string templateSet = info.Namespace + ".Templates." + type + ".";
@@ -149,6 +151,8 @@ namespace Tocsoft.GraphQLCodeGen
 
             [JsonConverter(typeof(SingleOrArrayConverter<string>))]
             public List<string> Template { get; set; }
+
+            public bool Root { get; set; } = false;
         }
 
         public static string GenerateFullPath(string rootFolder, string path)
@@ -161,12 +165,34 @@ namespace Tocsoft.GraphQLCodeGen
             return Path.GetFullPath(path);
         }
 
-        static readonly Regex regex = new Regex(@"^\s*#!\s*(\w+)\s*:\s*(\"".*\""|[^ ]+?)(?:\s|$)", RegexOptions.Multiline | RegexOptions.Compiled);
+        private void LoadSettingsTree(SimpleSourceFile file)
+        {
+            Stack<SimpleSettings> settingsList = new Stack<SimpleSettings>();
+            var directory = Path.GetDirectoryName(file.Path);
+            var rooted = false;
+            while (directory != null)
+            {
+                var settingsFile = Path.Combine(directory, "gqlsettings.json");
+                if (File.Exists(settingsFile))
+                {
+                    if (ExpandSettings(settingsFile, file))
+                    {
+                        return;
+                    }
+                }
+
+                directory = Path.GetDirectoryName(directory);
+            }
+        }
+
+        static readonly Regex regex = new Regex(@"^\s*#!\s*([a-zA-Z.]+)\s*:\s*(\"".*\""|[^ ]+?)(?:\s|$)", RegexOptions.Multiline | RegexOptions.Compiled);
         private SimpleSourceFile Load(string path)
         {
             // path must be a real full path by here
 
             var gql = File.ReadAllText(path);
+
+            // lets discover / cache all settings files from this point up the stack and root them out
 
             var file = new SimpleSourceFile()
             {
@@ -184,10 +210,16 @@ namespace Tocsoft.GraphQLCodeGen
                 switch (m.key)
                 {
                     case "schema":
-                        file.SchemaSource = new SchemaSource
-                        {
-                            Location = GenerateFullPath(root, m.val)
-                        };
+                        file.SchemaSource = file.SchemaSource ?? new SchemaSource();
+                        file.SchemaSource.Location = GenerateFullPath(root, m.val);
+                        break;
+                    case "schema.querytype":
+                        file.SchemaSource = file.SchemaSource ?? new SchemaSource();
+                        file.SchemaSource.QueryType.Add(m.val);
+                        break;
+                    case "schema.mutationtype":
+                        file.SchemaSource = file.SchemaSource ?? new SchemaSource();
+                        file.SchemaSource.MutationType.Add(m.val);
                         break;
                     case "output":
                         file.OutputPath = GenerateFullPath(root, m.val);
@@ -206,39 +238,59 @@ namespace Tocsoft.GraphQLCodeGen
                         break;
                 }
             }
+
+            LoadSettingsTree(file);
+
+            if (string.IsNullOrWhiteSpace(file.OutputPath))
+            {
+                file.OutputPath = file.Path + ".cs";
+            }
+
+            if (string.IsNullOrWhiteSpace(file.ClassName))
+            {
+                file.ClassName = Path.GetFileNameWithoutExtension(file.Path);
+            }
+
             return file;
         }
 
-        private void ExpandSettings(string path, SimpleSourceFile file)
+        private bool ExpandSettings(string path, SimpleSourceFile file)
         {
             var root = Path.GetDirectoryName(path);
             var settingsJson = File.ReadAllText(path);
+
             var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<SimpleSettings>(settingsJson);
-            if (!string.IsNullOrWhiteSpace(settings.Class))
+            if (!string.IsNullOrWhiteSpace(settings.Class) && string.IsNullOrWhiteSpace(file.ClassName))
             {
                 file.ClassName = settings.Class;
             }
-            if (!string.IsNullOrWhiteSpace(settings.Output))
+            if (!string.IsNullOrWhiteSpace(settings.Output) && string.IsNullOrWhiteSpace(file.OutputPath))
             {
                 file.OutputPath = GenerateFullPath(root, settings.Output);
             }
             if (settings.Template != null)
             {
-                foreach(var t in settings.Template)
+                foreach (var t in settings.Template)
                 {
                     var templateFiles = GlobExpander.FindFiles(root, t);
                     file.Templates.AddRange(templateFiles);
                 }
             }
-            if (settings.Schema != null && !string.IsNullOrWhiteSpace(settings.Schema.Location))
+
+            if (string.IsNullOrWhiteSpace(file.SchemaSource?.Location))
             {
-                file.SchemaSource = settings.Schema;
-                if (file.SchemaSource.SchemaType() != SchemaSource.SchemaTypes.Http)
+                if (settings.Schema != null && !string.IsNullOrWhiteSpace(settings.Schema.Location))
                 {
-                    // we are not and url based location then it must be a path
-                    file.SchemaSource.Location = GlobExpander.FindFile(root, file.SchemaSource.Location);
+                    file.SchemaSource = settings.Schema;
+                    if (file.SchemaSource.SchemaType() != SchemaSource.SchemaTypes.Http)
+                    {
+                        // we are not and url based location then it must be a path
+                        file.SchemaSource.Location = GlobExpander.FindFile(root, file.SchemaSource.Location);
+                    }
                 }
             }
+
+            return settings.Root;
         }
     }
 
@@ -270,6 +322,7 @@ namespace Tocsoft.GraphQLCodeGen
         }
     }
 
+    [DebuggerDisplay("{Path}")]
     internal class SimpleSourceFile
     {
         public string Path { get; set; }
@@ -324,12 +377,12 @@ namespace Tocsoft.GraphQLCodeGen
         /// <summary>
         /// for dll based introspection this is the list of types that make up the queries
         /// </summary>
-        public string[] QueryType { get; set; }
+        public List<string> QueryType { get; set; } = new List<string>();
 
         /// <summary>
         /// for dll based introspection this is the list of types that make up the queries
         /// </summary>
-        public string[] MutationType { get; set; }
+        public List<string> MutationType { get; set; } = new List<string>();
 
         public SchemaTypes SchemaType()
         {

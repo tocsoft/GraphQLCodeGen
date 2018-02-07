@@ -20,16 +20,10 @@
     <None Update="**\*.gql">
       <Generator>MSBuild:GenerateGraphQLClient</Generator>
     </None>
-    <None Update="gqlsettings.json">
-      <Generator>MSBuild:GenerateGraphQLClient</Generator>
-    </None>
   </ItemGroup>
   
   <ItemGroup>
     <Content Update="**\*.gql">
-      <Generator>MSBuild:GenerateGraphQLClient</Generator>
-    </Content>
-    <Content Update="gqlsettings.json">
       <Generator>MSBuild:GenerateGraphQLClient</Generator>
     </Content>
   </ItemGroup>
