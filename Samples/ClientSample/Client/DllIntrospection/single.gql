@@ -1,6 +1,6 @@
 #! schema:..\..\..\GraphQLApiSample\GraphQLApiSample\bin\Debug\netcoreapp1.0\GraphQLApiSample.dll
 #! schema.querytype:[GraphQLQuery]
-#! class:Foo.Bar
+#! class:Test.IntrospectedClient
 
 query {
   viewer {

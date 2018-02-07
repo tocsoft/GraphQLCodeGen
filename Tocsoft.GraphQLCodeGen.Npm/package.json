@@ -2,7 +2,6 @@
   "name": "tocsoft.graphql-codegen",
   "version": "1.0.0",
   "description": "Provides access to the GraphQLCodeGen cli application",
-
   "installable": true,
   "homepage": "https://github.com/tocsoft/GraphQLCodeGen",
   "bugs": {
