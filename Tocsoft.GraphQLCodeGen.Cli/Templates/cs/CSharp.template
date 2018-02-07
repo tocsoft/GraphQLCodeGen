@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Linq;
 
+{{#if Namespace~}}
 namespace {{Namespace}}
 {
+{{~/if}}
 	public sealed class {{ClassName}}
 	{
 		private HttpClient client;
@@ -70,7 +72,10 @@ namespace {{Namespace}}
 
 
 	{{/each}}
+
+{{#if Namespace~}}
 }
+{{~/if~}}
 
 {{!# Type}}
 	public sealed class {{pascalCase Name}}

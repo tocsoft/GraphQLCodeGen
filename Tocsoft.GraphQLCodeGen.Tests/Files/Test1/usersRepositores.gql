@@ -1,0 +1,24 @@
+#! schema:../GitHubSchema.json
+#! output: Client.cs
+#! class: Sample.Client.GitHub.GitHubClient
+
+query ($login:String!, $repoCount: Int!){
+  user(login: $login){
+    login,
+    bio,
+    first :repositories(first : $repoCount){
+      nodes{
+        id,
+        name,
+        updatedAt
+      }
+    },
+	last :repositories(last : $repoCount){
+      nodes{
+        id,
+        name,
+        updatedAt
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+#! schema:../GitHubSchema.json
+#! output: Client2.cs
+#! class: Sample.Client.GitHub.GitHubClient2
+
+query  {
+  viewer {
+    login,
+	bio,
+  }
+}

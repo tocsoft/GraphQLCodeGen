@@ -1,23 +1,5 @@
-﻿[
-  {
-    "namespace": "Sample.Client.GitHub",
-    "classname": "GitHubClient",
-    "output": "generated.cs", // this is relative to this file
-    "source": "*.gql",
-    "schema": "schema.json",
-    "template": "csharp"
-  },
-  {
-    "namespace": "Sample.Client.GitHub",
-    "classname": "GitHubClient",
-    "output": "generated.ts", // this is relative to this file
-    "source": "*.gql1",
-    "schema": {
-      "Location" :  "C:\\Source\\GraphQLCodeGen\\Samples\\GraphQLApiSample\\GraphQLApiSample\\bin\\Debug\\netcoreapp1.0\\GraphQLApiSample.dll",
-      "QueryType" : [
-        "[GraphQLQuery]" // if if is enclosed in square brackets then we search all assemblies in dll for classes marked with attribute
-      ]
-    },
-    "template": "typescript"
-  }
-]
+﻿{
+  "class": "Sample.Client.GitHub.GitHubClient",
+  "output": "generated.cs", // this is relative to this file
+  "schema": "schema.json"
+}
