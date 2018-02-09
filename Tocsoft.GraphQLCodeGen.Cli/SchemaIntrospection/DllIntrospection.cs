@@ -15,7 +15,6 @@ namespace Tocsoft.GraphQLCodeGen.SchemaIntrospection
     {
         public SchemaSource.SchemaTypes SchemaType => SchemaSource.SchemaTypes.Dll;
 
-
         public Task<string> LoadSchema(SchemaSource source)
         {
             var path = new Uri(typeof(Program).GetTypeInfo().Assembly.CodeBase).LocalPath;

@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <PrepareResourcesDependsOn>
-      GenerateGraphQLClient
+      GenerateGraphQLClient;
       $(PrepareResourcesDependsOn)
     </PrepareResourcesDependsOn>
 
