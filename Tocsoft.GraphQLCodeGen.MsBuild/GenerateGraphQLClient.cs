@@ -103,21 +103,22 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                     string fileName = Path.GetFileName(f);
                     string newFileContent = File.ReadAllText(f);
                     string hashFile = Path.Combine(fullIntermediateOutputDirectory, fileName + ".hash");
+                    string targetPath = Path.Combine(fullIntermediateOutputDirectory, fileName);
+
                     bool filedirty = true;
                     string actualHash = GetSha256Hash(sha, newFileContent); // TODO skip section while hashing (generated date etc)
-                    if (File.Exists(hashFile))
+                    if (File.Exists(hashFile) && File.Exists(targetPath)) // ensure we only try and skip if files exist on disk 
                     {
                         string hash = File.ReadAllText(hashFile);
                         filedirty = hash != actualHash;
                     }
-                    File.WriteAllText(hashFile, actualHash);
 
-                    string targetPAth = Path.Combine(fullIntermediateOutputDirectory, fileName);
                     if (filedirty)
                     {
-                        File.WriteAllText(targetPAth, newFileContent);
+                        File.WriteAllText(hashFile, actualHash);
+                        File.WriteAllText(targetPath, newFileContent);
                     }
-                    generateFiles.Add(new TaskItem(targetPAth));
+                    generateFiles.Add(new TaskItem(targetPath));
                 }
                 // find matching files in this folder if they have identical hashes then skip them 
 
