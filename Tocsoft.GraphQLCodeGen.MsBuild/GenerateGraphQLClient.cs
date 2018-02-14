@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Tocsoft.GraphQLCodeGen.MsBuild
 {
@@ -74,14 +75,48 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                 Process process = Process.Start(new ProcessStartInfo(realexe, arguments)
                 {
                     UseShellExecute = false,
-                    RedirectStandardOutput = true
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
                 });
                 process.WaitForExit(5000);
                 if (!process.HasExited)
                 {
                     process.Kill();
-                    this.Log.LogMessage(MessageImportance.Low, "Executing  \"{0}\" {1} taking too long", realexe, arguments);
+                    this.Log.LogError("Executing  \"{0}\" {1} taking too long", realexe, arguments);
 
+                    return false;
+                }
+
+                var errors = (process.StandardError.ReadToEnd() ?? "").Trim();
+                if (!string.IsNullOrWhiteSpace(errors))
+                {
+                    var errorLines = errors
+                        .Replace("\r", "")
+                        .Split('\n');
+                    var regex = new Regex(@"(?:(.*?)\((\d+),(\d+)\): )?(ERROR) (.*?): (.*)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                    foreach (var l in errorLines)
+                    {
+                        var res = regex.Match(l);
+                        if (res.Success)
+                        {
+                            var path = res.Groups[1].Success ? res.Groups[1].Value : (string)null;
+                            var line = int.Parse(res.Groups[2].Success ? res.Groups[2].Value : "0");
+                            var col = int.Parse(res.Groups[3].Success ? res.Groups[3].Value : "0");
+                            var code = res.Groups[5].Value;
+                            var message = res.Groups[6].Value;
+                            var level = res.Groups[4].Value;
+
+                            if (level.Equals("error", StringComparison.OrdinalIgnoreCase))
+                            {
+                                this.Log.LogError(null, code, null, path, line, col, 0, 0, message, new object[] { });
+                            }
+                            else
+                            {
+                                this.Log.LogWarning(null, code, null, path, line, col, 0, 0, message, new object[] { });
+                            }
+                        }
+                    }
+                    // errors generated and written we should stop now
                     return false;
                 }
 
@@ -91,7 +126,7 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                 IEnumerable<string> files = filesoutput
                 .Replace("\r", "")
                 .Split('\n')
-                .Where(x=>x.EndsWith(".cs", StringComparison.OrdinalIgnoreCase)); // only fiddle with csharp files
+                .Where(x => x.EndsWith(".cs", StringComparison.OrdinalIgnoreCase)); // only fiddle with csharp files
 
                 IEnumerable<string> actualFiles = files.Where(x => !string.IsNullOrEmpty(x) && File.Exists(x));
                 string fullIntermediateOutputDirectory = Path.GetFullPath(Path.Combine(this.IntermediateOutputDirectory, "GraphQLCodeGen"));

@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Tocsoft.GraphQLCodeGen.Cli;
 using Tocsoft.GraphQLCodeGen.SchemaIntrospection;
 using static Tocsoft.GraphQLCodeGen.IntrospectedSchemeParser;
 
@@ -19,9 +20,10 @@ namespace Tocsoft.GraphQLCodeGen
     {
         private readonly CodeGeneratorSettings settings;
         private readonly IEnumerable<SchemaIntrospection.IIntrosepctionProvider> introspectionProviders;
+        private readonly ILogger logger;
 
-        public CodeGenerator(CodeGeneratorSettings settings)
-            : this(settings, new IIntrosepctionProvider[] {
+        public CodeGenerator(ILogger logger, CodeGeneratorSettings settings)
+            : this(logger, settings, new IIntrosepctionProvider[] {
                 new SchemaIntrospection.JsonIntrospection(),
                 new SchemaIntrospection.HttpIntrospection(),
                 new SchemaIntrospection.DllIntrospection(),
@@ -30,13 +32,14 @@ namespace Tocsoft.GraphQLCodeGen
         {
         }
 
-        public CodeGenerator(CodeGeneratorSettings settings, IEnumerable<SchemaIntrospection.IIntrosepctionProvider> introspectionProviders)
+        public CodeGenerator(ILogger logger, CodeGeneratorSettings settings, IEnumerable<SchemaIntrospection.IIntrosepctionProvider> introspectionProviders)
         {
+            this.logger = logger;
             this.settings = settings;
             this.introspectionProviders = introspectionProviders;
         }
 
-        public async Task GenerateAsync()
+        public async Task<bool> GenerateAsync()
         {
             IIntrosepctionProvider provider = this.introspectionProviders.Single(x => x.SchemaType == this.settings.Schema.SchemaType());
 
@@ -53,12 +56,22 @@ namespace Tocsoft.GraphQLCodeGen
             // lets make a locatino index look up table and provide it
             ObjectModel.GraphQLDocument doc = Parse(sources);
 
+            if (doc.Errors.Any())
+            {
+                foreach (var error in doc.Errors)
+                {
+                    logger.Error(error.ToString());
+                }
+                return false;
+            }
+
             Models.ViewModel model = new Models.ViewModel(doc, this.settings);
 
             string fileResult = new TemplateEngine(this.settings.Templates).Generate(model);
 
             Directory.CreateDirectory(Path.GetDirectoryName(this.settings.OutputPath));
             File.WriteAllText(this.settings.OutputPath, fileResult);
+            return true;
         }
 
     }
@@ -76,9 +89,9 @@ namespace Tocsoft.GraphQLCodeGen
 
     public class CodeGeneratorSettingsLoader
     {
-        public CodeGeneratorSettingsLoader()
+        public CodeGeneratorSettingsLoader(ILogger logger)
         {
-
+            this.logger = logger;
         }
 
         private List<string> DefaultTemplates(string outputPath)
@@ -186,6 +199,8 @@ namespace Tocsoft.GraphQLCodeGen
         }
 
         static readonly Regex regex = new Regex(@"^\s*#!\s*([a-zA-Z.]+)\s*:\s*(\"".*\""|[^ ]+?)(?:\s|$)", RegexOptions.Multiline | RegexOptions.Compiled);
+        private readonly ILogger logger;
+
         private SimpleSourceFile Load(string path)
         {
             // path must be a real full path by here
