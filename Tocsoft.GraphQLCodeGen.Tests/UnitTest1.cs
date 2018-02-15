@@ -1,12 +1,14 @@
 using System;
 using System.Linq;
+using Tocsoft.GraphQLCodeGen.Cli;
 using Xunit;
 
 namespace Tocsoft.GraphQLCodeGen.Tests
 {
     public class LoadSettingsFromHeaders
     {
-        CodeGeneratorSettingsLoader settingsLoader = new CodeGeneratorSettingsLoader();
+
+        CodeGeneratorSettingsLoader settingsLoader = new CodeGeneratorSettingsLoader(new FakeLogger());
 
         [Fact]
         public void GenerateOuputSetsBasedOnCommonConfigsInSourceFiles()
@@ -16,6 +18,17 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             var settings = settingsLoader.GenerateSettings(new[] { paths });
 
             Assert.Equal(2, settings.Count());
+        }
+    }
+
+    public class FakeLogger : ILogger
+    {
+        public void Error(string str)
+        {
+        }
+
+        public void Message(string str)
+        {
         }
     }
 }

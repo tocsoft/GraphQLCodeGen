@@ -11,9 +11,37 @@ using Tocsoft.GraphQLCodeGen.RelectionHelpers;
 
 namespace Tocsoft.GraphQLCodeGen.Cli
 {
+    public interface ILogger
+    {
+        void Error(string str);
+        void Message(string str);
+    }
+
+    public class ConsoleLogger : ILogger
+    {
+        private readonly bool disableStandardMessagesMessage;
+
+        public ConsoleLogger(bool disableStandardMessagesMessage)
+        {
+            this.disableStandardMessagesMessage = disableStandardMessagesMessage;
+        }
+        public void Error(string str)
+        {
+            Console.Error.WriteLine(str);
+        }
+
+        public void Message(string str)
+        {
+            if (!this.disableStandardMessagesMessage)
+            {
+                Console.Out.WriteLine(str);
+            }
+        }
+    }
+
     class Program
     {
-        static CodeGeneratorSettingsLoader settingsLoader = new CodeGeneratorSettingsLoader();
+
         public static int Main(string[] args)
         {
             CommandLineApplication app = new CommandLineApplication();
@@ -51,11 +79,16 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                 // the same query each setting value can be repeated and that will cause 
                 // the collection to be duplicated too.
 
+                var inMsbuildMode = msbuildMode.HasValue();
+
+                var consoleLoger = new ConsoleLogger(inMsbuildMode);
+                CodeGeneratorSettingsLoader settingsLoader = new CodeGeneratorSettingsLoader(consoleLoger);
+
                 IEnumerable<CodeGeneratorSettings> settings = settingsLoader.GenerateSettings(sourceArgument.Values);
-                List<string> generatedFiles = new List<string>();
+                HashSet<string> generatedFiles = new HashSet<string>();
                 foreach (CodeGeneratorSettings s in settings)
                 {
-                    if (msbuildMode.HasValue())
+                    if (inMsbuildMode)
                     {
                         string fn = Path.GetFileName(s.OutputPath);
                         fn = $"{s.Namespace}.{s.ClassName}.{fn}";
@@ -67,13 +100,17 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                         }
                     }
 
-                    CodeGenerator generator = new CodeGenerator(s);
+                    CodeGenerator generator = new CodeGenerator(consoleLoger, s);
 
-                    await generator.GenerateAsync();
+                    if (await generator.GenerateAsync())
+                    {
+                        // generated code in here
+                        generatedFiles.Add(s.OutputPath);
+                    }
                 }
-                if (msbuildMode.HasValue())
+                if (inMsbuildMode)
                 {
-                    foreach (string result in settings.Select(x => x.OutputPath).Distinct())
+                    foreach (string result in generatedFiles)
                     {
                         Console.WriteLine(result);
                     }
@@ -121,7 +158,7 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                 List<Assembly> searchableAssemblies = new List<Assembly>();
                 List<Assembly> allAssemblies = new List<Assembly>();
                 List<string> additionalAssembliesToLoad = new List<string>();
-                
+
                 foreach (string toLoad in finalListToLoad)
                 {
                     try
@@ -235,7 +272,7 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                 additional.Add(assembly);
                 return (assembly, additional);
             }
-            return (assembly, new List<Assembly> { assembly } );
+            return (assembly, new List<Assembly> { assembly });
         }
     }
 
