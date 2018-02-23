@@ -17,8 +17,8 @@ namespace Tocsoft.GraphQLCodeGen.RelectionHelpers
         public GraphQLConventionsRequestHandlerBuilder( Assembly conventionsAssembly)
         {
             var allTypes = conventionsAssembly.AllLoadableTypes();
-            var builderType = allTypes.Single(x=>x.FullName == "GraphQL.Conventions.Web.RequestHandler+RequestHandlerBuilder");
-            var rootHandler = allTypes.Single(x => x.FullName == "GraphQL.Conventions.Web.RequestHandler");
+            var builderType = allTypes.SingleOrDefault(x=>x.FullName == "GraphQL.Conventions.Web.RequestHandler+RequestHandlerBuilder");
+            var rootHandler = allTypes.SingleOrDefault(x => x.FullName == "GraphQL.Conventions.Web.RequestHandler");
             var newBuidlerMethod = rootHandler.GetMethod("New");
 
             this.builder = newBuidlerMethod.Invoke(null, new object[0]);

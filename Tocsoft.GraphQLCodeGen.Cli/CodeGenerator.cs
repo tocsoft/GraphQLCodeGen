@@ -67,7 +67,7 @@ namespace Tocsoft.GraphQLCodeGen
 
             Models.ViewModel model = new Models.ViewModel(doc, this.settings);
 
-            string fileResult = new TemplateEngine(this.settings.Templates).Generate(model);
+            string fileResult = new TemplateEngine(this.settings.Templates, logger).Generate(model);
 
             Directory.CreateDirectory(Path.GetDirectoryName(this.settings.OutputPath));
             File.WriteAllText(this.settings.OutputPath, fileResult);

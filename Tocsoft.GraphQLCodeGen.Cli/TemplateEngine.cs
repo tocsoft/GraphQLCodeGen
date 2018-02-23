@@ -5,16 +5,19 @@ using HandlebarsDotNet;
 using System.IO;
 using System.Reflection;
 using System.Linq;
+using Tocsoft.GraphQLCodeGen.Cli;
+using System.Text.RegularExpressions;
 
 namespace Tocsoft.GraphQLCodeGen
 {
     public class TemplateEngine
     {
+        private readonly ILogger logger;
         private IHandlebars engine;
 
-        public TemplateEngine(IEnumerable<string> templates)
+        public TemplateEngine(IEnumerable<string> templates, ILogger logger)
         {
-
+            this.logger = logger;
             this.engine = HandlebarsDotNet.Handlebars.Create(new HandlebarsConfiguration
             {
                 ThrowOnUnresolvedBindingExpression = true
@@ -79,8 +82,17 @@ namespace Tocsoft.GraphQLCodeGen
 
         public string Generate(object model)
         {
-            Func<object, string> template = this.engine.Compile("{{> Main}}");
-            return template.Invoke(model);
+            try
+            {
+                Func<object, string> template = this.engine.Compile("{{> Main}}");
+                return template.Invoke(model);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.ToString());
+                //throw ex;
+                return "";
+            }
         }
 
 

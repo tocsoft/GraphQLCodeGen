@@ -1,0 +1,9 @@
+#! schema:../../GraphQLApiSample/GraphQLApiSample/bin/Debug/netcoreapp1.0/GraphQLApiSample.dll
+#! output: Client.cs
+#! class: Sample.Client.GitHub.Tmp
+
+query  {
+  viewer {
+    name
+  }
+}

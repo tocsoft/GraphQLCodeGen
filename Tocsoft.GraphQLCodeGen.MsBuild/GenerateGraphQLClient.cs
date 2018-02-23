@@ -24,6 +24,9 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
         [Required]
         public string IntermediateOutputDirectory { get; set; }
 
+        [Required]
+        public string Timeout { get; set; }
+
         [Output]
         public ITaskItem[] GeneratedCompile { get; set; }
 
@@ -78,7 +81,22 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                     RedirectStandardOutput = true,
                     RedirectStandardError = true
                 });
-                process.WaitForExit(5000);
+
+                Debugger.Launch();
+                // default timeout of 5 seconds
+                int timeout = 5000;
+                if (!int.TryParse(this.Timeout, out timeout))
+                {
+                    timeout = 5000;
+                }
+
+                // min timeout of 5 seconds
+                if (timeout < 5000)
+                {
+                    timeout = 5000;
+                }
+
+                process.WaitForExit(timeout);
                 if (!process.HasExited)
                 {
                     process.Kill();

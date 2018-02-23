@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <RunGraphQLCodeGen>true</RunGraphQLCodeGen>
+    <GraphQLCodeGenTimeOut>10000</GraphQLCodeGenTimeOut>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

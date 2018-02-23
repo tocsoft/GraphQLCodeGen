@@ -1,9 +1,0 @@
-#! schema:..\..\..\GraphQLApiSample\GraphQLApiSample\bin\Debug\netcoreapp1.0\GraphQLApiSample.dll
-#! schema.querytype:[GraphQLQuery]
-#! class:Test.IntrospectedClient
-
-query {
-  viewer {
-    name
-  }
-}

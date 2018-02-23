@@ -7,6 +7,7 @@
 
     <GraphQLCodeGenAssembly>$(GraphQLCodeGenAssemblyFolder)\Tocsoft.GraphQLCodeGen.MsBuild.dll</GraphQLCodeGenAssembly>
     <RunGraphQLCodeGen Condition="'$(RunGraphQLCodeGen)' == ''">true</RunGraphQLCodeGen>
+    <GraphQLCodeGenTimeOut Condition="'$(GraphQLCodeGenTimeOut)' == ''">5000</GraphQLCodeGenTimeOut>
   </PropertyGroup>
 
   <ItemDefinitionGroup>

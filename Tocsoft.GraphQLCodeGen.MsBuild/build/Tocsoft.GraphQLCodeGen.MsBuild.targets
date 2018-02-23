@@ -23,6 +23,7 @@
     <GenerateGraphQLClient
       Content="@(Content)"
       None="@(None)"
+      Timeout="$(GraphQLCodeGenTimeOut)"
       IntermediateOutputDirectory="$(IntermediateOutputPath)"
       RootCliFolder="$(GraphQLCodeGenRootCliFolder)">
       <Output TaskParameter="GeneratedCompile" ItemName="GeneratedCodeFromAttribute_Compile" />
