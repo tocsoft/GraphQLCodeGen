@@ -82,7 +82,6 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                     RedirectStandardError = true
                 });
 
-                Debugger.Launch();
                 // default timeout of 5 seconds
                 int timeout = 5000;
                 if (!int.TryParse(this.Timeout, out timeout))
