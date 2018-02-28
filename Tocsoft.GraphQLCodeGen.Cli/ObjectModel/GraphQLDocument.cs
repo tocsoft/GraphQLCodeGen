@@ -197,7 +197,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             {
                 if (type is GraphQLNonNullType nonNullType)
                 {
-                    target.CanValueBeNull = true;
+                    target.CanValueBeNull = false;
                     UnPackType(nonNullType.Type, target);
                 }
                 else if (type is GraphQLListType listType)
@@ -275,15 +275,15 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
     internal class ValueTypeReference
     {
-        public bool CanValueBeNull { get; set; }
-        public bool IsCollection { get; set; }
-        public bool CanCollectionBeNull { get; set; }
+        public bool CanValueBeNull { get; set; } = true;
+        public bool IsCollection { get; set; } = false;
+        public bool CanCollectionBeNull { get; set; } = true;
         public IGraphQLType Type { get; set; }
 
         public override string ToString()
         {
             string val = this.Type.Name;
-            if (this.CanValueBeNull)
+            if (!this.CanValueBeNull)
             {
                 val += "!";
             }

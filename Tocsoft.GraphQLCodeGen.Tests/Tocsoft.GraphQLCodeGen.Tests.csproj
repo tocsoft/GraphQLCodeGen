@@ -4,7 +4,27 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <AssemblyName>Tocsoft.GraphQLCodeGen.Tests</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Files\Issue_9\Query.gql" />
+    <None Remove="Files\Issue_9\QueryGitHub.gql" />
+    <None Remove="Files\Issue_9\Schema.gql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Files\Issue_9\QueryGitHub.gql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Issue_9\Query.gql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Issue_9\Schema.gql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />

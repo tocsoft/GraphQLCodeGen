@@ -1,0 +1,16 @@
+﻿#! schema: ../GitHubSchema.json
+#! class: Test
+#! output: test.cs
+
+query {
+  user(login: "tocsoft"){
+    login,
+    bio,
+    repositories(first : 1){
+      nodes{
+        databaseId,
+        createdAt
+      }
+    }
+  }
+}

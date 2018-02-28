@@ -152,6 +152,9 @@ namespace {{Namespace}}
 {{!# TypeReference_DateTime}}
 	{{~> RenderTypeReference name='DateTime' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull }}
 	
+{{!# TypeReference_Date}}
+	{{~> RenderTypeReference name='DateTime' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull }}
+	
 {{!# TypeReference_GUID}}
 	{{~> RenderTypeReference name='Guid' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull }}
 	

@@ -1,0 +1,10 @@
+﻿#! schema: Schema.gql
+#! class: Test
+#! output: test.cs
+
+query{
+    test(id: "safsa"){
+        nullable,
+        nonnullable
+    }
+}

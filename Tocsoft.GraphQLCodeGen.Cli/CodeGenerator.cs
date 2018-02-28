@@ -39,7 +39,13 @@ namespace Tocsoft.GraphQLCodeGen
             this.introspectionProviders = introspectionProviders;
         }
 
-        public async Task<bool> GenerateAsync()
+        internal IEnumerable<NamedSource> Sources { get; set; }
+        internal ObjectModel.GraphQLDocument Document { get; set; }
+        internal Models.ViewModel Model { get; set; }
+        internal string GeneratedCode { get; set; }
+        internal bool HasParsingErrors { get; set; }
+
+        internal async Task LoadSource()
         {
             IIntrosepctionProvider provider = this.introspectionProviders.Single(x => x.SchemaType == this.settings.Schema.SchemaType());
 
@@ -52,28 +58,57 @@ namespace Tocsoft.GraphQLCodeGen
             {
                 sources.Add(s);
             }
-            // we want to track the file that the operation is loaded from
-            // lets make a locatino index look up table and provide it
-            ObjectModel.GraphQLDocument doc = Parse(sources);
 
-            if (doc.Errors.Any())
+            Sources = sources;
+        }
+
+        internal void Export()
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(this.settings.OutputPath));
+            File.WriteAllText(this.settings.OutputPath, GeneratedCode);
+        }
+
+        internal void Render()
+        {
+            this.GeneratedCode = new TemplateEngine(this.settings.Templates, logger).Generate(Model);
+        }
+
+        internal void Parse()
+        {
+            Document = IntrospectedSchemeParser.Parse(Sources);
+
+            if (Document.Errors.Any())
             {
-                foreach (var error in doc.Errors)
+                foreach (var error in Document.Errors)
                 {
                     logger.Error(error.ToString());
                 }
+                HasParsingErrors = true;
+                return;
+            }
+
+            Model = new Models.ViewModel(Document, this.settings);
+
+            HasParsingErrors = false;
+        }
+
+        public async Task<bool> GenerateAsync()
+        {
+            await LoadSource();
+
+            Parse();
+
+            if (HasParsingErrors)
+            {
                 return false;
             }
 
-            Models.ViewModel model = new Models.ViewModel(doc, this.settings);
+            Render();
 
-            string fileResult = new TemplateEngine(this.settings.Templates, logger).Generate(model);
+            Export();
 
-            Directory.CreateDirectory(Path.GetDirectoryName(this.settings.OutputPath));
-            File.WriteAllText(this.settings.OutputPath, fileResult);
             return true;
         }
-
     }
 
     public class CodeGeneratorSettings

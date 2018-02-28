@@ -147,6 +147,9 @@ export class {{pascalCase Name}} {
 	
 {{!# TypeReference_DateTime}}
 	{{~> RenderTypeReference typename='Date' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull collectionNullable=CanCollectionBeNull  }}
+
+{{!# TypeReference_Date}}
+	{{~> RenderTypeReference typename='Date' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull collectionNullable=CanCollectionBeNull  }}
 	
 {{!# RenderTypeReference}}
 	{{~#if isCollection }}Array<{{/if~}}
@@ -174,6 +177,11 @@ export class {{pascalCase Name}} {
 	result.{{camelCase Name}} = json["{{camelCase Name}}"];
 	
 {{!# FieldSetter_DateTime}}
+	{{~#if Type.IsCollection~}}
+	if(json["{{camelCase Name}}"]){ result.{{camelCase Name}} = json["{{camelCase Name}}"].map(v=> v ? new Date(v) : null);	}{{/if~}}
+	{{~#unless Type.IsCollection~}}result.{{camelCase Name}} = json["{{camelCase Name}}"] ? new Date(json["{{camelCase Name}}"]) : null;{{~/unless~}}
+	
+{{!# FieldSetter_Date}}
 	{{~#if Type.IsCollection~}}
 	if(json["{{camelCase Name}}"]){ result.{{camelCase Name}} = json["{{camelCase Name}}"].map(v=> v ? new Date(v) : null);	}{{/if~}}
 	{{~#unless Type.IsCollection~}}result.{{camelCase Name}} = json["{{camelCase Name}}"] ? new Date(json["{{camelCase Name}}"]) : null;{{~/unless~}}
