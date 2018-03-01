@@ -99,16 +99,15 @@ namespace Tocsoft.GraphQLCodeGen.Models
 
             string name = FindBestName(operationName ?? selection.RootType.Name, "Result");
 
-            TypeViewModel type = new TypeViewModel(name)
-            {
-                Fields = selection.Fields.Select(x => new NamedTypeViewModel()
-                {
-                    Name = x.Name,
-                    Type = GenerateTypeReference(x)
-                }).ToList()
-            };
+            TypeViewModel type = new TypeViewModel(name);
+
             this.typeLookup.Add($"{operationName}_{selection.UniqueIdentifier}", type);
             this.typeCollection.Add(type);
+            type.Fields = selection.Fields.Select(x => new NamedTypeViewModel()
+            {
+                Name = x.Name,
+                Type = GenerateTypeReference(x)
+            }).ToList();
 
             return type.Name;
         }

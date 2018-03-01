@@ -1,8 +1,8 @@
-﻿#! schema: Schema.gql
+﻿#! schema: Issue9Schema.gql
 #! class: Test
 #! output: test.cs
 
-query{
+query q{
     test(id: "safsa"){
         nullable,
         nonnullable

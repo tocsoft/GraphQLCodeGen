@@ -1,0 +1,14 @@
+﻿schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  quote(id: string!): Quote
+}
+
+type Quote {
+    id: Date!
+}
+
+scalar Date

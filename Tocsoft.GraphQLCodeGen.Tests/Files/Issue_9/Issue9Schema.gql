@@ -6,6 +6,7 @@
 type Query {
   test(id: string!): Droid
 }
+
 type Droid {
     nullable: Date
     nonnullable: Date!

@@ -1,0 +1,9 @@
+﻿#! schema: Schema.gql
+#! class: Test
+#! output: test.cs
+
+query {
+    quote(id: "safsa"){
+        id
+    }
+}
