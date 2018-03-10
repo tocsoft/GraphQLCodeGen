@@ -1,3 +1,4 @@
+#! class:Sample.Client.GitHub.GitHubClientOther
 mutation ($repositoyId : ID!){
   addStar(input :{clientMutationId : "123",  starrableId :$repositoyId }){
     starrable {

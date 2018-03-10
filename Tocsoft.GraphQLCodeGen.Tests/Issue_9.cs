@@ -21,7 +21,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
         [Fact]
         public async Task NullableFielsShouldGenerateNullableMetadata()
         {
-            var settings = settingsLoader.GenerateSettings(new[] { "./Files/Issue_9/Query.gql" });
+            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/Issue_9/Query.gql" });
 
             CodeGenerator generator = new CodeGenerator(logger, settings.Single());
 
@@ -42,7 +42,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
         [Fact]
         public async Task ShouldExportNullableField()
         {
-            var settings = settingsLoader.GenerateSettings(new[] { "./Files/Issue_9/Query.gql" });
+            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/Issue_9/Query.gql" });
 
             CodeGenerator generator = new CodeGenerator(logger, settings.Single());
 
@@ -59,7 +59,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
         [Fact]
         public async Task NullableFielsShouldGenerateNullableMetadata_Gitub()
         {
-            var settings = settingsLoader.GenerateSettings(new[] { "./Files/Issue_9/QueryGithub.gql" });
+            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/Issue_9/QueryGithub.gql" });
 
             CodeGenerator generator = new CodeGenerator(logger, settings.Single());
 
@@ -80,7 +80,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
         [Fact]
         public async Task ShouldExportNullableField_Gitub()
         {
-            var settings = settingsLoader.GenerateSettings(new[] { "./Files/Issue_9/QueryGithub.gql" });
+            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/Issue_9/QueryGithub.gql" });
 
             CodeGenerator generator = new CodeGenerator(logger, settings.Single());
 

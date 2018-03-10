@@ -21,7 +21,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
         [Fact]
         public async Task TypeNamesShouldBeUnique()
         {
-            var settings = settingsLoader.GenerateSettings(new[] { "./Files/Issue_8/Quote.gql" });
+            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/Issue_8/Quote.gql" });
 
             CodeGenerator generator = new CodeGenerator(logger, settings.Single());
 

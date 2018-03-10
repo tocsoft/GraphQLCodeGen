@@ -1,5 +1,4 @@
 ﻿{
   "class": "Sample.Client.GitHub.GitHubClient",
-  "output": "generated.cs", // this is relative to this file
-  "schema": "schema.json"
+,k  "schema": "schema.json"
 }

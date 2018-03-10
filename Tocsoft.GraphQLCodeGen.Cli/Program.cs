@@ -71,6 +71,7 @@ namespace Tocsoft.GraphQLCodeGen.Cli
 
             CommandArgument sourceArgument = app.Argument("source", "The settings file for gerating the code from", true);
             CommandOption msbuildMode = app.Option("--msbuild-outputdir", "The directory", CommandOptionType.SingleValue);
+            CommandOption format = app.Option("--format", "The export format", CommandOptionType.SingleValue);
 
             app.OnExecute(async () =>
             {
@@ -84,22 +85,24 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                 var consoleLoger = new ConsoleLogger(inMsbuildMode);
                 CodeGeneratorSettingsLoader settingsLoader = new CodeGeneratorSettingsLoader(consoleLoger);
 
-                IEnumerable<CodeGeneratorSettings> settings = settingsLoader.GenerateSettings(sourceArgument.Values);
+                var loaderSettings = new CodeGeneratorSettingsLoaderDefaults();
+                loaderSettings.Format = format.HasValue() ? format.Value() : "cs";
+                if (inMsbuildMode)
+                {
+                    var targetPattern = Path.Combine(msbuildMode.Value(), "{classname}.cs");
+                    loaderSettings.FixFile = (f) =>
+                    {
+                        if (f.Format == "cs")
+                        {
+                            f.OutputPath = targetPattern;
+                        }
+                    };
+                }
+
+                IEnumerable<CodeGeneratorSettings> settings = settingsLoader.GenerateSettings(loaderSettings, sourceArgument.Values);
                 HashSet<string> generatedFiles = new HashSet<string>();
                 foreach (CodeGeneratorSettings s in settings)
                 {
-                    if (inMsbuildMode)
-                    {
-                        string fn = Path.GetFileName(s.OutputPath);
-                        fn = $"{s.Namespace}.{s.ClassName}.{fn}";
-                        // only redirect c# files to the temp directory otherwise output normally
-                        // maybe rework if/when er support other project types
-                        if (fn.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
-                        {
-                            s.OutputPath = Path.Combine(msbuildMode.Value(), fn);
-                        }
-                    }
-
                     CodeGenerator generator = new CodeGenerator(consoleLoger, s);
 
                     if (await generator.GenerateAsync())

@@ -21,8 +21,7 @@ namespace Sample
                     { "Authorization", $"Bearer {accesstoken}" }
                 }
             };
-
-            var c = new Test.IntrospectedClient(httpClient);
+            
             httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             var client = new Client.GitHub.GitHubClient(httpClient);
             var result = await client.UsersRepositoresAsync("tocsoft", 10);

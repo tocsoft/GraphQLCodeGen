@@ -35,7 +35,7 @@ export default class GitHubTsClient {
 
     constructor(public client: fetchClient, public url: string) { }
 	
-	addStar(	repositoyId? :string) : Promise<AddStarResult>{
+	addStar(	repositoyId :string) : Promise<AddStarResult>{
         return this.client.fetch(this.url, {
             method : 'POST',
             body : JSON.stringify({
@@ -95,7 +95,7 @@ export default class GitHubTsClient {
             }
         })
     }	
-	search(	type? :SearchType, 	query? :string) : Promise<SearchResult>{
+	search(	type :SearchType, 	query :string) : Promise<SearchResult>{
         return this.client.fetch(this.url, {
             method : 'POST',
             body : JSON.stringify({
@@ -140,7 +140,7 @@ export default class GitHubTsClient {
             }
         })
     }	
-	usersRepositores(	login? :string, 	repoCount? :number) : Promise<UsersRepositoresResult>{
+	usersRepositores(	login :string, 	repoCount :number) : Promise<UsersRepositoresResult>{
         return this.client.fetch(this.url, {
             method : 'POST',
             body : JSON.stringify({
@@ -187,40 +187,8 @@ export default class GitHubTsClient {
     }	
 }
 
-export class StarrableResult {
-		viewerHasStarred? :boolean;
-
-    static fromJS(json:any):StarrableResult{
-        if(json == null || json == undefined){
-            return null;
-        }
-        
-        var result = new StarrableResult();
-
-	result.viewerHasStarred = json["viewerHasStarred"];
-
-        return result;
-    }
-}
-
-export class AddStarPayloadResult {
-		starrable? :StarrableResult;
-
-    static fromJS(json:any):AddStarPayloadResult{
-        if(json == null || json == undefined){
-            return null;
-        }
-        
-        var result = new AddStarPayloadResult();
-
-result.starrable= StarrableResult.fromJS(json["starrable"]);
-
-        return result;
-    }
-}
-
 export class AddStarResult {
-		addStar :AddStarPayloadResult;
+		addStar? :AddStarPayloadResult;
 
     static fromJS(json:any):AddStarResult{
         if(json == null || json == undefined){
@@ -235,9 +203,57 @@ result.addStar= AddStarPayloadResult.fromJS(json["addStar"]);
     }
 }
 
+export class AddStarPayloadResult {
+		starrable :StarrableResult;
+
+    static fromJS(json:any):AddStarPayloadResult{
+        if(json == null || json == undefined){
+            return null;
+        }
+        
+        var result = new AddStarPayloadResult();
+
+result.starrable= StarrableResult.fromJS(json["starrable"]);
+
+        return result;
+    }
+}
+
+export class StarrableResult {
+		viewerHasStarred :boolean;
+
+    static fromJS(json:any):StarrableResult{
+        if(json == null || json == undefined){
+            return null;
+        }
+        
+        var result = new StarrableResult();
+
+	result.viewerHasStarred = json["viewerHasStarred"];
+
+        return result;
+    }
+}
+
+export class CurrentUserResult {
+		viewer :UserResult;
+
+    static fromJS(json:any):CurrentUserResult{
+        if(json == null || json == undefined){
+            return null;
+        }
+        
+        var result = new CurrentUserResult();
+
+result.viewer= UserResult.fromJS(json["viewer"]);
+
+        return result;
+    }
+}
+
 export class UserResult {
-		login? :string;
-		bio :string;
+		login :string;
+		bio? :string;
 
     static fromJS(json:any):UserResult{
         if(json == null || json == undefined){
@@ -253,24 +269,26 @@ export class UserResult {
     }
 }
 
-export class CurrentUserResult {
-		viewer? :UserResult;
+export class SearchResult {
+		viewer :User1Result;
+		search :SearchResultItemConnectionResult;
 
-    static fromJS(json:any):CurrentUserResult{
+    static fromJS(json:any):SearchResult{
         if(json == null || json == undefined){
             return null;
         }
         
-        var result = new CurrentUserResult();
+        var result = new SearchResult();
 
-result.viewer= UserResult.fromJS(json["viewer"]);
+result.viewer= User1Result.fromJS(json["viewer"]);
+result.search= SearchResultItemConnectionResult.fromJS(json["search"]);
 
         return result;
     }
 }
 
 export class User1Result {
-		login? :string;
+		login :string;
 
     static fromJS(json:any):User1Result{
         if(json == null || json == undefined){
@@ -280,6 +298,24 @@ export class User1Result {
         var result = new User1Result();
 
 	result.login = json["login"];
+
+        return result;
+    }
+}
+
+export class SearchResultItemConnectionResult {
+		nodes? :Array<SearchResultItemResult>;
+
+    static fromJS(json:any):SearchResultItemConnectionResult{
+        if(json == null || json == undefined){
+            return null;
+        }
+        
+        var result = new SearchResultItemConnectionResult();
+
+if(json["nodes"]){ 
+		result.nodes = json["nodes"].map(v=>SearchResultItemResult.fromJS(v) );	
+	}
 
         return result;
     }
@@ -301,85 +337,27 @@ export class SearchResultItemResult {
     }
 }
 
-export class SearchResultItemConnectionResult {
-		nodes :Array<SearchResultItemResult>;
+export class UsersRepositoresResult {
+		user? :User2Result;
 
-    static fromJS(json:any):SearchResultItemConnectionResult{
+    static fromJS(json:any):UsersRepositoresResult{
         if(json == null || json == undefined){
             return null;
         }
         
-        var result = new SearchResultItemConnectionResult();
+        var result = new UsersRepositoresResult();
 
-if(json["nodes"]){ 
-		result.nodes = json["nodes"].map(v=>SearchResultItemResult.fromJS(v) );	
-	}
-
-        return result;
-    }
-}
-
-export class SearchResult {
-		viewer? :User1Result;
-		search? :SearchResultItemConnectionResult;
-
-    static fromJS(json:any):SearchResult{
-        if(json == null || json == undefined){
-            return null;
-        }
-        
-        var result = new SearchResult();
-
-result.viewer= User1Result.fromJS(json["viewer"]);
-result.search= SearchResultItemConnectionResult.fromJS(json["search"]);
-
-        return result;
-    }
-}
-
-export class RepositoryResult {
-		id? :string;
-		name? :string;
-		updatedAt? :Date;
-
-    static fromJS(json:any):RepositoryResult{
-        if(json == null || json == undefined){
-            return null;
-        }
-        
-        var result = new RepositoryResult();
-
-	result.id = json["id"];
-	result.name = json["name"];
-result.updatedAt = json["updatedAt"] ? new Date(json["updatedAt"]) : null;
-
-        return result;
-    }
-}
-
-export class RepositoryConnectionResult {
-		nodes :Array<RepositoryResult>;
-
-    static fromJS(json:any):RepositoryConnectionResult{
-        if(json == null || json == undefined){
-            return null;
-        }
-        
-        var result = new RepositoryConnectionResult();
-
-if(json["nodes"]){ 
-		result.nodes = json["nodes"].map(v=>RepositoryResult.fromJS(v) );	
-	}
+result.user= User2Result.fromJS(json["user"]);
 
         return result;
     }
 }
 
 export class User2Result {
-		login? :string;
-		bio :string;
-		first? :RepositoryConnectionResult;
-		last? :RepositoryConnectionResult;
+		login :string;
+		bio? :string;
+		first :RepositoryConnectionResult;
+		last :RepositoryConnectionResult;
 
     static fromJS(json:any):User2Result{
         if(json == null || json == undefined){
@@ -397,17 +375,39 @@ result.last= RepositoryConnectionResult.fromJS(json["last"]);
     }
 }
 
-export class UsersRepositoresResult {
-		user :User2Result;
+export class RepositoryConnectionResult {
+		nodes? :Array<RepositoryResult>;
 
-    static fromJS(json:any):UsersRepositoresResult{
+    static fromJS(json:any):RepositoryConnectionResult{
         if(json == null || json == undefined){
             return null;
         }
         
-        var result = new UsersRepositoresResult();
+        var result = new RepositoryConnectionResult();
 
-result.user= User2Result.fromJS(json["user"]);
+if(json["nodes"]){ 
+		result.nodes = json["nodes"].map(v=>RepositoryResult.fromJS(v) );	
+	}
+
+        return result;
+    }
+}
+
+export class RepositoryResult {
+		id :string;
+		name :string;
+		updatedAt :Date;
+
+    static fromJS(json:any):RepositoryResult{
+        if(json == null || json == undefined){
+            return null;
+        }
+        
+        var result = new RepositoryResult();
+
+	result.id = json["id"];
+	result.name = json["name"];
+result.updatedAt = json["updatedAt"] ? new Date(json["updatedAt"]) : null;
 
         return result;
     }

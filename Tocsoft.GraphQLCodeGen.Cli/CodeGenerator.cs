@@ -116,13 +116,23 @@ namespace Tocsoft.GraphQLCodeGen
         public string Namespace { get; set; }
         public string ClassName { get; set; }
         public string OutputPath { get; set; }
+        public string Format { get; set; }
         public IEnumerable<NamedSource> SourceFiles { get; set; }
 
         public IEnumerable<string> Templates { get; set; }
         internal SchemaSource Schema { get; set; }
     }
 
-    public class CodeGeneratorSettingsLoader
+    internal class CodeGeneratorSettingsLoaderDefaults
+    {
+        public string Format { get; set; }
+
+        public string OutputPath { get; set; }
+
+        public Action<SimpleSourceFile> FixFile { get; set; }
+    }
+
+    internal class CodeGeneratorSettingsLoader
     {
         public CodeGeneratorSettingsLoader(ILogger logger)
         {
@@ -141,17 +151,18 @@ namespace Tocsoft.GraphQLCodeGen
             return templateFiles;
         }
 
-        public IEnumerable<CodeGeneratorSettings> GenerateSettings(IEnumerable<string> paths)
+        public IEnumerable<CodeGeneratorSettings> GenerateSettings(CodeGeneratorSettingsLoaderDefaults settings, IEnumerable<string> paths)
         {
             var root = Directory.GetCurrentDirectory();
             IEnumerable<string> sourceFilePaths = paths.SelectMany(x => GlobExpander.FindFiles(root, x));
 
-            var sourceFiles = sourceFilePaths.Select(x => Load(x)).ToList();
+            var sourceFiles = sourceFilePaths.Select(x => Load(x, settings)).ToList();
 
             var grouped = sourceFiles.GroupBy(x => new
             {
                 x.ClassName,
                 x.OutputPath,
+                x.Format,
                 hash = x.SettingsHash()
             });
 
@@ -193,6 +204,8 @@ namespace Tocsoft.GraphQLCodeGen
             public string Class { get; set; }
 
             public string Output { get; set; }
+
+            public string Format { get; set; }
 
             [JsonConverter(typeof(SchemaSourceJsonConverter))]
             public SchemaSource Schema { get; set; }
@@ -236,7 +249,7 @@ namespace Tocsoft.GraphQLCodeGen
         static readonly Regex regex = new Regex(@"^\s*#!\s*([a-zA-Z.]+)\s*:\s*(\"".*\""|[^ ]+?)(?:\s|$)", RegexOptions.Multiline | RegexOptions.Compiled);
         private readonly ILogger logger;
 
-        private SimpleSourceFile Load(string path)
+        private SimpleSourceFile Load(string path, CodeGeneratorSettingsLoaderDefaults settings)
         {
             // path must be a real full path by here
 
@@ -277,6 +290,9 @@ namespace Tocsoft.GraphQLCodeGen
                     case "class":
                         file.ClassName = m.val;
                         break;
+                    case "format":
+                        file.Format = m.val;
+                        break;
                     case "settings":
                         ExpandSettings(GenerateFullPath(root, m.val), file);
                         break;
@@ -291,15 +307,43 @@ namespace Tocsoft.GraphQLCodeGen
 
             LoadSettingsTree(file);
 
+            if (string.IsNullOrWhiteSpace(file.Format))
+            {
+                if (!string.IsNullOrWhiteSpace(file.OutputPath))
+                {
+                    file.Format = Path.GetExtension(file.OutputPath).Trim('.').ToLower();
+                }
+
+                if (string.IsNullOrWhiteSpace(file.Format))
+                {
+                    file.Format = settings.Format;
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(file.OutputPath))
             {
-                file.OutputPath = file.Path + ".cs";
+                if (string.IsNullOrWhiteSpace(settings.OutputPath))
+                {
+                    file.OutputPath = file.Path;
+                }
+                else
+                {
+                    file.OutputPath = settings.OutputPath;
+                }
+            }
+
+            if (!Path.GetExtension(file.OutputPath).Trim('.').Equals(file.Format, StringComparison.OrdinalIgnoreCase))
+            {
+                file.OutputPath += "." + file.Format;
             }
 
             if (string.IsNullOrWhiteSpace(file.ClassName))
             {
                 file.ClassName = Path.GetFileNameWithoutExtension(file.Path);
             }
+
+            settings.FixFile?.Invoke(file);
+            file.OutputPath = file.OutputPath.Replace("{classname}", file.ClassName);
 
             return file;
         }
@@ -317,6 +361,10 @@ namespace Tocsoft.GraphQLCodeGen
             if (!string.IsNullOrWhiteSpace(settings.Output) && string.IsNullOrWhiteSpace(file.OutputPath))
             {
                 file.OutputPath = GenerateFullPath(root, settings.Output);
+            }
+            if (!string.IsNullOrWhiteSpace(settings.Format) && string.IsNullOrWhiteSpace(file.Format))
+            {
+                file.Format = settings.Format;
             }
             if (settings.Template != null)
             {
@@ -377,7 +425,7 @@ namespace Tocsoft.GraphQLCodeGen
     {
         public string Path { get; set; }
         public string Body { get; set; }
-
+        public string Format { get; set; }
         public string ClassName { get; set; }
         public string OutputPath { get; set; }
         public List<string> Templates { get; set; } = new List<string>();
@@ -391,6 +439,8 @@ namespace Tocsoft.GraphQLCodeGen
             sb.Append(ClassName);
             sb.Append("~#~");
             sb.Append(OutputPath);
+            sb.Append("~#~");
+            sb.Append(Format);
             sb.Append("~#~");
             if (Templates != null)
             {
