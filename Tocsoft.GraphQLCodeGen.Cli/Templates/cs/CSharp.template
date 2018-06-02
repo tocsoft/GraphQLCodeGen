@@ -62,8 +62,7 @@ namespace {{Namespace}}
     }
 
 	{{#each Types}}
-		{{> Type}}
-
+		{{#if IsInterface}}{{> Interface}}{{else}}{{> Type}}{{/if}}
 
 	{{/each}}
 
@@ -78,10 +77,18 @@ namespace {{Namespace}}
 {{~/if~}}
 
 {{!# Type}}
-	public sealed class {{pascalCase Name}}
+	public sealed class {{pascalCase Name}} {{#each~ Interfaces}}{{~#if @first}}: {{else}}, {{/if~}}I{{pascalCase .}}{{~/each}}
 	{
 		{{#each Fields}}
 		public {{> TypeReference Type}} {{pascalCase Name}} { get; set; }
+		{{/each}}
+	}
+
+{{!# Interface}}
+	public interface I{{pascalCase Name}}
+	{
+		{{#each Fields}}
+		{{> TypeReference Type}} {{pascalCase Name}} { get; set; }
 		{{/each}}
 	}
 

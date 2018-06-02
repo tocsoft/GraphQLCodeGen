@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Tocsoft.GraphQLCodeGen.Tests
 {
-    internal class LoadSettingsFromHeaders
+    public class LoadSettingsFromHeaders
     {
 
         CodeGeneratorSettingsLoader settingsLoader = new CodeGeneratorSettingsLoader(new FakeLogger());

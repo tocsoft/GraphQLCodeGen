@@ -1,0 +1,14 @@
+#! schema:schema.gql
+#! output: Client.cs
+#! class: Sample.Client.GitHub.GitHubClient
+
+query ($login:ID!){
+  User(id: $login){
+    ...user
+  }
+}
+
+fragment user on User {
+    id,
+  	username
+}

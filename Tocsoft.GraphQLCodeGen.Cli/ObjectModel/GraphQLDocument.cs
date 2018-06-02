@@ -144,6 +144,9 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             (LocatedNamedSource part, int offsetStart, int length) = ResolveNode(location);
 
             string text = part.Body.Substring(offsetStart, length);
+            // operations seems to include the start of the next token in the end of their location
+            // back track to the closing brace and take upto there
+            text = text.Substring(0, text.LastIndexOf('}')+1);
 
             return (text, part.Path);
         }
@@ -250,6 +253,8 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
                     return new UnionType(op);
                 case GraphQLInputObjectTypeDefinition op:
                     return new ObjectType(op);
+                case GraphQLFragmentDefinition op:
+                    return new FragmentType(op);
                 default:
                     return null;
             }

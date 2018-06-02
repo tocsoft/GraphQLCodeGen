@@ -13,8 +13,6 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
     {
         private readonly GraphQLObjectTypeDefinition definition;
         private readonly GraphQLInputObjectTypeDefinition definitionInput;
-        private GraphQLSelectionSet selectionSet;
-        private IGraphQLFieldCollection rootType;
 
         public string Name { get; set; }
 
@@ -32,8 +30,6 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             this.definitionInput = definition;
             this.Name = definition.Name?.Value;
         }
-        
-
 
         public void Resolve(GraphQLDocument doc)
         {

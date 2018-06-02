@@ -14,9 +14,9 @@
   <ItemGroup>
     <PackageReference Include="Glob" Version="0.4.0" />
     <PackageReference Include="GraphQL-Parser" Version="3.0.0" />
-    <PackageReference Include="Handlebars.Net" Version="1.9.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Handlebars.Net" Version="1.9.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
   </ItemGroup>

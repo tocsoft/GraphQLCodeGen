@@ -19,6 +19,8 @@ namespace Tocsoft.GraphQLCodeGen.Models
         private List<EnumViewModel> enumCollection = new List<EnumViewModel>();
         private List<OperationViewModel> operationCollection;
 
+        private Dictionary<string, string> fragmentQueries = new Dictionary<string, string>();
+
         public IEnumerable<TypeViewModel> Types => this.typeCollection;
         public IEnumerable<EnumViewModel> Enums => this.enumCollection;
         public IEnumerable<OperationViewModel> Operations => this.operationCollection;
@@ -53,7 +55,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
                 {
                     Name = opName,
                     Arguments = argCollection,
-                    Query = op.Query,
+                    QueryFragment = op.Query,
                     NamedQuery = op.Name ?? string.Empty,
                     ResultType = new TypeReferenceModel
                     {
@@ -63,13 +65,44 @@ namespace Tocsoft.GraphQLCodeGen.Models
                         TypeName = GenerateType(op.Selection, opName)
                     }
                 };
-
+                // collect all fragments reference from this query and grab thier nodes query strings too
+                opVM.Query = FullQuery(opVM);
                 this.operationCollection.Add(opVM);
             }
+        }
+        private string FullQuery(OperationViewModel opVM)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(opVM.QueryFragment);
+            var allTypes = ReferencedTypeList(opVM.ResultType.TypeName).Distinct();
+            foreach (var t in allTypes)
+            {
+                if (this.fragmentQueries.ContainsKey(t))
+                {
+                    sb.AppendLine(this.fragmentQueries[t]);
+                }
+            }
+            return sb.ToString();
 
-            // lets convert each to a type with a back track to lookup a type based on unique reference
-
-            // I need type definitions for Operation Result and Argument types graphs
+            IEnumerable<string> ReferencedTypeList(string typeName)
+            {
+                var types = this.typeCollection.Where(x => x.Name == typeName);
+                foreach (var t in types)
+                {
+                    foreach (var f in t.Interfaces)
+                    {
+                        yield return f;
+                    }
+                    foreach (var f in t.Fields)
+                    {
+                        var childTypes = ReferencedTypeList(f.Type.TypeName);
+                        foreach (var ct in childTypes)
+                        {
+                            yield return ct;
+                        }
+                    }
+                }
+            }
         }
 
         private TypeReferenceModel GenerateTypeReference(FieldSelection field)
@@ -97,11 +130,19 @@ namespace Tocsoft.GraphQLCodeGen.Models
                 return this.typeLookup[$"{operationName}_{selection.UniqueIdentifier}"]?.Name;
             }
 
-            string name = FindBestName(operationName ?? selection.RootType.Name, "Result");
+            string name = FindBestName((operationName ?? selection.RootType.Name), "Result");
+            var lookupName = $"{operationName}_{selection.UniqueIdentifier}";
 
+            TypeViewModel type = BuildTypeViewModel(selection, name, lookupName);
+
+            return type.Name;
+        }
+
+        private TypeViewModel BuildTypeViewModel(SetSelection selection, string name, string lookupName)
+        {
             TypeViewModel type = new TypeViewModel(name);
 
-            this.typeLookup.Add($"{operationName}_{selection.UniqueIdentifier}", type);
+            this.typeLookup.Add(lookupName, type);
             this.typeCollection.Add(type);
             type.Fields = selection.Fields.Select(x => new NamedTypeViewModel()
             {
@@ -109,7 +150,8 @@ namespace Tocsoft.GraphQLCodeGen.Models
                 Type = GenerateTypeReference(x)
             }).ToList();
 
-            return type.Name;
+            type.Interfaces = selection.Fragments.Select(x => GenerateType(x)).ToList();
+            return type;
         }
 
         private TypeReferenceModel GenerateTypeReference(ObjectModel.ValueTypeReference type)
@@ -179,6 +221,17 @@ namespace Tocsoft.GraphQLCodeGen.Models
                 this.enumCollection.Add(typeVm);
                 return typeVm.Name;
             }
+            else if (type is FragmentType fragment)
+            {
+
+                TypeViewModel typeVm = BuildTypeViewModel(fragment.Selection, name, $"_{fragment.Selection}_[fragment]");
+                typeVm.IsInterface = true;
+
+                fragmentQueries.Add(typeVm.Name, fragment.Query);
+                this.inputTypeLookup.Add(type, typeVm.Name);
+
+                return typeVm.Name;
+            }
             else
             {
                 throw new Exception("unkown type");
@@ -206,6 +259,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
         public TypeReferenceModel ResultType { get; internal set; }
         public List<NamedTypeViewModel> Arguments { get; internal set; }
         public string Query { get; internal set; }
+        public string QueryFragment  { get; internal set; }
         public string NamedQuery { get; internal set; }
 
         public OperationViewModel()
@@ -249,7 +303,12 @@ namespace Tocsoft.GraphQLCodeGen.Models
 
         // a type is a list of fields and and unique name
         public string Name { get; set; }
+
+        public bool IsInterface { get; set; }
+
         public IEnumerable<NamedTypeViewModel> Fields { get; set; }
+
+        public IEnumerable<string> Interfaces { get; set; }
     }
 
 
