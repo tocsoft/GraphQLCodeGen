@@ -1,0 +1,8 @@
+#! schema:schema.gql
+#! output: Client.cs
+#! class: Sample.Client.GitHub.GitHubClient
+
+fragment user on User {
+    id,
+  	username
+}

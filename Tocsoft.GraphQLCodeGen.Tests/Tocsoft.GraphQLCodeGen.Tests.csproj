@@ -45,6 +45,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Files\Includes_Settings\gqlsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Includes_Settings\include.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Includes_Settings\schema.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Includes_Settings\using_includes.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Includes\schema.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Includes\using_includes.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Includes\include.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Files\Fragements\schema.gql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -1,0 +1,5 @@
+query ($login:ID!){
+  User(id: $login){
+    ...user
+  }
+}

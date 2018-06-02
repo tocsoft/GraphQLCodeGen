@@ -154,9 +154,24 @@ namespace Tocsoft.GraphQLCodeGen
         public IEnumerable<CodeGeneratorSettings> GenerateSettings(CodeGeneratorSettingsLoaderDefaults settings, IEnumerable<string> paths)
         {
             var root = Directory.GetCurrentDirectory();
-            IEnumerable<string> sourceFilePaths = paths.SelectMany(x => GlobExpander.FindFiles(root, x));
 
-            var sourceFiles = sourceFilePaths.Select(x => Load(x, settings)).ToList();
+            // we need to multi pass the source files looking for items to load
+            var toProcess = new Queue<string>(paths.SelectMany(x => GlobExpander.FindFiles(root, x)));
+            List<SimpleSourceFile> sourceFiles = new List<SimpleSourceFile>();
+            List<string> processedPaths = new List<string>();
+            while (toProcess.Any())
+            {
+                var path = toProcess.Dequeue();
+                processedPaths.Add(path);
+                var loaded = Load(path, settings);
+                var newPaths = loaded.Includes.Where(x => !processedPaths.Contains(x));
+                foreach (var p in newPaths)
+                {
+                    toProcess.Enqueue(p);
+                }
+                sourceFiles.Add(loaded);
+
+            }
 
             var grouped = sourceFiles.GroupBy(x => new
             {
@@ -164,7 +179,7 @@ namespace Tocsoft.GraphQLCodeGen
                 x.OutputPath,
                 x.Format,
                 hash = x.SettingsHash()
-            });
+            }).ToList();
 
 
             return grouped.Select(x =>
@@ -213,6 +228,9 @@ namespace Tocsoft.GraphQLCodeGen
             [JsonConverter(typeof(SingleOrArrayConverter<string>))]
             public List<string> Template { get; set; }
 
+            [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+            public List<string> Include { get; set; }
+
             public bool Root { get; set; } = false;
         }
 
@@ -230,7 +248,6 @@ namespace Tocsoft.GraphQLCodeGen
         {
             Stack<SimpleSettings> settingsList = new Stack<SimpleSettings>();
             var directory = Path.GetDirectoryName(file.Path);
-            var rooted = false;
             while (directory != null)
             {
                 var settingsFile = Path.Combine(directory, "gqlsettings.json");
@@ -299,6 +316,10 @@ namespace Tocsoft.GraphQLCodeGen
                     case "template":
                         var templateFiles = GlobExpander.FindFiles(root, m.val);
                         file.Templates.AddRange(templateFiles);
+                        break;
+                    case "include":
+                        var includeFiles = GlobExpander.FindFiles(root, m.val);
+                        file.Includes.AddRange(includeFiles);
                         break;
                     default:
                         break;
@@ -375,6 +396,15 @@ namespace Tocsoft.GraphQLCodeGen
                 }
             }
 
+            if (settings.Include != null)
+            {
+                foreach (var t in settings.Include)
+                {
+                    var files = GlobExpander.FindFiles(root, t);
+                    file.Includes.AddRange(files);
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(file.SchemaSource?.Location))
             {
                 if (settings.Schema != null && !string.IsNullOrWhiteSpace(settings.Schema.Location))
@@ -429,6 +459,7 @@ namespace Tocsoft.GraphQLCodeGen
         public string ClassName { get; set; }
         public string OutputPath { get; set; }
         public List<string> Templates { get; set; } = new List<string>();
+        public List<string> Includes { get; set; } = new List<string>();
         public SchemaSource SchemaSource { get; set; }
 
         internal string SettingsHash()

@@ -1,0 +1,7 @@
+﻿{
+  "root": true,
+  "schema": "schema.gql",
+  "output": "Client.cs",
+  "class": "Sample.Client.GitHub.GitHubClient",
+  "include": "include.gql"
+}
