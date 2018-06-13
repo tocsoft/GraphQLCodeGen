@@ -1,4 +1,5 @@
 ﻿{
   "class": "Sample.Client.GitHub.GitHubClient",
-,k  "schema": "schema.json"
+  "schema": "schema.json",
+  "root":true
 }

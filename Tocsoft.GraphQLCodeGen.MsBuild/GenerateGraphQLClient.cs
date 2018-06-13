@@ -78,6 +78,7 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                 Process process = Process.Start(new ProcessStartInfo(realexe, arguments)
                 {
                     UseShellExecute = false,
+                    CreateNoWindow = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true
                 });

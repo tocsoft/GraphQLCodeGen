@@ -45,7 +45,8 @@ export default class GitHubTsClient {
       viewerHasStarred
     }
   }
-}`,
+}
+`,
                 variables : {
 					repositoyId : repositoyId ,
                 }
@@ -75,7 +76,8 @@ export default class GitHubTsClient {
     login,
 	bio,
   }
-}`,
+}
+`,
                 variables : {
                 }
             })
@@ -118,7 +120,8 @@ export default class GitHubTsClient {
       }
     }
   }
-}`,
+}
+`,
                 variables : {
 					type : type ,
 					query : query ,
@@ -163,7 +166,8 @@ export default class GitHubTsClient {
       }
     }
   }
-}`,
+}
+`,
                 variables : {
 					login : login ,
 					repoCount : repoCount ,
@@ -323,6 +327,7 @@ if(json["nodes"]){
 
 export class SearchResultItemResult {
 		__typename :string;
+		author? :ActorResult;
 
     static fromJS(json:any):SearchResultItemResult{
         if(json == null || json == undefined){
@@ -332,6 +337,23 @@ export class SearchResultItemResult {
         var result = new SearchResultItemResult();
 
 	result.__typename = json["__typename"];
+result.author= ActorResult.fromJS(json["author"]);
+
+        return result;
+    }
+}
+
+export class ActorResult {
+		login :string;
+
+    static fromJS(json:any):ActorResult{
+        if(json == null || json == undefined){
+            return null;
+        }
+        
+        var result = new ActorResult();
+
+	result.login = json["login"];
 
         return result;
     }

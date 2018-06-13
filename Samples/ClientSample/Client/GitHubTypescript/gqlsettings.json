@@ -2,5 +2,6 @@
   "class": "Sample.Client.GitHub.GitHubTS",
   "output": "generated.ts", // this is relative to this file
   "format": "ts",
-  "schema": "schema.json"
+  "schema": "schema.json",
+  "root":true
 }
