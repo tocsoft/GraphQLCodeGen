@@ -101,16 +101,23 @@ namespace Tocsoft.GraphQLCodeGen.Cli
 
                 IEnumerable<CodeGeneratorSettings> settings = settingsLoader.GenerateSettings(loaderSettings, sourceArgument.Values);
                 HashSet<string> generatedFiles = new HashSet<string>();
-                foreach (CodeGeneratorSettings s in settings)
-                {
-                    CodeGenerator generator = new CodeGenerator(consoleLoger, s);
 
-                    if (await generator.GenerateAsync())
+                var tasks = settings.Select(Generate).ToList();
+                Task Generate(CodeGeneratorSettings s)
+                {
+                    return Task.Run(async () =>
                     {
-                        // generated code in here
-                        generatedFiles.Add(s.OutputPath);
-                    }
+                        CodeGenerator generator = new CodeGenerator(consoleLoger, s);
+                        if (await generator.GenerateAsync())
+                        {
+                            // generated code in here
+                            generatedFiles.Add(s.OutputPath);
+                        }
+                    });
                 }
+
+                await Task.WhenAll(tasks);
+
                 if (inMsbuildMode)
                 {
                     foreach (string result in generatedFiles)

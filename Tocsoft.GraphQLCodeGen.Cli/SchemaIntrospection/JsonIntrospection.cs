@@ -18,8 +18,14 @@ namespace Tocsoft.GraphQLCodeGen.SchemaIntrospection
         {
             if (!parseCache.TryGetValue(source.Location, out var schema))
             {
-                schema = ConvertJsonToSchema(File.ReadAllText(source.Location));
-                parseCache.Add(source.Location, schema);
+                lock (parseCache)
+                {
+                    if (!parseCache.TryGetValue(source.Location, out schema))
+                    {
+                        schema = ConvertJsonToSchema(File.ReadAllText(source.Location));
+                        parseCache.Add(source.Location, schema);
+                    }
+                }
             }
             return Task.FromResult(schema);
         }
