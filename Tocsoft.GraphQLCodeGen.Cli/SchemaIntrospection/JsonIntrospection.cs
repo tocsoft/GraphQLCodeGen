@@ -12,10 +12,15 @@ namespace Tocsoft.GraphQLCodeGen.SchemaIntrospection
     {
         public SchemaSource.SchemaTypes SchemaType => SchemaSource.SchemaTypes.Json;
 
+        static Dictionary<string, string> parseCache = new Dictionary<string, string>();
 
         public Task<string> LoadSchema(SchemaSource source)
         {
-            string schema = ConvertJsonToSchema(File.ReadAllText(source.Location));
+            if (!parseCache.TryGetValue(source.Location, out var schema))
+            {
+                schema = ConvertJsonToSchema(File.ReadAllText(source.Location));
+                parseCache.Add(source.Location, schema);
+            }
             return Task.FromResult(schema);
         }
 
