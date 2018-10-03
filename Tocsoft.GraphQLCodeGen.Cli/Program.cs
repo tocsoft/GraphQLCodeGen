@@ -101,8 +101,6 @@ namespace Tocsoft.GraphQLCodeGen.Cli
 
                 IEnumerable<CodeGeneratorSettings> settings = settingsLoader.GenerateSettings(loaderSettings, sourceArgument.Values);
                 HashSet<string> generatedFiles = new HashSet<string>();
-                var sw = Stopwatch.StartNew();
-                
                 var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
                 var tasks = settings.Select(Generate).ToList();
 
@@ -128,7 +126,6 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                 }
 
                 await Task.WhenAll(tasks);
-                sw.Stop();
 
                 if (inMsbuildMode)
                 {

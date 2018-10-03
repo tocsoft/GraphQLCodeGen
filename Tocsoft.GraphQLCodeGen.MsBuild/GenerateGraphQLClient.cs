@@ -32,7 +32,6 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
 
         public override bool Execute()
         {
-            // Debugger.Launch();
             // list all source settings files
             // upldate this to include *.gql/*.graphql if/when i update it to support metadata in config file
             IEnumerable<ITaskItem> settings =
@@ -76,13 +75,34 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
             try
             {
                 Directory.CreateDirectory(tempFolder);
-                Process process = Process.Start(new ProcessStartInfo(realexe, arguments)
+                Process process = new Process
                 {
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                });
+                    StartInfo = new ProcessStartInfo(realexe, arguments)
+                    {
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    },
+                    EnableRaisingEvents = true
+                };
+
+                // we have to consume the output buffers otherwise they fill up
+                // and the child process hangs.
+                StringBuilder standardout = new StringBuilder();
+                StringBuilder errorout = new StringBuilder();
+                process.OutputDataReceived += (s, e) =>
+                {
+                    standardout.AppendLine(e.Data);
+                };
+                process.ErrorDataReceived += (s, e) =>
+                {
+                    errorout.AppendLine(e.Data);
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
 
                 // default timeout of 5 seconds
                 int timeout = 5000;
@@ -106,7 +126,7 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                     return false;
                 }
 
-                var errors = (process.StandardError.ReadToEnd() ?? "").Trim();
+                var errors = errorout.ToString().Trim();
                 if (!string.IsNullOrWhiteSpace(errors))
                 {
                     var errorLines = errors
@@ -139,7 +159,7 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                     return false;
                 }
 
-                string filesoutput = process.StandardOutput.ReadToEnd();
+                string filesoutput = standardout.ToString();
                 this.Log.LogMessage(MessageImportance.High, "generated = {0}", filesoutput);
 
                 IEnumerable<string> files = filesoutput
