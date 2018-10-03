@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Tocsoft.GraphQLCodeGen.RelectionHelpers;
 
@@ -79,7 +80,6 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                 // from comment headers and based on that we generate blocks of settings
                 // the same query each setting value can be repeated and that will cause 
                 // the collection to be duplicated too.
-
                 var inMsbuildMode = msbuildMode.HasValue();
 
                 var consoleLoger = new ConsoleLogger(inMsbuildMode);
@@ -101,22 +101,34 @@ namespace Tocsoft.GraphQLCodeGen.Cli
 
                 IEnumerable<CodeGeneratorSettings> settings = settingsLoader.GenerateSettings(loaderSettings, sourceArgument.Values);
                 HashSet<string> generatedFiles = new HashSet<string>();
-
+                var sw = Stopwatch.StartNew();
+                
+                var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
                 var tasks = settings.Select(Generate).ToList();
+
                 Task Generate(CodeGeneratorSettings s)
                 {
                     return Task.Run(async () =>
                     {
-                        CodeGenerator generator = new CodeGenerator(consoleLoger, s);
-                        if (await generator.GenerateAsync())
+                        await semaphore.WaitAsync();
+                        try
                         {
-                            // generated code in here
-                            generatedFiles.Add(s.OutputPath);
+                            CodeGenerator generator = new CodeGenerator(consoleLoger, s);
+                            if (await generator.GenerateAsync())
+                            {
+                                // generated code in here
+                                generatedFiles.Add(s.OutputPath);
+                            }
+                        }
+                        finally
+                        {
+                            semaphore.Release();
                         }
                     });
                 }
 
                 await Task.WhenAll(tasks);
+                sw.Stop();
 
                 if (inMsbuildMode)
                 {

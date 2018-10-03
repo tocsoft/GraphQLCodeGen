@@ -32,6 +32,7 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
 
         public override bool Execute()
         {
+            // Debugger.Launch();
             // list all source settings files
             // upldate this to include *.gql/*.graphql if/when i update it to support metadata in config file
             IEnumerable<ITaskItem> settings =
