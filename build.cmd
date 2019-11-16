@@ -24,7 +24,7 @@ PUSHD Tocsoft.GraphQLCodeGen.Npm
 REM lets copy the published files from the release folders into a binaries folder ready from publish
 
 xcopy ..\Tocsoft.GraphQLCodeGen.Cli\bin\Release\net461\publish binaries\net461 /IYS
-xcopy ..\Tocsoft.GraphQLCodeGen.Cli\bin\Release\netcoreapp1.0\publish binaries\netcoreapp1.0 /IYS
+xcopy ..\Tocsoft.GraphQLCodeGen.Cli\bin\Release\netcoreapp2.0\publish binaries\netcoreapp2.0 /IYS
 
 call npm version 0.0.1 
 if not "%GitVersion_NuGetVersion%" == "" (
@@ -37,7 +37,7 @@ call npm pack
 
 call npm version 0.0.1 
 call npm version "1.0.0" 
-xcopy tocsoft.graphql-codegen-*.tgz ..\artifacts /Y
+xcopy tocsoft.graphql-codegen-*.tgz ..\artifacts\ /Y
 
 REM cleanup and delete build artifacts again
 del tocsoft.graphql-codegen-*.tgz 
