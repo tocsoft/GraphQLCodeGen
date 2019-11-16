@@ -1,0 +1,14 @@
+﻿query{
+    
+    test(id: "safsa") @__codeGenTypeName(type:"TestResultABCD") 
+	{
+        nullable,
+        nonnullable
+    }
+
+	# this one should fail!!!
+	alt: test(id: "safsa") @__codeGenTypeName(type:"TestResultABCD") 
+	{
+        nullable
+    }
+}

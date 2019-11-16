@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Linq;
 using Tocsoft.GraphQLCodeGen.Cli;
 using System.Text.RegularExpressions;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Tocsoft.GraphQLCodeGen
 {
@@ -15,12 +16,12 @@ namespace Tocsoft.GraphQLCodeGen
         private readonly ILogger logger;
         private IHandlebars engine;
 
-        public TemplateEngine(IEnumerable<string> templates, ILogger logger)
+        public TemplateEngine(IEnumerable<string> templates, IDictionary<string, string> templateArguments, ILogger logger)
         {
             this.logger = logger;
             this.engine = HandlebarsDotNet.Handlebars.Create(new HandlebarsConfiguration
             {
-                ThrowOnUnresolvedBindingExpression = true
+                ThrowOnUnresolvedBindingExpression = true,
             });
 
             this.engine.RegisterHelper("concat", (writer, context, args) =>
@@ -46,6 +47,13 @@ namespace Tocsoft.GraphQLCodeGen
                 writer.WriteSafeString(args[0].ToString().Replace(toReplace, toReplaceWith));
             });
 
+            this.engine.RegisterHelper("ifTemplateSet", (writer, context, args) =>
+            {
+                var val = this.engine.Compile("{{> " + args[0].ToString() + "}}")(context);
+                writer.WriteSafeString(string.IsNullOrWhiteSpace(val) ? "" : args[1]);
+            });
+
+
             this.engine.Configuration.TextEncoder = new NullEncoder();
             //engine.RegisterHelper("render", (w, c, a) =>
             //{
@@ -68,7 +76,13 @@ namespace Tocsoft.GraphQLCodeGen
                 string templateContents = LoadTemplate(templatePath);
                 ProcessTemplate(templateContents);
             }
+
+            foreach (var a in templateArguments)
+            {
+                this.engine.RegisterTemplate(a.Key, a.Value);
+            }
         }
+
 
         private class NullEncoder : ITextEncoder
         {
@@ -106,11 +120,19 @@ namespace Tocsoft.GraphQLCodeGen
             {
                 string line = reader.ReadLine();
                 string trimmedLine = line.TrimStart();
-                if (trimmedLine.StartsWith("{{!#")) // we have a shebang
+                int tagEnd = trimmedLine.IndexOf("}}");
+                if (trimmedLine.StartsWith("{{!#") && tagEnd > -1) // we have a shebang
                 {
                     RegisterTemplate(sb, currentTemplateName);
 
-                    currentTemplateName = trimmedLine.Substring(4).Trim().Trim(new[] { '{', '}' }).Trim();
+                    currentTemplateName = trimmedLine.Substring(4, tagEnd - 4).Trim();
+
+                    // add the remainder of the line to the template buffer
+                    var endOfLine = trimmedLine.Substring(tagEnd + 2);
+                    if (!string.IsNullOrWhiteSpace(endOfLine))
+                    {
+                        sb.AppendLine(endOfLine);
+                    }
                 }
                 else
                 {

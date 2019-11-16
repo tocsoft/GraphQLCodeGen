@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlobExpressions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -75,7 +76,7 @@ namespace Tocsoft.GraphQLCodeGen
                 else
                 {
                     string rootPath = Path.GetFullPath(root);
-                    Glob.Glob glob = new Glob.Glob(pattern);
+                    Glob glob = new Glob(pattern);
                     IEnumerable<string> files = Directory.EnumerateFiles(rootPath, "*.*", SearchOption.AllDirectories);
 
                     foreach (string f in files)

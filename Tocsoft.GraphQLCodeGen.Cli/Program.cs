@@ -12,37 +12,8 @@ using Tocsoft.GraphQLCodeGen.RelectionHelpers;
 
 namespace Tocsoft.GraphQLCodeGen.Cli
 {
-    public interface ILogger
-    {
-        void Error(string str);
-        void Message(string str);
-    }
-
-    public class ConsoleLogger : ILogger
-    {
-        private readonly bool disableStandardMessagesMessage;
-
-        public ConsoleLogger(bool disableStandardMessagesMessage)
-        {
-            this.disableStandardMessagesMessage = disableStandardMessagesMessage;
-        }
-        public void Error(string str)
-        {
-            Console.Error.WriteLine(str);
-        }
-
-        public void Message(string str)
-        {
-            if (!this.disableStandardMessagesMessage)
-            {
-                Console.Out.WriteLine(str);
-            }
-        }
-    }
-
     class Program
     {
-
         public static int Main(string[] args)
         {
             CommandLineApplication app = new CommandLineApplication();

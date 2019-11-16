@@ -35,7 +35,8 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         {
             IGraphQLFieldCollection rootType = doc.ResolveType(this.definition.TypeCondition) as IGraphQLFieldCollection;
             this.Selection.Resolve(doc, rootType);
-            (this.Query, this.Path) = doc.ResolveQuery(this.definition.Location);
+            this.Path = doc.ResolveQuerySource(this.definition.Location);
+            this.Query = doc.ResolveFragment(this.definition);
         }
     }
 }

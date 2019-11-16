@@ -60,15 +60,16 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         {
 
         }
-        public GraphQLDocument(GraphQLParser.AST.GraphQLDocument ast, IEnumerable<LocatedNamedSource> queryParts)
+        public GraphQLDocument(GraphQLParser.AST.GraphQLDocument ast, IEnumerable<LocatedNamedSource> queryParts, CodeGeneratorSettings settings)
         {
             this.ast = ast;
 
             this.QueryParts = queryParts;
+            this.settings = settings;
             List<object> items = ast.Definitions.Select(this.Visit).ToList();
             this.Operations = items.OfType<Operation>().ToList();
             this.types = items.OfType<IGraphQLType>().OrderBy(x => x.Name).ToList();
-
+            this.astPrinter = new AstPrinter(settings.TypeNameDirective);
             foreach (IGraphQLInitter i in items.OfType<IGraphQLInitter>().Where(x => !(x is Operation)))
             {
                 i.Resolve(this);
@@ -78,6 +79,15 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
                 i.Resolve(this);
             }
         }
+
+        internal GraphQLScalarValue ResolveSpecifiedTypeName(IEnumerable<GraphQLDirective> directives)
+        {
+            var directive = directives.SingleOrDefault(x => x.Name.Value == this.settings.TypeNameDirective);
+            var value = directive?.Arguments.SingleOrDefault(x => x.Name.Value == "type")?.Value;
+            var scalar = value as GraphQLParser.AST.GraphQLScalarValue;
+            return scalar;
+        }
+
         private List<GraphQLError> errors = new List<GraphQLError>();
         public IEnumerable<GraphQLError> Errors => errors;
 
@@ -90,10 +100,11 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             });
         }
 
-
         internal void AddError(ErrorCodes code, string message, ASTNode node)
+            => AddError(code, message, node.Location);
+
+        internal void AddError(ErrorCodes code, string message, GraphQLLocation location)
         {
-            var location = node.Location;
             (LocatedNamedSource part, int offsetStart, int length) = ResolveNode(location);
 
             var allTextBeforeError = part.Body.Substring(0, offsetStart);
@@ -114,10 +125,12 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         public IEnumerable<Operation> Operations { get; }
 
         private readonly GraphQLParser.AST.GraphQLDocument ast;
+        private readonly CodeGeneratorSettings settings;
 
         public IEnumerable<LocatedNamedSource> QueryParts { get; private set; }
 
         private List<IGraphQLType> types;
+        private readonly AstPrinter astPrinter;
 
         internal ValueTypeReference ResolveValueType(GraphQLType type)
         {
@@ -138,17 +151,20 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             }
             return (part, offsetStart, length);
         }
-
-        internal (string query, string filename) ResolveQuery(GraphQLLocation location)
+        internal string ResolveQuerySource(GraphQLLocation location)
         {
-            (LocatedNamedSource part, int offsetStart, int length) = ResolveNode(location);
+            (LocatedNamedSource part, _, _) = ResolveNode(location);
 
-            string text = part.Body.Substring(offsetStart, length);
-            // operations seems to include the start of the next token in the end of their location
-            // back track to the closing brace and take upto there
-            text = text.Substring(0, text.LastIndexOf('}')+1);
+            return part.Path;
+        }
 
-            return (text, part.Path);
+        internal string ResolveQuery(GraphQLOperationDefinition operation)
+        {
+            return astPrinter.Print(operation);
+        }
+        internal string ResolveFragment(GraphQLFragmentDefinition operation)
+        {
+            return astPrinter.Print(operation);
         }
 
         internal IGraphQLType ResolveType(GraphQLParser.AST.OperationType type)

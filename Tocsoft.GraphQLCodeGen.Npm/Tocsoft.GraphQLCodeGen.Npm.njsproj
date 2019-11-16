@@ -110,7 +110,6 @@
     <Content Include="..\Tocsoft.GraphQLCodeGen.Cli\bin\Debug\net46\publish\Tocsoft.GraphQLCodeGen.pdb">
       <Link>bin\Tocsoft.GraphQLCodeGen.pdb</Link>
     </Content>
-    <Content Include=".npmrc" />
     <Content Include="package.json" />
     <Content Include="README.md" />
   </ItemGroup>

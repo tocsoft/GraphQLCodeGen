@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp1.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
     <IncludeBuiltProjectOutputGroup>true</IncludeBuiltProjectOutputGroup>
     <OutputType>Library</OutputType>
     <NoPackageAnalysis>true</NoPackageAnalysis>
@@ -13,8 +13,8 @@
     <Description>msbuild targets for converting graphql queries to a strangle typed c# library</Description>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp1.0|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP1_0</DefineConstants>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETCOREAPP2_0</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

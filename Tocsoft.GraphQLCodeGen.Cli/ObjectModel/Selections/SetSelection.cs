@@ -7,11 +7,12 @@ using System.Linq;
 namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
 {
     // this is used to build to ResultObjectTypes
-    internal class SetSelection
+    internal class SetSelection: IGraphQLASTNodeLinked
     {
         private GraphQLNamedType TypeCondition { get; set; }
         private GraphQLSelectionSet op;
         public IGraphQLType RootType { get; set; }
+        public GraphQLScalarValue SpecifiedTypeName { get; set; }
 
         public string UniqueIdentifier { get; set; }
         public IEnumerable<FieldSelection> Fields => fields;
@@ -20,6 +21,8 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
         /// this makes up the list of named interfaces that we will be applying
         /// </summary>
         public IEnumerable<FragmentType> Fragments => fragmentsItems;
+
+        ASTNode IGraphQLASTNodeLinked.ASTNode => op;
 
         private List<FragmentType> fragmentsItems = new List<FragmentType>();
         private List<GraphQLName> fragmentNames;
@@ -57,7 +60,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
             }
         }
 
-        internal void Resolve(GraphQLDocument doc, IGraphQLType rootType)
+        internal void Resolve(GraphQLDocument doc, IGraphQLType rootType, GraphQLScalarValue specifiedTypeName = null)
         {
             this.RootType = rootType;
 
@@ -88,6 +91,8 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
                 var newFields = f.Fields.Where(x => !currentFieldRefs.Contains(x.UniqueIdentifier));
                 fields.AddRange(newFields);
             }
+
+            this.SpecifiedTypeName = specifiedTypeName;
 
             this.UniqueIdentifier = $"{this.TypeCondition?.Name?.Value}_{rootType?.Name}_{string.Join("|", this.Fields.Select(x => x.UniqueIdentifier))}_{string.Join("|", this.fragments.Select(x => x.UniqueIdentifier))}";
         }

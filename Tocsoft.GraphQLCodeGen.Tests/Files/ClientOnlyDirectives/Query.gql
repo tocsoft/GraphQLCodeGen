@@ -1,0 +1,10 @@
+﻿#! typeDirective: testCodeGen
+
+query q{
+    
+    test(id: "safsa") @testCodeGen(type:"TestResultABCD") 
+	{
+        nullable,
+        nonnullable
+    }
+}
