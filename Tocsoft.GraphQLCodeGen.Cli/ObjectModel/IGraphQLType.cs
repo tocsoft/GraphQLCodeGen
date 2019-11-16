@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using GraphQLParser.AST;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel
@@ -15,5 +16,9 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
     internal interface IGraphQLInitter
     {
         void Resolve(GraphQLDocument doc);
+    }
+    internal interface IGraphQLASTNodeLinked
+    {
+        ASTNode ASTNode { get; }
     }
 }

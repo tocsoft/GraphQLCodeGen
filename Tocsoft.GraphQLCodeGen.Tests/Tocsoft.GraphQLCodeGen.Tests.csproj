@@ -9,14 +9,34 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Files\ClientOnlyDirectives\QueryDuplicatedType.gql" />
+    <None Remove="Files\TemplateSettingsInJson\Query.gql" />
+    <None Remove="Files\ClientOnlyDirectives\ClientOnlyDirectivesSchema.gql" />
     <None Remove="Files\Issue_8\Quote.gql" />
+    <None Remove="Files\ClientOnlyDirectives\Query.gql" />
     <None Remove="Files\Issue_9\Issue9Schema.gql" />
     <None Remove="Files\Issue_9\Query.gql" />
     <None Remove="Files\Issue_9\QueryGitHub.gql" />
     <None Remove="Files\Issue_8\Schema.gql" />
+    <None Remove="Files\TemplateSettingsInJson\schema.gql" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Files\ClientOnlyDirectives\QueryDuplicatedType.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\TemplateSettingsInJson\schema.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\TemplateSettingsInJson\Query.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\ClientOnlyDirectives\ClientOnlyDirectivesSchema.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\ClientOnlyDirectives\Query.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Files\Issue_9\Query.gql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -45,6 +65,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Files\TemplateSettingsInJson\gqlsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\ClientOnlyDirectives\gqlsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Files\Includes_Settings\gqlsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

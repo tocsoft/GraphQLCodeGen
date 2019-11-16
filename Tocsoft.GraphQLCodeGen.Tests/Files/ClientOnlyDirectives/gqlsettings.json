@@ -1,0 +1,6 @@
+﻿{
+  "root": true,
+  "schema": "ClientOnlyDirectivesSchema.gql",
+  "output": "test.cs",
+  "class": "Sample.Client.Test"
+}

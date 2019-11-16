@@ -10,6 +10,8 @@ namespace Tocsoft.GraphQLCodeGen.Models
 {
     public class ViewModel
     {
+        private readonly ObjectModel.GraphQLDocument query;
+
         public string Namespace { get; private set; }
         public string ClassName { get; private set; }
 
@@ -27,6 +29,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
 
         internal ViewModel(GraphQLDocument query, CodeGeneratorSettings settings)
         {
+            this.query = query;
             this.Namespace = settings.Namespace;
             this.ClassName = settings.ClassName;
 
@@ -70,6 +73,16 @@ namespace Tocsoft.GraphQLCodeGen.Models
                 this.operationCollection.Add(opVM);
             }
         }
+
+        private void AddError(string message, IGraphQLASTNodeLinked node)
+        {
+            this.query.AddError(ErrorCodes.Unknown, message, node.ASTNode);
+        }
+        private void AddError(string message, GraphQLParser.AST.GraphQLLocation location)
+        {
+            this.query.AddError(ErrorCodes.Unknown, message, location);
+        }
+
         private string FullQuery(OperationViewModel opVM)
         {
             StringBuilder sb = new StringBuilder();
@@ -123,17 +136,32 @@ namespace Tocsoft.GraphQLCodeGen.Models
             }
         }
 
+        private Dictionary<string, string> specifiedNameToUniqueIdentifierLookup = new Dictionary<string, string>();
+
         private string GenerateType(SetSelection selection, string operationName = null)
         {
-            if (this.typeLookup.ContainsKey($"{operationName}_{selection.UniqueIdentifier}"))
+            if (selection.SpecifiedTypeName is object)
             {
-                return this.typeLookup[$"{operationName}_{selection.UniqueIdentifier}"]?.Name;
+                if (specifiedNameToUniqueIdentifierLookup.TryGetValue(selection.SpecifiedTypeName.Value, out var key) && key != selection.UniqueIdentifier)
+                {
+                    this.AddError($"'{selection.SpecifiedTypeName.Value}' already defined with different fields", selection.SpecifiedTypeName.Location);
+                }
             }
 
-            string name = FindBestName((operationName ?? selection.RootType.Name), "Result");
-            var lookupName = $"{operationName}_{selection.UniqueIdentifier}";
+            var lookupName = $"{operationName}_{selection.SpecifiedTypeName?.Value ?? selection.UniqueIdentifier}";
+            if (this.typeLookup.ContainsKey(lookupName))
+            {
+                return this.typeLookup[lookupName]?.Name;
+            }
+
+            string name = selection.SpecifiedTypeName?.Value ?? FindBestName((operationName ?? selection.RootType.Name), "Result");
 
             TypeViewModel type = BuildTypeViewModel(selection, name, lookupName);
+
+            if (selection.SpecifiedTypeName is object)
+            {
+                specifiedNameToUniqueIdentifierLookup[selection.SpecifiedTypeName.Value] = selection.UniqueIdentifier;
+            }
 
             return type.Name;
         }
@@ -251,74 +279,5 @@ namespace Tocsoft.GraphQLCodeGen.Models
             }
             return fieldName;
         }
-    }
-
-    public class OperationViewModel
-    {
-        public string Name { get; set; }
-        public TypeReferenceModel ResultType { get; internal set; }
-        public List<NamedTypeViewModel> Arguments { get; internal set; }
-        public string Query { get; internal set; }
-        public string QueryFragment  { get; internal set; }
-        public string NamedQuery { get; internal set; }
-
-        public OperationViewModel()
-        {
-
-        }
-    }
-
-
-    public class NamedTypeViewModel
-    {
-        //arguent & field are the same
-        public string Name { get; set; }
-        public TypeReferenceModel Type { get; set; }
-    }
-
-    public class EnumViewModel
-    {
-        public EnumViewModel(string name)
-        {
-            // typename register needed to ensure types don't clash
-            this.Name = name;
-        }
-
-        // a type is a list of fields and and unique name
-        public string Name { get; set; }
-        public IEnumerable<string> Values { get; set; }
-    }
-
-    public class TypeViewModel
-    {
-        // do we need to support interface or union types in the client, don't think we do
-        public TypeViewModel(string name)
-        {
-            // typename register needed to ensure types don't clash
-            this.Name = name;
-        }
-
-        //public IEnumerable<TypeViewModel> InheritsFrom { get; set; }
-        //public bool IsInterface { get; set; }
-
-        // a type is a list of fields and and unique name
-        public string Name { get; set; }
-
-        public bool IsInterface { get; set; }
-
-        public IEnumerable<NamedTypeViewModel> Fields { get; set; }
-
-        public IEnumerable<string> Interfaces { get; set; }
-    }
-
-
-    public class TypeReferenceModel
-    {
-        public string TypeName { get; set; }
-        public bool CanValueBeNull { get; set; }
-        public bool IsCollection { get; set; }
-        public bool CanCollectionBeNull { get; set; }
-        public bool IsScaler { get; set; }
-        public bool IsEnum { get; set; }
     }
 }

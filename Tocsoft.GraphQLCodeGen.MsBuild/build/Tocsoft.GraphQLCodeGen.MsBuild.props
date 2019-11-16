@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp1.0</GraphQLCodeGenAssemblyFolderRuntime>
+    <GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.0</GraphQLCodeGenAssemblyFolderRuntime>
     <GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net461</GraphQLCodeGenAssemblyFolderRuntime>
     <GraphQLCodeGenAssemblyFolder Condition =" '$(GraphQLCodeGenAssemblyFolder)' == '' ">$(MSBuildThisFileDirectory)..\tasks\$(GraphQLCodeGenAssemblyFolderRuntime)</GraphQLCodeGenAssemblyFolder>
 

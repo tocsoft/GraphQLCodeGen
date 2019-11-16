@@ -67,7 +67,7 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
             if (!fullFramework)
             {
                 realexe = "dotnet";
-                arguments = $"\"{Path.Combine(this.RootCliFolder, "netcoreapp1.0\\Tocsoft.GraphQLCodeGen.Cli.dll")}\" {arguments}";
+                arguments = $"\"{Path.Combine(this.RootCliFolder, "netcoreapp2.0\\Tocsoft.GraphQLCodeGen.Cli.dll")}\" {arguments}";
             }
 
             this.Log.LogMessage(MessageImportance.Low, "Executing  \"{0}\" {1}", realexe, arguments);

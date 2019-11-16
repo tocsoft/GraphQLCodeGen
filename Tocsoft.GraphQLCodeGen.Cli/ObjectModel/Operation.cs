@@ -7,7 +7,7 @@ using Tocsoft.GraphQLCodeGen.ObjectModel.Selections;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel
 {
-    internal class Operation : IGraphQLInitter
+    internal class Operation : IGraphQLInitter, IGraphQLASTNodeLinked
     {
         private GraphQLOperationDefinition operation;
 
@@ -17,6 +17,8 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         public SetSelection Selection { get; set; }
         public string Query { get; private set; }
         public string Path { get; private set; }
+
+        ASTNode IGraphQLASTNodeLinked.ASTNode => operation;
 
         public IEnumerable<SetSelection> DecendentsAndSelf()
         {
@@ -42,11 +44,11 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
             IGraphQLFieldCollection rootType = doc.ResolveType(this.operation.Operation) as IGraphQLFieldCollection;
            
-            (this.Query, this.Path) = doc.ResolveQuery(this.operation.Location);
+            this.Path = doc.ResolveQuerySource(this.operation.Location);
+            this.Query = doc.ResolveQuery(this.operation);
 
             this.Selection.Resolve(doc, rootType);
         }
 
-       
     }
 }

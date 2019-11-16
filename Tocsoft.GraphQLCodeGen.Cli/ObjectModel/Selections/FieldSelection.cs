@@ -59,7 +59,9 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
             if(this.Selection != null)
             {
                 IGraphQLType root = this.Type.Type.Type as IGraphQLType;
-                this.Selection.Resolve(doc, root);
+
+                var specifiedTypeName = doc.ResolveSpecifiedTypeName(this.op.Directives);
+                this.Selection.Resolve(doc, root, specifiedTypeName);
             }
 
             //if(selection != null)

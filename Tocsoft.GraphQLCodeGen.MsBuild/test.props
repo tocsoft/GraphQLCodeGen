@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <GraphQLCodeGenConfiguration>Debug</GraphQLCodeGenConfiguration>
-    <GraphQLCodeGenAssemblyFolder Condition=" '$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)bin\$(GraphQLCodeGenConfiguration)\netcoreapp1.0</GraphQLCodeGenAssemblyFolder>
+    <GraphQLCodeGenAssemblyFolder Condition=" '$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)bin\$(GraphQLCodeGenConfiguration)\netcoreapp2.0</GraphQLCodeGenAssemblyFolder>
     <GraphQLCodeGenAssemblyFolder Condition=" '$(MSBuildRuntimeType)' != 'Core'">$(MSBuildThisFileDirectory)bin\$(GraphQLCodeGenConfiguration)\net461</GraphQLCodeGenAssemblyFolder>
     <GraphQLCodeGenRootCliFolder>$(MSBuildThisFileDirectory)..\Tocsoft.GraphQLCodeGen.Cli\bin\$(GraphQLCodeGenConfiguration)</GraphQLCodeGenRootCliFolder>
   </PropertyGroup>

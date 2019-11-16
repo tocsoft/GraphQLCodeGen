@@ -10,13 +10,19 @@ namespace Tocsoft.GraphQLCodeGen
 {
     internal class IntrospectedSchemeParser
     {
-        public static GraphQLDocument Parse(IEnumerable<NamedSource> parts)
+        public static GraphQLDocument Parse(IEnumerable<NamedSource> parts, CodeGeneratorSettings settings)
         {
             List<LocatedNamedSource> sources = new List<LocatedNamedSource>();
             try
             {
                 StringBuilder sb = new StringBuilder();
                 int linecount = 0;
+
+                var codeGenDirective = $"directive @{settings.TypeNameDirective}( type: String ) on FIELD_DEFINITION";
+                linecount += codeGenDirective.Count(x => x == '\n') + 1;
+                sb.Append(codeGenDirective);
+                sb.Append('\n');
+
                 foreach (NamedSource part in parts)
                 {
                     int start = sb.Length;
@@ -35,12 +41,11 @@ namespace Tocsoft.GraphQLCodeGen
 
                     linecount += body.Count(x => x == '\n') + 1;
                 }
-
                 string final = sb.ToString();
                 var parser = new Parser(new Lexer());
                 var parsedDocument = parser.Parse(new Source(final));
 
-                return new GraphQLDocument(parsedDocument, sources);
+                return new GraphQLDocument(parsedDocument, sources, settings);
             }
             catch (GraphQLSyntaxErrorException ex)
             {
@@ -49,7 +54,7 @@ namespace Tocsoft.GraphQLCodeGen
                 var lineColSpliiter = trimedStart.IndexOf(':');
                 var lineColEnder = trimedStart.IndexOf(')');
                 int line = int.Parse(trimedStart.Substring(0, lineColSpliiter));
-                int col = int.Parse(trimedStart.Substring(lineColSpliiter+1, lineColEnder - lineColSpliiter -1));
+                int col = int.Parse(trimedStart.Substring(lineColSpliiter + 1, lineColEnder - lineColSpliiter - 1));
 
                 var endOfLine = trimedStart.IndexOf('\n');
                 var message = trimedStart.Substring(lineColEnder + 1, endOfLine - lineColEnder - 1).Trim();
@@ -69,6 +74,7 @@ namespace Tocsoft.GraphQLCodeGen
                 return GraphQLDocument.Error(ErrorCodes.UnhandledException, ex.ToString());
             }
         }
+
         public class LocatedNamedSource
         {
             public int StartAt { get; set; }
