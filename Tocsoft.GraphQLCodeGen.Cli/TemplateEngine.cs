@@ -47,11 +47,32 @@ namespace Tocsoft.GraphQLCodeGen
                 writer.WriteSafeString(args[0].ToString().Replace(toReplace, toReplaceWith));
             });
 
-            this.engine.RegisterHelper("ifTemplateSet", (writer, context, args) =>
+            HandlebarsBlockHelper ifTemplateHelper = (output, options, context, args) =>
             {
-                var val = this.engine.Compile("{{> " + args[0].ToString() + "}}")(context);
-                writer.WriteSafeString(string.IsNullOrWhiteSpace(val) ? "" : args[1]);
-            });
+                var val = this.engine.Compile("{{> " + args[0].ToString() + "}}")((object)context)?.ToString()?.Trim();
+                var isSet = !string.IsNullOrWhiteSpace(val);
+
+                if (args.Length > 1)
+                {
+                    isSet = val.Equals(args[1]?.ToString());
+                }
+
+                if (isSet)
+                {
+                    options.Template(output, context);
+                }
+                else
+                {
+                    options.Inverse(output, context);
+                }
+            };
+            this.engine.RegisterHelper("ifTemplate", ifTemplateHelper);
+
+            //this.engine.RegisterHelper("ifTemplateSet", (writer, context, args) =>
+            //{
+            //    var val = this.engine.Compile("{{> " + args[0].ToString() + "}}")(context);
+            //    writer.WriteSafeString(string.IsNullOrWhiteSpace(val) ? "" : args[1]);
+            //});
 
 
             this.engine.Configuration.TextEncoder = new NullEncoder();

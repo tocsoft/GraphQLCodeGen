@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 #line hidden
 namespace {{Namespace}}
@@ -13,16 +14,6 @@ namespace {{Namespace}}
 	{{> ClientInterface}}
 
 	{{> ClientClass}}
-
-	{{> ClientException}}
-	
-	{{#each Types}}
-		{{> TypeOrInterface}}
-	{{/each}}
-
-	{{#each Enums}}
-		{{> Enum}}
-	{{/each}}
 
 {{#if Namespace~}}
 }
@@ -32,23 +23,41 @@ namespace {{Namespace}}
 {{!# ClientExceptionBaseClass}} Exception
 {{!# interfaceBase }} 
 {{!# jsonConverters }} 
-
+{{!# BeforeInterfaceOperation}}
 
 {{!# ClientException}}
 	public sealed class {{ClassName}}Exception : {{> ClientExceptionBaseClass}}
-	{
-		public {{ClassName}}Exception(HttpResponseMessage response)
-			: base(response)
-		{
-		}
+	{	
+		{{ifTemplate 'ClientExceptionBaseClass' 'Exception'}}
+		public HttpResponseMessage Response { get; private set; }
+        public IEnumerable<string> ErrorMessages { get; private set; }
 
-		public {{ClassName}}Exception(IEnumerable<string> errorMessages, HttpResponseMessage response)
-			: base(errorMessages, response)
-		{
-		}
+        public {{ClassName}}Exception(HttpResponseMessage response)
+            : base("Error running graphql query, see response for more details")
+        {
+            this.Response = response;
+        }
+
+        public {{ClassName}}Exception(IEnumerable<string> errorMessages, HttpResponseMessage response)
+            : base("Error running graphql query, see error messages or response for more details")
+        {
+            this.Response = response;
+            this.ErrorMessages = errorMessages;
+        }
+		{{else}}
+		public {{ClassName}}Exception(HttpResponseMessage response)
+            : base(response)
+        {
+        }
+
+        public {{ClassName}}Exception(IEnumerable<string> errorMessages, HttpResponseMessage response)
+            : base(errorMessages, response)
+        {
+        }
+		{{/ifTemplate}}
 	}
 	
-{{!# ClientInterfaceBase}} {{ifTemplateSet 'InterfaceBase' ':'}} {{ > InterfaceBase}}
+{{!# ClientInterfaceBase}} {{ifTemplate 'InterfaceBase'}}: {{ > InterfaceBase}} {{/ifTemplate}}
 
 {{!# ClientInterface}}
 
@@ -76,9 +85,10 @@ namespace {{Namespace}}
 			return JsonConvert.SerializeObject(request, jsonSettings);
 		}
 
-		private string DeserializeBody<T>(GraphQLRequest request)
+		private async Task<GraphQLResponseData<T>> DeserializeBodyAsync<T>(HttpResponseMessage response)
 		{
-			var errorsResult = JsonConvert.DeserializeObject<GraphQLResponseErrors<T>>(jsonResult, jsonSettings);
+            var jsonResult = await response.Content.ReadAsStringAsync();
+            var errorsResult = JsonConvert.DeserializeObject<GraphQLResponseErrors<T>>(jsonResult, jsonSettings);
 
 			if (errorsResult.errors?.Any() == true) {
 				throw new {{ClassName}}Exception(errorsResult.errors.Select(x => x.Message), response);
@@ -117,10 +127,18 @@ namespace {{Namespace}}
 			public string Message { get; set; }
 		}
 
+        {{> ClientException}}
+
 		{{#each Operations}}
 			{{> Operation}}
+		{{/each}}
+	
+		{{#each Types}}
+			{{> TypeOrInterface}}
+		{{/each}}
 
-
+		{{#each Enums}}
+			{{> Enum}}
 		{{/each}}
 	}
 	
@@ -154,27 +172,29 @@ namespace {{Namespace}}
 		{{/each}}
 	}
 {{!# InterfaceOperation}}
+        {{ > BeforeInterfaceOperation}}
 		Task<{{> TypeReference ResultType}}> {{pascalCase Name}}Async({{> ArgumentList Arguments}});
 
 {{!# Operation}}
-		public async Task<{{> TypeReference ResultType}}> {{pascalCase Name}}Async({{> ArgumentList Arguments}})
-		{
-			var query = @"{{replace Query '"' '""'}}";
 
-			var variables = new Dictionary<string, object> 
+		public Task<{{> TypeReference ResultType}}> {{pascalCase Name}}Async({{> ArgumentList Arguments}})
+		{
+            return _{{Name}}Async(new Dictionary<string, object> 
 			{
 				{{#each Arguments}}
 				{ @"{{replace Name '"' '""'}}", {{camelCase Name}} },
 				{{/each}}
-			};
-			
-			var stringContent = SerializeBody(new GraphQLRequest()
+			});
+		}
+
+        private async Task<{{> TypeReference ResultType}}> _{{Name}}Async(Dictionary<string, object> variables)
+		{
+			const string query = @"{{replace Query '"' '""'}}";
+        	var stringContent = SerializeBody(new GraphQLRequest()
 			{
 				query = query,
 				variables = variables,
 			});
-
-
 			var request = new HttpRequestMessage();
 
 			var content = new StringContent(stringContent);
@@ -193,9 +213,7 @@ namespace {{Namespace}}
 				throw new {{../ClassName}}Exception(response);
 			}
 
-			var jsonResult = await response.Content.ReadAsStringAsync();
-			
-			var result = DeserializeBody<{{> TypeReference ResultType}}>(jsonResult)
+			var result = await DeserializeBodyAsync<{{> TypeReference ResultType}}>(response);
 
 			if (result == null)
 			{
@@ -203,7 +221,7 @@ namespace {{Namespace}}
 			}
 
 			return result.data;
-		}
+        }
 		
 {{!# ArgumentList}}
 		{{~#each~ .}}
