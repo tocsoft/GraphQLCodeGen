@@ -1,0 +1,7 @@
+﻿query q{
+    test(id: "safsa")
+	{
+        nullable,
+        nonnullable
+    }
+}

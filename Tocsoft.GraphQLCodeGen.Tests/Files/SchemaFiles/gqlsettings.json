@@ -1,0 +1,10 @@
+﻿{
+  "root": true,
+  "schema": "schema.gqlschema",
+  "output": "test.cs",
+  "class": "Sample.Client.Test",
+
+  "templateSettings": {
+    "interfaceBase": "IFooBase"
+  }
+}

@@ -8,17 +8,20 @@ using System.Linq;
 using Tocsoft.GraphQLCodeGen.Cli;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices.ComTypes;
+using Tocsoft.GraphQLCodeGen.Models;
 
 namespace Tocsoft.GraphQLCodeGen
 {
     public class TemplateEngine
     {
         private readonly ILogger logger;
+        private readonly ViewModel model;
         private IHandlebars engine;
 
-        public TemplateEngine(IEnumerable<string> templates, IDictionary<string, string> templateArguments, ILogger logger)
+        public TemplateEngine(IEnumerable<string> templates, IDictionary<string, string> templateArguments, ILogger logger, Models.ViewModel model)
         {
             this.logger = logger;
+            this.model = model;
             this.engine = HandlebarsDotNet.Handlebars.Create(new HandlebarsConfiguration
             {
                 ThrowOnUnresolvedBindingExpression = true,
@@ -45,6 +48,34 @@ namespace Tocsoft.GraphQLCodeGen
                 string toReplaceWith = args[2].ToString();
 
                 writer.WriteSafeString(args[0].ToString().Replace(toReplace, toReplaceWith));
+            });
+
+            this.engine.RegisterHelper("resolve", (writer, context, args) =>
+            {
+                string target = args[0].ToString();
+
+                var currentDirectory = Path.GetDirectoryName(model.OutputPath);
+                System.Uri uri1;
+                if (target.StartsWith("~/"))
+                {
+                    uri1 = new Uri(Path.GetFullPath(Path.Combine(model.RootPath, target.Substring(2))));
+                }
+                else
+                {
+                    uri1 = new Uri(target, UriKind.Relative);
+                }
+
+                System.Uri uri2 = new Uri(currentDirectory.TrimEnd() + "\\");
+
+                Uri relativeUri = uri2.MakeRelativeUri(uri1);
+
+                var path = relativeUri.ToString();
+                if (path[0] != '.')
+                {
+                    path = "./" + path;
+                }
+
+                writer.WriteSafeString(path);
             });
 
             HandlebarsBlockHelper ifTemplateHelper = (output, options, context, args) =>
@@ -115,7 +146,7 @@ namespace Tocsoft.GraphQLCodeGen
 
         private Func<object, string> template;
 
-        public string Generate(object model)
+        public string Generate()
         {
             try
             {

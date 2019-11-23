@@ -1,0 +1,19 @@
+﻿
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  test(id: string!): Droid
+}
+
+type Droid {
+    nullable: Date
+    nonnullable: Date!
+    name: String!
+}
+
+scalar Date
+
+scalar String

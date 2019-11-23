@@ -1,5 +1,7 @@
 ﻿{{!# Includes }}
 
+{{!# ClientClassDecorators }}
+
 {{!# Main}}
 /* tslint:disable */
 //----------------------
@@ -35,6 +37,7 @@ function {{pascalCase ClassName}}Error(message:string, httpResponse:Response, gr
   
 export { {{pascalCase ClassName}}Error }
 
+{{>ClientClassDecorators}}
 export default class {{pascalCase ClassName}}Client {
 
     constructor(public client: fetchClient, public url: string) { }
@@ -139,6 +142,12 @@ export class {{pascalCase Name}} {
 {{!# TypeReference_ID}}
 	{{~> RenderTypeReference  typename='string' isValueType=false fixCase=false isCollection=IsCollection nullable=CanValueBeNull collectionNullable=CanCollectionBeNull }}
 
+{{!# TypeReference_GUID}}
+	{{~> RenderTypeReference  typename='string' isValueType=false fixCase=false isCollection=IsCollection nullable=CanValueBeNull collectionNullable=CanCollectionBeNull }}
+
+{{!# TypeReference_Uuid}}
+	{{~> RenderTypeReference  typename='string' isValueType=false fixCase=false isCollection=IsCollection nullable=CanValueBeNull collectionNullable=CanCollectionBeNull }}
+
 {{!# TypeReference_Float}}
 	{{~> RenderTypeReference typename='number' isValueType=true fixCase=false isCollection=IsCollection nullable=CanValueBeNull collectionNullable=CanCollectionBeNull  }}
 
@@ -168,6 +177,12 @@ export class {{pascalCase Name}} {
 	result.{{camelCase Name}} = json["{{camelCase Name}}"];
 
 {{!# FieldSetter_ID}}
+	result.{{camelCase Name}} = json["{{camelCase Name}}"];
+
+{{!# FieldSetter_GUID}}
+	result.{{camelCase Name}} = json["{{camelCase Name}}"];
+
+{{!# FieldSetter_Uuid}}
 	result.{{camelCase Name}} = json["{{camelCase Name}}"];
 
 {{!# FieldSetter_Float}}

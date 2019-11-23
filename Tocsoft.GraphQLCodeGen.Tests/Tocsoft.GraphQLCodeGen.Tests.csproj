@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
@@ -10,6 +10,10 @@
 
   <ItemGroup>
     <None Remove="Files\ClientOnlyDirectives\QueryDuplicatedType.gql" />
+    <None Remove="Files\SchemaFiles\Query.gql" />
+    <None Remove="Files\SchemaFiles\schema.gqlschema" />
+    <None Remove="Files\TypescriptCodeGen\Query.gql" />
+    <None Remove="Files\TypescriptCodeGen\schema.gql" />
     <None Remove="Files\TemplateSettingsInJson\Query.gql" />
     <None Remove="Files\ClientOnlyDirectives\ClientOnlyDirectivesSchema.gql" />
     <None Remove="Files\Issue_8\Quote.gql" />
@@ -19,10 +23,23 @@
     <None Remove="Files\Issue_9\QueryGitHub.gql" />
     <None Remove="Files\Issue_8\Schema.gql" />
     <None Remove="Files\TemplateSettingsInJson\schema.gql" />
+    <None Remove="Files\TypescriptCodeGen\seg1\seg2\Query.gql" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Files\ClientOnlyDirectives\QueryDuplicatedType.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\SchemaFiles\Query.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\SchemaFiles\schema.gqlschema">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\TypescriptCodeGen\Query.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\TypescriptCodeGen\schema.gql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Files\TemplateSettingsInJson\schema.gql">
@@ -52,6 +69,9 @@
     <Content Include="Files\Issue_8\Schema.gql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Files\TypescriptCodeGen\seg1\seg2\Query.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -65,6 +85,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Files\SchemaFiles\gqlsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\TypescriptCodeGen\gqlsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Files\TemplateSettingsInJson\gqlsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

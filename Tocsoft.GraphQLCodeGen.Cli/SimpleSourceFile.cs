@@ -18,6 +18,7 @@ namespace Tocsoft.GraphQLCodeGen
         public Dictionary<string, string> TemplateSettings { get; set; } = new Dictionary<string, string>();
         public List<string> Includes { get; set; } = new List<string>();
         public SchemaSource SchemaSource { get; set; }
+        public string RootPath { get; set; }
 
         internal string SettingsHash()
         {
@@ -26,6 +27,8 @@ namespace Tocsoft.GraphQLCodeGen
             sb.Append(ClassName);
             sb.Append("~#~");
             sb.Append(OutputPath);
+            sb.Append("~#~");
+            sb.Append(RootPath);
             sb.Append("~#~");
             sb.Append(Format);
             sb.Append("~#~");

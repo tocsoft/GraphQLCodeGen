@@ -13,6 +13,7 @@ namespace Tocsoft.GraphQLCodeGen
 
         public IEnumerable<string> Templates { get; set; }
         public IDictionary<string, string> TemplateSettings { get; internal set; }
+        public string RootPath { get; internal set; }
         internal SchemaSource Schema { get; set; }
     }
 }

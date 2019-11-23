@@ -70,7 +70,7 @@ namespace Tocsoft.GraphQLCodeGen
 
         internal void Render()
         {
-            this.GeneratedCode = new TemplateEngine(this.settings.Templates, this.settings.TemplateSettings, logger).Generate(Model);
+            this.GeneratedCode = new TemplateEngine(this.settings.Templates, this.settings.TemplateSettings, logger, Model).Generate();
         }
 
         internal void Parse()

@@ -14,6 +14,8 @@ namespace Tocsoft.GraphQLCodeGen.Models
 
         public string Namespace { get; private set; }
         public string ClassName { get; private set; }
+        public string OutputPath { get; }
+        public string RootPath { get; }
 
         private Dictionary<string, TypeViewModel> typeLookup = new Dictionary<string, TypeViewModel>();
         private Dictionary<IGraphQLType, string> inputTypeLookup = new Dictionary<IGraphQLType, string>();
@@ -32,6 +34,8 @@ namespace Tocsoft.GraphQLCodeGen.Models
             this.query = query;
             this.Namespace = settings.Namespace;
             this.ClassName = settings.ClassName;
+            this.OutputPath = settings.OutputPath;
+            this.RootPath = settings.RootPath;
 
             this.typeLookup = new Dictionary<string, TypeViewModel>();
             this.inputTypeLookup = new Dictionary<IGraphQLType, string>();

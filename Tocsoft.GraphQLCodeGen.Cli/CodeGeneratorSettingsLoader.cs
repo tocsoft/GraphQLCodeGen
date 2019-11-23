@@ -78,6 +78,7 @@ namespace Tocsoft.GraphQLCodeGen
                     ClassName = cn,
                     Namespace = nspc,
                     OutputPath = first.OutputPath,
+                    RootPath = first.RootPath,
                     TypeNameDirective = first.TypeNameDirective,
                     SourceFiles = x.Select(p => new NamedSource
                     {
@@ -324,6 +325,11 @@ namespace Tocsoft.GraphQLCodeGen
                         file.SchemaSource.Location = GlobExpander.FindFile(root, file.SchemaSource.Location);
                     }
                 }
+            }
+
+            if (settings.Root)
+            {
+                file.RootPath = root;
             }
 
             return settings.Root;
