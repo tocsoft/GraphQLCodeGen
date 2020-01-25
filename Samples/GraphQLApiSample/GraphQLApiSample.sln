@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29521.150
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQLApiSample", "GraphQLApiSample\GraphQLApiSample.csproj", "{ED5F7410-7D28-4EA9-AE70-DDD5B45D2FFA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample", "..\ClientSample\Sample.csproj", "{A729BB88-11EF-4ACD-9740-46B1F19181E0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.TS", "..\ClientSampleTypescipt\Sample.TS.csproj", "{1BB6D255-B146-4136-96A3-677CF0762961}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{A729BB88-11EF-4ACD-9740-46B1F19181E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A729BB88-11EF-4ACD-9740-46B1F19181E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A729BB88-11EF-4ACD-9740-46B1F19181E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BB6D255-B146-4136-96A3-677CF0762961}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BB6D255-B146-4136-96A3-677CF0762961}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BB6D255-B146-4136-96A3-677CF0762961}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BB6D255-B146-4136-96A3-677CF0762961}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

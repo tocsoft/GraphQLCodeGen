@@ -238,7 +238,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
                     throw new Exception("dunno???");
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 throw;
             }

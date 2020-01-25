@@ -215,6 +215,10 @@ namespace Tocsoft.GraphQLCodeGen
 
             LoadSettingsTree(file);
 
+            if (File.Exists(settings.OverridesPath))
+            {
+                ExpandSettings(settings.OverridesPath, file, true);
+            }
 
             if (string.IsNullOrWhiteSpace(file.TypeNameDirective))
             {
@@ -262,25 +266,25 @@ namespace Tocsoft.GraphQLCodeGen
             return file;
         }
 
-        private bool ExpandSettings(string path, SimpleSourceFile file)
+        private bool ExpandSettings(string path, SimpleSourceFile file, bool overwrite = false)
         {
             var root = Path.GetDirectoryName(path);
             var settingsJson = File.ReadAllText(path);
 
             var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<SimpleSettings>(settingsJson);
-            if (!string.IsNullOrWhiteSpace(settings.Class) && string.IsNullOrWhiteSpace(file.ClassName))
+            if (!string.IsNullOrWhiteSpace(settings.Class) && (string.IsNullOrWhiteSpace(file.ClassName) || overwrite))
             {
                 file.ClassName = settings.Class;
             }
-            if (!string.IsNullOrWhiteSpace(settings.TypeNameDirective) && string.IsNullOrWhiteSpace(file.TypeNameDirective))
+            if (!string.IsNullOrWhiteSpace(settings.TypeNameDirective) && (string.IsNullOrWhiteSpace(file.TypeNameDirective) || overwrite))
             {
                 file.TypeNameDirective = settings.TypeNameDirective;
             }
-            if (!string.IsNullOrWhiteSpace(settings.Output) && string.IsNullOrWhiteSpace(file.OutputPath))
+            if (!string.IsNullOrWhiteSpace(settings.Output) && (string.IsNullOrWhiteSpace(file.OutputPath) || overwrite))
             {
                 file.OutputPath = GenerateFullPath(root, settings.Output);
             }
-            if (!string.IsNullOrWhiteSpace(settings.Format) && string.IsNullOrWhiteSpace(file.Format))
+            if (!string.IsNullOrWhiteSpace(settings.Format) && (string.IsNullOrWhiteSpace(file.Format) || overwrite))
             {
                 file.Format = settings.Format;
             }
@@ -297,7 +301,7 @@ namespace Tocsoft.GraphQLCodeGen
             {
                 foreach (var t in settings.TemplateSettings)
                 {
-                    if(!file.TemplateSettings.TryGetValue(t.Key, out _))
+                    if (!file.TemplateSettings.TryGetValue(t.Key, out _))
                     {
                         // set if doesn't exist
                         file.TemplateSettings[t.Key] = t.Value;
@@ -314,7 +318,7 @@ namespace Tocsoft.GraphQLCodeGen
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(file.SchemaSource?.Location))
+            if (string.IsNullOrWhiteSpace(file.SchemaSource?.Location) || overwrite)
             {
                 if (settings.Schema != null && !string.IsNullOrWhiteSpace(settings.Schema.Location))
                 {

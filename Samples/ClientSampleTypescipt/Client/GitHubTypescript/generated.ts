@@ -39,9 +39,9 @@ export default class GitHubTsClient {
         return this.client.fetch(this.url, {
             method : 'POST',
             body : JSON.stringify({
-                query : `mutation ($repositoyId : ID!){
-  addStar(input :{clientMutationId : "123",  starrableId :$repositoyId }){
-    starrable {
+                query : `{
+  addStar(input: {clientMutationId: "123", starrableId: $repositoyId}){
+    starrable{
       viewerHasStarred
     }
   }
@@ -71,10 +71,10 @@ export default class GitHubTsClient {
         return this.client.fetch(this.url, {
             method : 'POST',
             body : JSON.stringify({
-                query : `query  {
-  viewer {
-    login,
-	bio,
+                query : `query {
+  viewer{
+    login
+    bio
   }
 }
 `,
@@ -101,20 +101,20 @@ export default class GitHubTsClient {
         return this.client.fetch(this.url, {
             method : 'POST',
             body : JSON.stringify({
-                query : `query ($type : SearchType!, $query : String!) {
-  viewer {
+                query : `query ($type: SearchType!, $query: String!) {
+  viewer{
     login
   }
-  search(first : 10, type : $type, query : $query){
+  search(first: 10, type: $type, query: $query){
     nodes{
       __typename
-			... on Issue {
-        author {
+      ... on Issue {
+        author{
           login
         }
       }
-      ... on PullRequest{
-        author {
+      ... on PullRequest {
+        author{
           login
         }
       }
@@ -147,21 +147,21 @@ export default class GitHubTsClient {
         return this.client.fetch(this.url, {
             method : 'POST',
             body : JSON.stringify({
-                query : `query ($login:String!, $repoCount: Int!){
+                query : `query ($login: String!, $repoCount: Int!) {
   user(login: $login){
-    login,
-    bio,
-    first :repositories(first : $repoCount){
+    login
+    bio
+    first: repositories(first: $repoCount){
       nodes{
-        id,
-        name,
+        id
+        name
         updatedAt
       }
-    },
-	last :repositories(last : $repoCount){
+    }
+    last: repositories(last: $repoCount){
       nodes{
-        id,
-        name,
+        id
+        name
         updatedAt
       }
     }

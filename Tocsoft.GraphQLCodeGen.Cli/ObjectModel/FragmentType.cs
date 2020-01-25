@@ -12,7 +12,6 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
     internal class FragmentType : IGraphQLType, IGraphQLInitter
     {
         private readonly GraphQLFragmentDefinition definition;
-        private GraphQLSelectionSet selectionSet;
         private IGraphQLFieldCollection rootType;
 
         public string Name { get; set; }
@@ -30,11 +29,10 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             this.Selection = new SetSelection(this.definition);
         }
 
-        bool resolved = false;
         public void Resolve(GraphQLDocument doc)
         {
-            IGraphQLFieldCollection rootType = doc.ResolveType(this.definition.TypeCondition) as IGraphQLFieldCollection;
-            this.Selection.Resolve(doc, rootType);
+            this.rootType = doc.ResolveType(this.definition.TypeCondition) as IGraphQLFieldCollection;
+            this.Selection.Resolve(doc, this.rootType);
             this.Path = doc.ResolveQuerySource(this.definition.Location);
             this.Query = doc.ResolveFragment(this.definition);
         }

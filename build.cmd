@@ -13,9 +13,9 @@ ECHO Building nuget packages
 dotnet test ./Tocsoft.GraphQLCodeGen.Tests/Tocsoft.GraphQLCodeGen.Tests.csproj -c Release
 
 if not "%GitVersion_NuGetVersion%" == "" (
-	dotnet pack Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj /p:NuspecFile=Tocsoft.GraphQLCodeGen.MsBuild.nuspec --verbosity normal  /p:nuspecproperties=\"version=%GitVersion_NuGetVersion%;configuration=Release\" -c Release --output ../artifacts --no-build /p:packageversion=%GitVersion_NuGetVersion%
+	dotnet pack Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj /p:NuspecFile=Tocsoft.GraphQLCodeGen.MsBuild.nuspec --verbosity normal  /p:nuspecproperties=\"version=%GitVersion_NuGetVersion%;configuration=Release\" -c Release --output ./artifacts --no-build /p:packageversion=%GitVersion_NuGetVersion%
 )ELSE ( 
-	dotnet pack Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj /p:NuspecFile=Tocsoft.GraphQLCodeGen.MsBuild.nuspec --verbosity normal  /p:nuspecproperties=\"version=1.0.0;configuration=Release\" -c Release --output ../artifacts --no-build /p:packageversion=1.0.0
+	dotnet pack Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj /p:NuspecFile=Tocsoft.GraphQLCodeGen.MsBuild.nuspec --verbosity normal  /p:nuspecproperties=\"version=1.0.0;configuration=Release\" -c Release --output ./artifacts --no-build /p:packageversion=1.0.0
 )
 if not "%errorlevel%"=="0" goto failure
 
@@ -25,6 +25,7 @@ REM lets copy the published files from the release folders into a binaries folde
 
 xcopy ..\Tocsoft.GraphQLCodeGen.Cli\bin\Release\net461\publish binaries\net461 /IYS
 xcopy ..\Tocsoft.GraphQLCodeGen.Cli\bin\Release\netcoreapp2.0\publish binaries\netcoreapp2.0 /IYS
+xcopy ..\Tocsoft.GraphQLCodeGen.Cli\bin\Release\netcoreapp3.1\publish binaries\netcoreapp3.1 /IYS
 
 call npm version 0.0.1 
 if not "%GitVersion_NuGetVersion%" == "" (

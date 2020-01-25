@@ -27,6 +27,8 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
         [Required]
         public string Timeout { get; set; }
 
+        public string SettingsPath { get; set; }
+
         [Output]
         public ITaskItem[] GeneratedCompile { get; set; }
 
@@ -60,14 +62,19 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
 
             string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
-            string settingArgs = string.Join(" ", settings.Select(x => $"\"{Path.GetFullPath(x.ItemSpec)}\""));
-            string arguments = $"{settingArgs} --msbuild-outputdir \"{Path.GetFullPath(tempFolder).TrimEnd(new[] { '\\', '/' })}\"";
+            string settingArgs = string.Join(" ", settings.Select(x => Path.GetFullPath(x.ItemSpec).EscapeAndQuotePathArgument()));
+            string arguments = $"{settingArgs} --msbuild-outputdir {Path.GetFullPath(tempFolder).EscapeAndQuotePathArgument()}";
+
+            if (!string.IsNullOrWhiteSpace(SettingsPath))
+            {
+                arguments = $"{arguments} --settings {Path.GetFullPath(SettingsPath).EscapeAndQuotePathArgument()}";
+            }
 
             string realexe = exePath;
             if (!fullFramework)
             {
                 realexe = "dotnet";
-                arguments = $"\"{Path.Combine(this.RootCliFolder, "netcoreapp2.0\\Tocsoft.GraphQLCodeGen.Cli.dll")}\" {arguments}";
+                arguments = $"\"{Path.Combine(this.RootCliFolder, "netcoreapp3.1\\Tocsoft.GraphQLCodeGen.Cli.dll")}\" {arguments}";
             }
 
             this.Log.LogMessage(MessageImportance.Low, "Executing  \"{0}\" {1}", realexe, arguments);
@@ -226,6 +233,18 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
 
             // Return the hexadecimal string.
             return sBuilder.ToString();
+        }
+    }
+
+    internal static class Helpers
+    {
+        public static string EscapeAndQuoteArgument(this string txt)
+        {
+            return $"\"{txt.TrimEnd(new[] { '\\', '/' })}\"";
+        }
+        public static string EscapeAndQuotePathArgument(this string txt)
+        {
+            return txt.TrimEnd(new[] { '\\', '/' }).EscapeAndQuoteArgument(); ;
         }
     }
 }

@@ -995,7 +995,7 @@
             "deprecationReason": null
           },
           {
-            "name": "viewer1",
+            "name": "viewer",
             "description": "The currently authenticated user.",
             "args": [],
             "type": {

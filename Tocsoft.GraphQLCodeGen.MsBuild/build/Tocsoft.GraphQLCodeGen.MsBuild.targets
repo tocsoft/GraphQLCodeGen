@@ -25,6 +25,7 @@
       None="@(None)"
       Timeout="$(GraphQLCodeGenTimeOut)"
       IntermediateOutputDirectory="$(IntermediateOutputPath)"
+      SettingsPath="$(GraphQLCodeGenAdditionalSettingsPath)"
       RootCliFolder="$(GraphQLCodeGenRootCliFolder)">
       <Output TaskParameter="GeneratedCompile" ItemName="GeneratedCodeFromAttribute_Compile" />
       <Output TaskParameter="GeneratedCompile" ItemName="FileWrites" />

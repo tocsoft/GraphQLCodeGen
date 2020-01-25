@@ -54,7 +54,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             Assert.DoesNotContain(@"ITest :", code);
         }
         [Fact]
-        public async Task InterfaceBaseSectionReadFromJson()
+        public void InterfaceBaseSectionReadFromJson()
         {
             var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/TemplateSettingsInJson/Query.gql" }).Single();
 

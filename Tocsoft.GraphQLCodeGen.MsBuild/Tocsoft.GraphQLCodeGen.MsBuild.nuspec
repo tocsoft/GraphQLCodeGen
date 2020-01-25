@@ -14,5 +14,6 @@
 
     <file src="..\Tocsoft.GraphQLCodeGen.Cli\bin\$configuration$\net461\publish\**\*.*" target="tasks\binaries\net461" />
     <file src="..\Tocsoft.GraphQLCodeGen.Cli\bin\$configuration$\netcoreapp2.0\publish\**\*.*" target="tasks\binaries\netcoreapp2.0" />
+    <file src="..\Tocsoft.GraphQLCodeGen.Cli\bin\$configuration$\netcoreapp3.1\publish\**\*.*" target="tasks\binaries\netcoreapp3.1" />
   </files>
 </package>

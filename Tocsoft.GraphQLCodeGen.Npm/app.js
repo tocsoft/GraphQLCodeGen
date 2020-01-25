@@ -37,9 +37,9 @@ if (hasFullDotNet) {
     }
 } else {
     if (isDevMode) {
-        binaryPath = __dirname + '../Tocsoft.GraphQLCodeGen.Cli/bin/debug/netcoreapp2.0/Tocsoft.GraphQLCodeGen.Cli.dll';
+        binaryPath = __dirname + '../Tocsoft.GraphQLCodeGen.Cli/bin/debug/netcoreapp3.1/Tocsoft.GraphQLCodeGen.Cli.dll';
     } else {
-        binaryPath = __dirname + '/binaries/netcoreapp2.0/Tocsoft.GraphQLCodeGen.Cli.dll';
+        binaryPath = __dirname + '/binaries/netcoreapp3.1/Tocsoft.GraphQLCodeGen.Cli.dll';
     }
 }
 

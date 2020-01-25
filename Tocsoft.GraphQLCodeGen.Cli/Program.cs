@@ -41,9 +41,10 @@ namespace Tocsoft.GraphQLCodeGen.Cli
         public static void MainApplication(CommandLineApplication app)
         {
 
-            CommandArgument sourceArgument = app.Argument("source", "The settings file for gerating the code from", true);
+            CommandArgument sourceArgument = app.Argument("source", "The query files for gerating the code from", true);
             CommandOption msbuildMode = app.Option("--msbuild-outputdir", "The directory", CommandOptionType.SingleValue);
             CommandOption format = app.Option("--format", "The export format", CommandOptionType.SingleValue);
+            CommandOption overrideSettingsPath = app.Option("--settings", "The path to a settings file to override values", CommandOptionType.SingleValue);
 
             app.OnExecute(async () =>
             {
@@ -61,13 +62,22 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                 if (inMsbuildMode)
                 {
                     var targetPattern = Path.Combine(msbuildMode.Value(), "{classname}.cs");
+
+                    var oldFF = loaderSettings.FixFile;
                     loaderSettings.FixFile = (f) =>
                     {
+                        oldFF?.Invoke(f);
+
                         if (f.Format == "cs")
                         {
                             f.OutputPath = targetPattern;
                         }
                     };
+                }
+
+                if (overrideSettingsPath.HasValue())
+                {
+                    loaderSettings.OverridesPath = Path.GetFullPath(overrideSettingsPath.Value());
                 }
 
                 IEnumerable<CodeGeneratorSettings> settings = settingsLoader.GenerateSettings(loaderSettings, sourceArgument.Values);
@@ -125,10 +135,10 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                 AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
                 {
                     var name = args.Name.Split(new[] { ',' }, 2)[0];
-                    var res =  AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(x =>
-                    {
-                        return x.GetName().Name == name;
-                    });
+                    var res = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(x =>
+                   {
+                       return x.GetName().Name == name;
+                   });
 
                     return res;
                 };
@@ -154,7 +164,7 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                     try
                     {
 #if NET461
-                    
+
                         var assembly = Assembly.LoadFile(toLoad);
                         allAssemblies.Add(assembly);
 #else
@@ -167,7 +177,7 @@ namespace Tocsoft.GraphQLCodeGen.Cli
                         }
 
                     }
-                    catch (Exception ex)
+                    catch 
                     {
                     }
                 }
