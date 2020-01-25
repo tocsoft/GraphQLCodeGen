@@ -50,12 +50,13 @@ namespace Tocsoft.GraphQLCodeGen
                 sourceFiles.Add(loaded);
 
             }
-
-            var grouped = sourceFiles.GroupBy(x => new
-            {
-                hash = x.SettingsHash()
-            }).ToList();
-
+            var schemaFiles = sourceFiles.Select(x => x.SchemaSource?.Location);
+            var grouped = sourceFiles
+                .Where(x => !schemaFiles.Contains(x.Path)) // exclude files linked in a schemas
+                .GroupBy(x => new
+                {
+                    hash = x.SettingsHash()
+                }).ToList();
 
             return grouped.Select(x =>
             {

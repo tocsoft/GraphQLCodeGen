@@ -27,6 +27,7 @@ namespace {{Namespace}}
 {{!# interfaceBase }} 
 {{!# jsonConverters }} 
 {{!# BeforeInterfaceOperation}}
+{{!# StringifyEnums}} true
 
 {{!# ClientException}}
 	public sealed class {{ClassName}}Exception : {{> ClientExceptionBaseClass}}
@@ -167,6 +168,50 @@ namespace {{Namespace}}
 	}
 	
 {{!# Enum}}
+
+	{{ifTemplate 'StringifyEnums' 'true'}}
+		public class {{pascalCase Name}}
+		{
+			static Dictionary<string, {{pascalCase Name}}> lookup = new Dictionary<string, {{pascalCase Name}}>();
+
+			public string Value { get; }
+			public bool IsDefined { get; }
+
+			private {{pascalCase Name}}(string value, bool isDefined)
+			{
+				this.Value = value;
+				this.IsDefined = isDefined;
+			}
+
+			private static {{pascalCase Name}} Create(string value, bool isDefined)
+			{
+				if (lookup.TryGetValue(value, out var val))
+				{
+					return val;
+				}
+
+				lock (lookup)
+				{
+					if (lookup.TryGetValue(value, out val))
+					{
+						return val;
+					}
+
+					val = new {{pascalCase Name}}(value, isDefined);
+					lookup.Add(value, val);
+
+					return val;
+				}
+			}
+
+			public static implicit operator {{pascalCase Name}}(string value) => Create(value, false);
+			public static implicit operator string({{pascalCase Name}} value) => value.Value;
+			
+			{{#each Values}}
+			public static readonly {{pascalCase ../Name}} {{pascalCase .}} = Create("{{.}}", true);
+			{{/each}}
+		}
+	{{else}}
 	[JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
 	public enum {{pascalCase Name}}
 	{
@@ -174,6 +219,8 @@ namespace {{Namespace}}
 		{{.}},
 		{{/each}}
 	}
+	{{/ifTemplate}}
+
 {{!# InterfaceOperation}}
         {{ > BeforeInterfaceOperation}}
 		Task<{{> TypeReference ResultType}}> {{pascalCase Name}}Async({{> ArgumentList Arguments}});

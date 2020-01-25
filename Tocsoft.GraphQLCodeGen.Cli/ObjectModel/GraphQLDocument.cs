@@ -68,7 +68,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             this.settings = settings;
             List<object> items = ast.Definitions.Select(this.Visit).ToList();
             this.Operations = items.OfType<Operation>().ToList();
-            this.types = items.OfType<IGraphQLType>().OrderBy(x => x.Name).ToList();
+            this.types = items.OfType<IGraphQLType>().GroupBy(x=>x.Name).Select(x=>x.First()).ToList();
             this.astPrinter = new AstPrinter(settings.TypeNameDirective);
             foreach (IGraphQLInitter i in items.OfType<IGraphQLInitter>().Where(x => !(x is Operation)))
             {

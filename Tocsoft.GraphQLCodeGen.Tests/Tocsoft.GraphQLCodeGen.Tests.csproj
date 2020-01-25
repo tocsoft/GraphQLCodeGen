@@ -12,6 +12,8 @@
     <None Remove="Files\ClientOnlyDirectives\QueryDuplicatedType.gql" />
     <None Remove="Files\SchemaFiles\Query.gql" />
     <None Remove="Files\SchemaFiles\schema.gqlschema" />
+    <None Remove="Files\StringifiedEnums\Query.gql" />
+    <None Remove="Files\StringifiedEnums\schema.gql" />
     <None Remove="Files\TypescriptCodeGen\Query.gql" />
     <None Remove="Files\TypescriptCodeGen\schema.gql" />
     <None Remove="Files\TemplateSettingsInJson\Query.gql" />
@@ -34,6 +36,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Files\SchemaFiles\schema.gqlschema">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\StringifiedEnums\Query.gql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\StringifiedEnums\schema.gql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Files\TypescriptCodeGen\Query.gql">
@@ -86,6 +94,9 @@
 
   <ItemGroup>
     <None Update="Files\SchemaFiles\gqlsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\StringifiedEnums\gqlsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Files\TypescriptCodeGen\gqlsettings.json">

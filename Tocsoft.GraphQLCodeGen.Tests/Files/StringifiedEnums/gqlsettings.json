@@ -1,0 +1,7 @@
+﻿{
+  "root": true,
+  "schema": "schema.gql",
+  "output": "test.cs",
+  "class": "Sample.Client.Test",
+
+}

@@ -1,0 +1,8 @@
+﻿{
+  "class": "Sample.Client.TestClient",
+  "schema": "schema.gql",
+
+  "root": true,
+  "templateSettings": {
+  }
+}

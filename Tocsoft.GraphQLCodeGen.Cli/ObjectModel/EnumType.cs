@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using GraphQLParser.AST;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel
 {
+    [DebuggerDisplay(@"\{{Name}\}")]
     internal class EnumType : IGraphQLInitter, IGraphQLType
     {
         private GraphQLEnumTypeDefinition op;

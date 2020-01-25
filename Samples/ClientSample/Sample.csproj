@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="$(MSBuildProjectDirectory)\..\..\Tocsoft.GraphQLCodeGen.MsBuild\test.props" />
-  <Import Project="$(MSBuildProjectDirectory)\..\OutOfPathSettingsFileOverlay\overridesettings.props" />
+  <!-- <Import Project="$(MSBuildProjectDirectory)\..\OutOfPathSettingsFileOverlay\overridesettings.props" /> -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -18,11 +18,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Client\GitHub\**" />
+    <EmbeddedResource Remove="Client\GitHub\**" />
+    <None Remove="Client\GitHub\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Client\GitHub\gqlsettings.json">
+    <None Update="Client\test\gqlsettings.json">
       <Generator>MSBuild:GenerateGraphQLClient</Generator>
     </None>
   </ItemGroup>
