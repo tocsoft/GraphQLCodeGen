@@ -38,7 +38,7 @@ function {{pascalCase ClassName}}Error(message:string, httpResponse:Response, gr
 export { {{pascalCase ClassName}}Error }
 
 {{>ClientClassDecorators}}
-export default class {{pascalCase ClassName}}Client {
+export class {{pascalCase ClassName}}Client {
 
     constructor(public client: fetchClient, public url: string) { }
 	
