@@ -396,16 +396,13 @@ namespace Tocsoft.GraphQLCodeGen
                 .ToString()
                 .ToLower();
 
-            return string.IsNullOrWhiteSpace(name) &&
-                string.IsNullOrWhiteSpace(name) &&
-                string.IsNullOrWhiteSpace(name) &&
-                definition.Operation != OperationType.Query
-                ? selectionSet
-                : this.Join(
+            var variables = string.IsNullOrWhiteSpace(name) ? variableDefinitions : this.Join(new[] { name, variableDefinitions });
+
+            return this.Join(
                     new[]
                     {
                         operation,
-                        this.Join(new[] { name, variableDefinitions }),
+                        variables,
                         directives,
                         selectionSet
                     },

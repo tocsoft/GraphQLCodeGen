@@ -1,0 +1,9 @@
+#! settings:./settings.json
+
+mutation ($repositoyId : ID!){
+  addStar(input :{clientMutationId : "123",  starrableId :$repositoyId }){
+    starrable {
+      viewerHasStarred
+    }
+  }
+}
