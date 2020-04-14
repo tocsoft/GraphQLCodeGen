@@ -102,9 +102,11 @@ namespace {{Namespace}}
                 return typeof(IStringifiedEnum).IsAssignableFrom(objectType);
             }
 
+			public override bool CanRead => false;
+
             public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
             {
-                return reader.Value == null ? null : reader.Value.ToString();
+                throw new NotImplementedException();
             }
 
             public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
