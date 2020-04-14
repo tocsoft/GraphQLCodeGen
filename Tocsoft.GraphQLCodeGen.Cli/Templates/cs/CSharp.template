@@ -75,14 +75,51 @@ namespace {{Namespace}}
 {{!# ClientClass}}
 	public sealed class {{ClassName}} : I{{ClassName}}
 	{
+{{ifTemplate 'StringifyEnums' 'true'}}
+        internal interface IStringifiedEnum
+        {
+            string Value { get; }
+        }
+{{/ifTemplate}}
+
 		private static JsonSerializerSettings jsonSettings = new JsonSerializerSettings()
 		{
 			Converters =
 			{
+{{ifTemplate 'StringifyEnums' 'true'}}
+				new CustomJsonStringifiedEnumConverter(),
+{{/ifTemplate}}
 				new Newtonsoft.Json.Converters.StringEnumConverter(camelCaseText: false),
 				{{ > jsonConverters }}
 			}
 		};
+
+{{ifTemplate 'StringifyEnums' 'true'}}
+        internal class CustomJsonStringifiedEnumConverter : JsonConverter
+        {
+            public override bool CanConvert(Type objectType)
+            {
+                return typeof(IStringifiedEnum).IsAssignableFrom(objectType);
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                return reader.Value == null ? null : reader.Value.ToString();
+            }
+
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                if (value is IStringifiedEnum v)
+                {
+                    writer.WriteValue(v.Value);
+                }
+                else
+                {
+                    writer.WriteNull();
+                }
+            }
+        }
+{{/ifTemplate}}
 		
 		private string SerializeBody(GraphQLRequest request)
 		{
@@ -153,7 +190,7 @@ namespace {{Namespace}}
 	public sealed class {{pascalCase Name}} {{#each~ Interfaces}}{{~#if @first}}: {{else}}, {{/if~}}I{{pascalCase .}}{{~/each}}
 	{
 		{{#each Fields}}
-		[JsonProperty("{{Name}}")]       
+		[JsonProperty("{{Name}}")]
 		public {{> TypeReference Type}} {{pascalCase Name}} { get; set; }
 		{{/each}}
 	}
@@ -170,7 +207,7 @@ namespace {{Namespace}}
 {{!# Enum}}
 
 	{{ifTemplate 'StringifyEnums' 'true'}}
-		public class {{pascalCase Name}}
+		public class {{pascalCase Name}} : IStringifiedEnum
 		{
 			static Dictionary<string, {{pascalCase Name}}> lookup = new Dictionary<string, {{pascalCase Name}}>();
 

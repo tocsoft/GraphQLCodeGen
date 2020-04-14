@@ -31,7 +31,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
 
             var code = generator.GeneratedCode;
 
-            Assert.Contains(@"public class Episode", code);
+            Assert.Contains(@"public class Episode : IStringifiedEnum", code);
         }
 
         [Fact]
@@ -49,9 +49,8 @@ namespace Tocsoft.GraphQLCodeGen.Tests
 
             var code = generator.GeneratedCode;
 
-            Assert.Contains(@"public class Episode", code);
+            Assert.Contains(@"public class Episode : IStringifiedEnum", code);
         }
-
 
         [Fact]
         public async Task SettingExplicitlyFalse()
@@ -69,6 +68,8 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             Assert.Empty(generator.Document.Errors);
 
             var code = generator.GeneratedCode;
+
+            Assert.DoesNotContain(@"IStringifiedEnum", code);
 
             Assert.Contains(@"public enum Episode", code);
         }
