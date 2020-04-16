@@ -75,54 +75,15 @@ namespace {{Namespace}}
 {{!# ClientClass}}
 	public sealed class {{ClassName}} : I{{ClassName}}
 	{
-{{ifTemplate 'StringifyEnums' 'true'}}
-        internal interface IStringifiedEnum
-        {
-            string Value { get; }
-        }
-{{/ifTemplate}}
-
 		private static JsonSerializerSettings jsonSettings = new JsonSerializerSettings()
 		{
 			Converters =
 			{
-{{ifTemplate 'StringifyEnums' 'true'}}
-				new CustomJsonStringifiedEnumConverter(),
-{{/ifTemplate}}
 				new Newtonsoft.Json.Converters.StringEnumConverter(camelCaseText: false),
 				{{ > jsonConverters }}
 			}
 		};
 
-{{ifTemplate 'StringifyEnums' 'true'}}
-        internal class CustomJsonStringifiedEnumConverter : JsonConverter
-        {
-            public override bool CanConvert(Type objectType)
-            {
-                return typeof(IStringifiedEnum).IsAssignableFrom(objectType);
-            }
-
-			public override bool CanRead => false;
-
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-            {
-                if (value is IStringifiedEnum v)
-                {
-                    writer.WriteValue(v.Value);
-                }
-                else
-                {
-                    writer.WriteNull();
-                }
-            }
-        }
-{{/ifTemplate}}
-		
 		private string SerializeBody(GraphQLRequest request)
 		{
 			return JsonConvert.SerializeObject(request, jsonSettings);
@@ -209,7 +170,8 @@ namespace {{Namespace}}
 {{!# Enum}}
 
 	{{ifTemplate 'StringifyEnums' 'true'}}
-		public class {{pascalCase Name}} : IStringifiedEnum
+		[JsonConverter(typeof({{pascalCase Name}}.CustomJsonStringifiedEnumConverter))]
+		public class {{pascalCase Name}}
 		{
 			static Dictionary<string, {{pascalCase Name}}> lookup = new Dictionary<string, {{pascalCase Name}}>();
 
@@ -249,6 +211,33 @@ namespace {{Namespace}}
 			{{#each Values}}
 			public static readonly {{pascalCase ../Name}} {{pascalCase .}} = Create("{{.}}", true);
 			{{/each}}
+
+			internal class CustomJsonStringifiedEnumConverter : JsonConverter
+			{
+				public override bool CanConvert(Type objectType)
+				{
+					return typeof({{pascalCase Name}}).IsAssignableFrom(objectType);
+				}
+
+				public override bool CanRead => false;
+
+				public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+				{
+					throw new NotImplementedException();
+				}
+
+				public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+				{
+					if (value is {{pascalCase Name}} v)
+					{
+						writer.WriteValue(v.Value);
+					}
+					else
+					{
+						writer.WriteNull();
+					}
+				}
+			}
 		}
 	{{else}}
 	[JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]

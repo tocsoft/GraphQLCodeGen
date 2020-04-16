@@ -53,7 +53,8 @@ namespace Tocsoft.GraphQLCodeGen.Tests
 
             var code = await tester.Generate();
 
-            Assert.Contains(@"public class Episode : IStringifiedEnum", code);
+            Assert.Contains(@"[JsonConverter(typeof(Episode.CustomJsonStringifiedEnumConverter))]", code);
+            Assert.Contains(@"public class Episode", code);
 
             await tester.Verify();
         }
@@ -61,12 +62,12 @@ namespace Tocsoft.GraphQLCodeGen.Tests
         [Fact]
         public async Task SettingImplicitlyTrue()
         {
-
             tester.AddQuery("./Files/StringifiedEnums/Query.gql");
             
             var code = await tester.Generate();
 
-            Assert.Contains(@"public class Episode : IStringifiedEnum", code);
+            Assert.Contains(@"[JsonConverter(typeof(Episode.CustomJsonStringifiedEnumConverter))]", code);
+            Assert.Contains(@"public class Episode", code);
 
             await tester.Verify();
         }
