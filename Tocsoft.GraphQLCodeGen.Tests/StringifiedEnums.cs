@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -6,71 +7,87 @@ namespace Tocsoft.GraphQLCodeGen.Tests
 {
     public class StringifiedEnums
     {
-        FakeLogger logger;
-        CodeGeneratorSettingsLoader settingsLoader;
+        private readonly CodeGeneratorTester tester;
+
         public StringifiedEnums()
         {
-            logger = new FakeLogger();
-            settingsLoader = new CodeGeneratorSettingsLoader(logger);
+            tester = new CodeGeneratorTester();
+        }
+
+        [Fact]
+        public async Task SerilizesMutationValuesCorrectly_Stringified()
+        {
+            tester.AddQuery("./Files/StringifiedEnums/Mutation.gql");
+            tester.Configure(s =>
+            {
+                s.TemplateSettings["StringifyEnums"] = "true";
+            });
+
+            var query = await tester.ExecuteClient("Sample.Client.Test", @"MutationQAsync(Episode.Newhope)");
+
+            Assert.Equal("NEWHOPE", query.Variables["emp"]);
+        }
+
+        [Fact]
+        public async Task SerilizesMutationValuesCorrectly_Enum()
+        {
+            tester.AddQuery("./Files/StringifiedEnums/Mutation.gql");
+            tester.Configure(s =>
+            {
+                s.TemplateSettings["StringifyEnums"] = "false";
+            });
+
+            var query = await tester.ExecuteClient("Sample.Client.Test", @"MutationQAsync(Episode.NEWHOPE)");
+
+            Assert.Equal("NEWHOPE", query.Variables["emp"]);
         }
 
         [Fact]
         public async Task SettingExplicitlyTrue()
         {
-            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/StringifiedEnums/Query.gql" }).Single();
+            tester.AddQuery("./Files/StringifiedEnums/Query.gql");
+            tester.Configure(s =>
+            {
+                s.TemplateSettings["StringifyEnums"] = "true";
+            });
 
-            settings.TemplateSettings["StringifyEnums"] = "true";
+            var code = await tester.Generate();
 
-            CodeGenerator generator = new CodeGenerator(logger, settings);
-
-            await generator.LoadSource();
-            generator.Parse();
-            generator.Render();
-
-            Assert.Empty(generator.Document.Errors);
-
-            var code = generator.GeneratedCode;
-
+            Assert.Contains(@"[JsonConverter(typeof(Episode.CustomJsonStringifiedEnumConverter))]", code);
             Assert.Contains(@"public class Episode", code);
+
+            await tester.Verify();
         }
 
         [Fact]
         public async Task SettingImplicitlyTrue()
         {
-            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/StringifiedEnums/Query.gql" }).Single();
+            tester.AddQuery("./Files/StringifiedEnums/Query.gql");
+            
+            var code = await tester.Generate();
 
-            CodeGenerator generator = new CodeGenerator(logger, settings);
-
-            await generator.LoadSource();
-            generator.Parse();
-            generator.Render();
-
-            Assert.Empty(generator.Document.Errors);
-
-            var code = generator.GeneratedCode;
-
+            Assert.Contains(@"[JsonConverter(typeof(Episode.CustomJsonStringifiedEnumConverter))]", code);
             Assert.Contains(@"public class Episode", code);
-        }
 
+            await tester.Verify();
+        }
 
         [Fact]
         public async Task SettingExplicitlyFalse()
         {
-            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/StringifiedEnums/Query.gql" }).Single();
+            tester.AddQuery("./Files/StringifiedEnums/Query.gql");
+            tester.Configure(s =>
+            {
+                s.TemplateSettings["StringifyEnums"] = "false";
+            });
 
-            settings.TemplateSettings["StringifyEnums"] = "false";
+            var code = await tester.Generate();
 
-            CodeGenerator generator = new CodeGenerator(logger, settings);
-
-            await generator.LoadSource();
-            generator.Parse();
-            generator.Render();
-
-            Assert.Empty(generator.Document.Errors);
-
-            var code = generator.GeneratedCode;
+            Assert.DoesNotContain(@"IStringifiedEnum", code);
 
             Assert.Contains(@"public enum Episode", code);
+
+            await tester.Verify();
         }
     }
 }
