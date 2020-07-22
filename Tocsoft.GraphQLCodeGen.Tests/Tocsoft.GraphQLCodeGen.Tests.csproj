@@ -14,81 +14,9 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Remove="Files\ClientOnlyDirectives\QueryDuplicatedType.gql" />
-    <None Remove="Files\SchemaFiles\Query.gql" />
-    <None Remove="Files\SchemaFiles\schema.gqlschema" />
-    <None Remove="Files\StringifiedEnums\Mutation.gql" />
-    <None Remove="Files\StringifiedEnums\Query.gql" />
-    <None Remove="Files\StringifiedEnums\schema.gql" />
-    <None Remove="Files\TypescriptCodeGen\Query.gql" />
-    <None Remove="Files\TypescriptCodeGen\schema.gql" />
-    <None Remove="Files\TemplateSettingsInJson\Query.gql" />
-    <None Remove="Files\ClientOnlyDirectives\ClientOnlyDirectivesSchema.gql" />
-    <None Remove="Files\Issue_8\Quote.gql" />
-    <None Remove="Files\ClientOnlyDirectives\Query.gql" />
-    <None Remove="Files\Issue_9\Issue9Schema.gql" />
-    <None Remove="Files\Issue_9\Query.gql" />
-    <None Remove="Files\Issue_9\QueryGitHub.gql" />
-    <None Remove="Files\Issue_8\Schema.gql" />
-    <None Remove="Files\TemplateSettingsInJson\schema.gql" />
-    <None Remove="Files\TypescriptCodeGen\seg1\seg2\Query.gql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Files\ClientOnlyDirectives\QueryDuplicatedType.gql">
+    <None Update="Files\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\SchemaFiles\Query.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\SchemaFiles\schema.gqlschema">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\StringifiedEnums\Mutation.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\StringifiedEnums\Query.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\StringifiedEnums\schema.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\TypescriptCodeGen\Query.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\TypescriptCodeGen\schema.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\TemplateSettingsInJson\schema.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\TemplateSettingsInJson\Query.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\ClientOnlyDirectives\ClientOnlyDirectivesSchema.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\ClientOnlyDirectives\Query.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\Issue_9\Query.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\Issue_9\QueryGitHub.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\Issue_9\Issue9Schema.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\Issue_8\Quote.gql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\Issue_8\Schema.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Files\TypescriptCodeGen\seg1\seg2\Query.gql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,18 @@
+﻿
+query($repository:String!, $owner:String!, $tag:String!) { 
+  repository(name:$repository, owner:$owner){
+    ref(qualifiedName: $tag){
+      name
+    target{
+      			... on Commit { 
+        	history(first:100){
+            nodes{
+              id,
+              oid,
+              message
+            }
+        	}
+      	}
+    	}  
+    }}
+          }

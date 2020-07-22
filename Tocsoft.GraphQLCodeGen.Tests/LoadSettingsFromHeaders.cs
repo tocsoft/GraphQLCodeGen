@@ -1,6 +1,5 @@
-using System;
 using System.Linq;
-using Tocsoft.GraphQLCodeGen.Cli;
+using System.Net.Http.Headers;
 using Xunit;
 
 namespace Tocsoft.GraphQLCodeGen.Tests
@@ -18,17 +17,6 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { paths });
 
             Assert.Equal(2, settings.Count());
-        }
-    }
-
-    public class FakeLogger : ILogger
-    {
-        public void Error(string str)
-        {
-        }
-
-        public void Message(string str)
-        {
         }
     }
 }

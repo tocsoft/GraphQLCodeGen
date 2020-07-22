@@ -307,7 +307,12 @@ namespace {{Namespace}}
 		{{~/each~}}
 	
 {{!# TypeReference}}
-	{{~#if IsScaler}}{{ > (concat 'TypeReference_' TypeName) }}
+	{{~#if IsScaler}}
+	{{~ifTemplate (concat 'TypeReference_' TypeName)~}}
+		{{ > (concat 'TypeReference_' TypeName) }}
+	{{~else~}}
+		{{ > (concat 'TypeReference_String') }}
+	{{~/ifTemplate~}} 
 	{{~else~}}
 	{{~#if IsEnum~}}
 	{{> RenderTypeReference name=TypeName  prefix=true fixCase=true isValueType=true isCollection=IsCollection nullable=CanValueBeNull }}

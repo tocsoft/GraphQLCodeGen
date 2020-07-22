@@ -235,7 +235,7 @@ namespace Tocsoft.GraphQLCodeGen
 
                 if (string.IsNullOrWhiteSpace(file.Format))
                 {
-                    file.Format = settings.Format;
+                    file.Format = settings.Format ?? "cs";
                 }
             }
 

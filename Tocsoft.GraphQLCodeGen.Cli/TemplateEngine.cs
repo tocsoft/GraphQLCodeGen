@@ -80,12 +80,16 @@ namespace Tocsoft.GraphQLCodeGen
 
             HandlebarsBlockHelper ifTemplateHelper = (output, options, context, args) =>
             {
-                var val = this.engine.Compile("{{> " + args[0].ToString() + "}}")((object)context)?.ToString()?.Trim();
-                var isSet = !string.IsNullOrWhiteSpace(val);
-
-                if (args.Length > 1)
+                var isSet = false;
+                if (registerTemplates.Contains(args[0].ToString(), StringComparer.OrdinalIgnoreCase)) // need to check if its case insenative
                 {
-                    isSet = val.Equals(args[1]?.ToString());
+                    var val = this.engine.Compile("{{> " + args[0].ToString() + "}}")((object)context)?.ToString()?.Trim();
+                    isSet = !string.IsNullOrWhiteSpace(val);
+
+                    if (args.Length > 1)
+                    {
+                        isSet = val.Equals(args[1]?.ToString());
+                    }
                 }
 
                 if (isSet)
@@ -131,8 +135,14 @@ namespace Tocsoft.GraphQLCodeGen
 
             foreach (var a in templateArguments)
             {
-                this.engine.RegisterTemplate(a.Key, a.Value);
+                this.RegisterTemplate(a.Key, a.Value);
             }
+        }
+        List<string> registerTemplates = new List<string>();
+        private void RegisterTemplate(string templateName, string template)
+        {
+            registerTemplates.Add(template);
+            this.engine.RegisterTemplate(templateName, template);
         }
 
 
@@ -205,7 +215,7 @@ namespace Tocsoft.GraphQLCodeGen
             }
             else
             {
-                this.engine.RegisterTemplate(currentTemplateName, sb.ToString().TrimEnd());
+                this.RegisterTemplate(currentTemplateName, sb.ToString().TrimEnd());
             }
             sb.Clear();
         }
