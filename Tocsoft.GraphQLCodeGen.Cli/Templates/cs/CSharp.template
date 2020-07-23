@@ -6,7 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+
+{{ifTemplate 'JsonConverter' 'Newtonsoft.Json'}}
 using Newtonsoft.Json;
+{{/ifTemplate}}
+{{ifTemplate 'JsonConverter' 'System.Text.Json'}}
+using System.Text.Json;
+{{/ifTemplate}}
 
 #line hidden
 
@@ -22,12 +28,21 @@ namespace {{Namespace}}
 }
 {{~/if~}}
 
+{{!# JsonConverter}} Newtonsoft.Json
+
 {{!# HttpClientName}} HttpClient
 {{!# ClientExceptionBaseClass}} Exception
 {{!# interfaceBase }} 
 {{!# jsonConverters }} 
 {{!# BeforeInterfaceOperation}}
 {{!# StringifyEnums}} true
+
+{{!# JsonPropertyAttributeName}}
+	{{~ifTemplate 'JsonConverter' 'Newtonsoft.Json'~}}JsonProperty{{~/ifTemplate~}}
+	{{~ifTemplate 'JsonConverter' 'System.Text.Json'}}System.Text.Json.Serialization.JsonPropertyName{{~/ifTemplate~}} 
+{{!# JsonConverterAttributeName}}
+	{{~ifTemplate 'JsonConverter' 'Newtonsoft.Json'~}}JsonConverter{{~/ifTemplate~}}
+	{{~ifTemplate 'JsonConverter' 'System.Text.Json'}}System.Text.Json.Serialization.JsonConverter{{~/ifTemplate~}} 
 
 {{!# ClientException}}
 	public sealed class {{ClassName}}Exception : {{> ClientExceptionBaseClass}}
@@ -75,6 +90,7 @@ namespace {{Namespace}}
 {{!# ClientClass}}
 	public sealed class {{ClassName}} : I{{ClassName}}
 	{
+		{{ifTemplate 'JsonConverter' 'Newtonsoft.Json'~}}
 		private static JsonSerializerSettings jsonSettings = new JsonSerializerSettings()
 		{
 			Converters =
@@ -82,23 +98,49 @@ namespace {{Namespace}}
 				new Newtonsoft.Json.Converters.StringEnumConverter(camelCaseText: false),
 				{{ > jsonConverters }}
 			}
+		};{{~/ifTemplate}}
+		{{ifTemplate 'JsonConverter' 'System.Text.Json'~}}
+		private static JsonSerializerOptions jsonOptions = new JsonSerializerOptions()
+		{
+			Converters =
+			{
+				new System.Text.Json.Serialization.JsonStringEnumConverter(),
+				{{ > jsonConverters }}
+			}
 		};
+		{{~/ifTemplate}} 
 
 		private string SerializeBody(GraphQLRequest request)
 		{
-			return JsonConvert.SerializeObject(request, jsonSettings);
+			{{ifTemplate 'JsonConverter' 'Newtonsoft.Json'~}}
+				return JsonConvert.SerializeObject(request, jsonSettings);
+			{{~/ifTemplate}}
+			{{ifTemplate 'JsonConverter' 'System.Text.Json'~}}
+				return JsonSerializer.Serialize(request, jsonOptions);
+			{{~/ifTemplate}}
 		}
 
 		private async Task<GraphQLResponseData<T>> DeserializeBodyAsync<T>(HttpResponseMessage response)
 		{
             var jsonResult = await response.Content.ReadAsStringAsync();
+			{{ifTemplate 'JsonConverter' 'Newtonsoft.Json'~}}
             var errorsResult = JsonConvert.DeserializeObject<GraphQLResponseErrors<T>>(jsonResult, jsonSettings);
+			{{~/ifTemplate}}
+			{{ifTemplate 'JsonConverter' 'System.Text.Json'~}}
+            var errorsResult = JsonSerializer.Deserialize<GraphQLResponseErrors<T>>(jsonResult, jsonOptions);
+			{{~/ifTemplate}}
 
 			if (errorsResult.errors?.Any() == true) {
 				throw new {{ClassName}}Exception(errorsResult.errors.Select(x => x.Message), response);
 			}
 
-			var result = JsonConvert.DeserializeObject<GraphQLResponseData<T>>(jsonResult, jsonSettings);
+			{{ifTemplate 'JsonConverter' 'Newtonsoft.Json'~}}
+            var result = JsonConvert.DeserializeObject<GraphQLResponseData<T>>(jsonResult, jsonSettings);
+			{{~/ifTemplate}}
+			{{ifTemplate 'JsonConverter' 'System.Text.Json'~}}
+            var result = JsonSerializer.Deserialize<GraphQLResponseData<T>>(jsonResult, jsonOptions);
+			{{~/ifTemplate}}
+			
 			return result;
 		}
 
@@ -153,7 +195,7 @@ namespace {{Namespace}}
 	public sealed class {{pascalCase Name}} {{#each~ Interfaces}}{{~#if @first}}: {{else}}, {{/if~}}I{{pascalCase .}}{{~/each}}
 	{
 		{{#each Fields}}
-		[JsonProperty("{{Name}}")]
+		[{{> JsonPropertyAttributeName}}("{{Name}}")]
 		public {{> TypeReference Type}} {{pascalCase Name}} { get; set; }
 		{{/each}}
 	}
@@ -170,7 +212,7 @@ namespace {{Namespace}}
 {{!# Enum}}
 
 	{{ifTemplate 'StringifyEnums' 'true'}}
-		[JsonConverter(typeof({{pascalCase Name}}.CustomJsonStringifiedEnumConverter))]
+		[{{> JsonConverterAttributeName}}(typeof({{pascalCase Name}}.CustomJsonStringifiedEnumConverter))]
 		public class {{pascalCase Name}}
 		{
 			static Dictionary<string, {{pascalCase Name}}> lookup = new Dictionary<string, {{pascalCase Name}}>();
@@ -212,7 +254,8 @@ namespace {{Namespace}}
 			public static readonly {{pascalCase ../Name}} {{pascalCase .}} = Create("{{.}}", true);
 			{{/each}}
 
-			internal class CustomJsonStringifiedEnumConverter : JsonConverter
+			{{ifTemplate 'JsonConverter' 'Newtonsoft.Json'~}}
+            internal class CustomJsonStringifiedEnumConverter : JsonConverter
 			{
 				public override bool CanConvert(Type objectType)
 				{
@@ -238,9 +281,41 @@ namespace {{Namespace}}
 					}
 				}
 			}
+			{{~/ifTemplate}}
+			{{ifTemplate 'JsonConverter' 'System.Text.Json'~}}
+            internal class CustomJsonStringifiedEnumConverter :  System.Text.Json.Serialization.JsonConverter<{{pascalCase Name}}>
+			{
+				public override bool CanConvert(Type typeToConvert)
+				{
+					return typeof({{pascalCase Name}}).IsAssignableFrom(typeToConvert);
+				}
+
+				public override Episode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+				{
+					return reader.GetString();
+				}
+
+                public override void Write(Utf8JsonWriter writer, {{pascalCase Name}} value, JsonSerializerOptions options)
+                {
+					if(value is null) {
+						writer.WriteNullValue();
+					}
+                    else
+                    {
+						writer.WriteStringValue(value.Value);
+					}
+                }
+            }
+			{{~/ifTemplate}}
 		}
 	{{else}}
-	[JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+	
+	{{ifTemplate 'JsonConverter' 'Newtonsoft.Json'~}}
+	[{{> JsonConverterAttributeName}}(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+	{{/ifTemplate~}}
+	{{ifTemplate 'JsonConverter' 'System.Text.Json'~}}
+	[{{> JsonConverterAttributeName}}(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+	{{/ifTemplate~}}
 	public enum {{pascalCase Name}}
 	{
 		{{#each Values}}

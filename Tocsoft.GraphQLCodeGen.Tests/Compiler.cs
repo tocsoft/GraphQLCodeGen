@@ -65,6 +65,11 @@ namespace Tocsoft.GraphQLCodeGen.Tests
                 MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Newtonsoft.Json.JsonWriter).Assembly.Location),
+                
+                MetadataReference.CreateFromFile(typeof(ReadOnlySpan<byte>).Assembly.Location),                
+                MetadataReference.CreateFromFile(typeof(ReadOnlySpan<>).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Text.Json.JsonSerializer).Assembly.Location),
+
                 MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly.Location),

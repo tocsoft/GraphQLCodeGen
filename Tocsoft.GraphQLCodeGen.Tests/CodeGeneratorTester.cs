@@ -41,7 +41,10 @@ namespace Tocsoft.GraphQLCodeGen.Tests
         }
 
         private bool generated = false;
-        
+
+        private string clientClass = null;
+        private string defaultOperationName;
+
         public async Task<string> Generate()
         {
             if (generated) return this.GeneratedCode;
@@ -54,6 +57,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
 
             CodeGenerator generator = new CodeGenerator(logger, settings);
 
+
             await generator.LoadSource();
 
             generator.Parse();
@@ -65,6 +69,11 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             this.GeneratedCode = generator.GeneratedCode;
 
             this.Errors = generator.Document.Errors;
+            this.clientClass = $"{generator.Model.Namespace}.{generator.Model.ClassName}";
+
+            this.defaultOperationName = generator.Model.Operations.First().Name.ToPascalCase() + "Async";
+
+            this.clientClass = $"{generator.Model.Namespace}.{generator.Model.ClassName}";
 
             return this.GeneratedCode;
         }
@@ -80,6 +89,13 @@ namespace Tocsoft.GraphQLCodeGen.Tests
                 this.httpClient.VerifyAll();
             }
         }
+
+        public Task<GraphQlQuery> ExecuteClient()
+            => ExecuteClient(this.clientClass, $"{this.defaultOperationName}()");
+
+        public Task<GraphQlQuery> ExecuteClient(string code)
+            => ExecuteClient(this.clientClass, code);
+
         public async Task<GraphQlQuery> ExecuteClient(string clientName, string code)
         {
             var generatedCode = await Generate();

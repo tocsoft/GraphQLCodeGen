@@ -5,11 +5,11 @@ using Xunit;
 
 namespace Tocsoft.GraphQLCodeGen.Tests
 {
-    public class StringifiedEnums
+    public class StringifiedEnumsSystemTextJson
     {
         private readonly CodeGeneratorTester tester;
 
-        public StringifiedEnums()
+        public StringifiedEnumsSystemTextJson()
         {
             tester = new CodeGeneratorTester();
         }
@@ -21,6 +21,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             tester.Configure(s =>
             {
                 s.TemplateSettings["StringifyEnums"] = "true";
+                s.TemplateSettings["JsonConverter"] = "System.Text.Json";
             });
 
             var query = await tester.ExecuteClient("Sample.Client.Test", @"MutationQAsync(Episode.Newhope)");
@@ -35,6 +36,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             tester.Configure(s =>
             {
                 s.TemplateSettings["StringifyEnums"] = "false";
+                s.TemplateSettings["JsonConverter"] = "System.Text.Json";
             });
 
             var query = await tester.ExecuteClient("Sample.Client.Test", @"MutationQAsync(Episode.NEWHOPE)");
@@ -49,11 +51,12 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             tester.Configure(s =>
             {
                 s.TemplateSettings["StringifyEnums"] = "true";
+                s.TemplateSettings["JsonConverter"] = "System.Text.Json";
             });
 
             var code = await tester.Generate();
 
-            Assert.Contains(@"[JsonConverter(typeof(Episode.CustomJsonStringifiedEnumConverter))]", code);
+            Assert.Contains(@"[System.Text.Json.Serialization.JsonConverter(typeof(Episode.CustomJsonStringifiedEnumConverter))]", code);
             Assert.Contains(@"public class Episode", code);
 
             await tester.Verify();
@@ -63,10 +66,13 @@ namespace Tocsoft.GraphQLCodeGen.Tests
         public async Task SettingImplicitlyTrue()
         {
             tester.AddQuery("./Files/StringifiedEnums/Query.gql");
-            
+            tester.Configure(s =>
+            {
+                s.TemplateSettings["JsonConverter"] = "System.Text.Json";
+            });
             var code = await tester.Generate();
 
-            Assert.Contains(@"[JsonConverter(typeof(Episode.CustomJsonStringifiedEnumConverter))]", code);
+            Assert.Contains(@"[System.Text.Json.Serialization.JsonConverter(typeof(Episode.CustomJsonStringifiedEnumConverter))]", code);
             Assert.Contains(@"public class Episode", code);
 
             await tester.Verify();
@@ -79,10 +85,12 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             tester.Configure(s =>
             {
                 s.TemplateSettings["StringifyEnums"] = "false";
+                s.TemplateSettings["JsonConverter"] = "System.Text.Json";
             });
 
             var code = await tester.Generate();
 
+            Assert.Contains(@"[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]", code);
             Assert.DoesNotContain(@"IStringifiedEnum", code);
 
             Assert.Contains(@"public enum Episode", code);

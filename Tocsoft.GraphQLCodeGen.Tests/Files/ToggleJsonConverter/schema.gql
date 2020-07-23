@@ -1,0 +1,24 @@
+﻿
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  test(id: string!): Droid
+}
+
+type Mutation {
+  test(id: Episode!): Droid
+}
+
+type Droid {
+    nullable: Episode
+    nonnullable: Episode!
+}
+
+enum Episode {
+  NEWHOPE
+  EMPIRE
+  JEDI
+}

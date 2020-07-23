@@ -1,0 +1,7 @@
+﻿mutation q($emp:Episode){
+    test(id: $emp)
+	{
+        nullable,
+        nonnullable
+    }
+}
