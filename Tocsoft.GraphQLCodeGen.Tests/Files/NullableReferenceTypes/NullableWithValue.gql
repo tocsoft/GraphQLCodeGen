@@ -1,0 +1,7 @@
+﻿query q($temp: String){
+    test(id: $temp)
+	{
+        nullable,
+        nonnullable
+    }
+}

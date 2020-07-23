@@ -36,6 +36,7 @@ namespace {{Namespace}}
 {{!# jsonConverters }} 
 {{!# BeforeInterfaceOperation}}
 {{!# StringifyEnums}} true
+{{!# Nullable }} disabled
 
 {{!# JsonPropertyAttributeName}}
 	{{~ifTemplate 'JsonConverter' 'Newtonsoft.Json'~}}JsonProperty{{~/ifTemplate~}}
@@ -427,5 +428,5 @@ namespace {{Namespace}}
 	{{~#if isCollection }}IEnumerable<{{/if~}}
 	{{~#if prefix }}{{@root.ClassName}}.{{/if~}}
 	{{#if fixCase}}{{pascalCase name}}{{/if}}{{#unless fixCase}}{{name}}{{/unless}}
-	{{~#if isValueType}}{{#if nullable}}?{{/if}}{{/if~}}
+	{{~ifTemplate 'Nullable' 'enabled'~}}{{#if nullable}}?{{/if}}{{else}}{{~#if isValueType}}{{#if nullable}}?{{/if}}{{/if~}}{{~/ifTemplate~}}
 	{{~#if isCollection}}>{{/if}}

@@ -1,0 +1,21 @@
+﻿
+schema {
+  query: Query
+}
+
+type Query {
+  testNonNull(id: string!): Droid!
+  test(id: string): Droid
+}
+
+
+type Droid {
+    nullable: Episode
+    nonnullable: Episode!
+}
+
+enum Episode {
+  NEWHOPE
+  EMPIRE
+  JEDI
+}
