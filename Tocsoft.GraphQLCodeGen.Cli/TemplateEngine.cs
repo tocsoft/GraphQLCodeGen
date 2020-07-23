@@ -141,7 +141,7 @@ namespace Tocsoft.GraphQLCodeGen
         List<string> registerTemplates = new List<string>();
         private void RegisterTemplate(string templateName, string template)
         {
-            registerTemplates.Add(template);
+            registerTemplates.Add(templateName);
             this.engine.RegisterTemplate(templateName, template);
         }
 
