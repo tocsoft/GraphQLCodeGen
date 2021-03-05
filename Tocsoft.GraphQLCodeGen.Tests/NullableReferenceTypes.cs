@@ -55,7 +55,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
 
             var code = await tester.Generate();
             await tester.Verify();
-            Assert.Contains("public Test.DroidResult TestNonNull { get; set; }", code);
+            Assert.Contains("public Test.DroidResult Test { get; set; }", code);
             Assert.Contains("Task<Test.NullableWithValueQResult> NullableWithValueQAsync(string temp);", code);
         }
 

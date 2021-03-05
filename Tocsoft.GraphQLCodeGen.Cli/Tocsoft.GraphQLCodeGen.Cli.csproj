@@ -1,39 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net461;netcoreapp3.1</TargetFrameworks>
-    <RootNamespace>Tocsoft.GraphQLCodeGen</RootNamespace>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
+		<RootNamespace>Tocsoft.GraphQLCodeGen</RootNamespace>
+		<LangVersion>latest</LangVersion>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\**\*.template" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Templates\**\*.template" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Glob" Version="1.1.4" />
-    <PackageReference Include="GraphQL-Parser" Version="4.1.2" />
-    <PackageReference Include="Handlebars.Net" Version="1.10.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="3.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Glob" Version="1.1.4" />
+		<PackageReference Include="GraphQL-Parser" Version="4.1.2" />
+		<PackageReference Include="Handlebars.Net" Version="1.10.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="3.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+		<PackageReference Include="System.Net.Http" Version="4.3.4" />
+		<PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
+		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
+		<PackageReference Include="MinVer" Version="2.4.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-  </ItemGroup>
+	</ItemGroup>
 
-  <Target Name="PublishProjectIfFrameworkSet" DependsOnTargets="Publish" Condition=" '$(TargetFramework)' != '' " />
-
-  <Target Name="PublishProjectForAllFrameworksIfFrameworkUnset" Condition=" '$(TargetFramework)' == '' ">
-    <ItemGroup>
-      <_PublishFramework Include="$(TargetFrameworks)" />
-    </ItemGroup>
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Publish" Properties="TargetFramework=%(_PublishFramework.Identity)" />
-  </Target>
-
-  <Target Name="PublishAll" DependsOnTargets="PublishProjectIfFrameworkSet;PublishProjectForAllFrameworksIfFrameworkUnset" AfterTargets="build" />
+	<Target Name="PublishAll">
+		<ItemGroup>
+			<_PublishFramework Include="$(TargetFrameworks)" />
+		</ItemGroup>
+		<PropertyGroup>
+			<PublishDir Condition="'$(PublishDir)' == ''">bin\$(Configuration)\published\</PublishDir>
+		</PropertyGroup>
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="Publish" Properties="TargetFramework=%(_PublishFramework.Identity);PublishDir=$(PublishDir)%(_PublishFramework.Identity)\" />
+	</Target>
 
 </Project>

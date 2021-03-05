@@ -18,12 +18,9 @@ if (process.env["windir"]) {
     }
 }
 
-var c = require('child_process');
-
-//we need to checkif we are ruynning form a packages/installed version or source
-
+//we need to check if we are running from a packages/installed version or source
 var isDevMode = true;
-if (fs.existsSync(__dirname + '/binaries')) {
+if (fs.existsSync(__dirname + '/Tocsoft.GraphQLCodeGen.Npm.csproj')) {
     //we are in a released mode
     isDevMode = false;
 }
@@ -42,6 +39,8 @@ if (hasFullDotNet) {
         binaryPath = __dirname + '/binaries/netcoreapp3.1/Tocsoft.GraphQLCodeGen.Cli.dll';
     }
 }
+
+var c = require('child_process');
 
 if (hasFullDotNet) {
     c.execSync(`"${binaryPath}" ${args}`, { stdio: [0, 1, 2] });

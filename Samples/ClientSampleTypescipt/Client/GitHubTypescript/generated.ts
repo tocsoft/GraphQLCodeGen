@@ -31,7 +31,7 @@ function GitHubTsError(message:string, httpResponse:Response, graphqlResponse?: 
   
 export { GitHubTsError }
 
-export default class GitHubTsClient {
+export class GitHubTsClient {
 
     constructor(public client: fetchClient, public url: string) { }
 	
@@ -39,7 +39,7 @@ export default class GitHubTsClient {
         return this.client.fetch(this.url, {
             method : 'POST',
             body : JSON.stringify({
-                query : `{
+                query : `mutation ($repositoyId: ID!) {
   addStar(input: {clientMutationId: "123", starrableId: $repositoyId}){
     starrable{
       viewerHasStarred

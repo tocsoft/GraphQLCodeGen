@@ -289,6 +289,8 @@ __pycache__/
 /Sample/Client/GitHub/generated.cs
 /Tocsoft.GraphQLCodeGen.Npm/binaries
 /Sample/Client/GitHubTypescript/generated.ts
-/Sample/Client/GitHubTypescript/generated.cs
 /Sample/Client/GitHubTypescript/generated-real.ts
 /Sample/Client/GitHub/generated.ts
+/Tocsoft.GraphQLCodeGen.Cli/binaries
+*.tzg
+*.binlog

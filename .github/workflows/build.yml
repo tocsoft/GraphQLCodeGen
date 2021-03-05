@@ -1,0 +1,66 @@
+name: Build
+
+on:
+  push:
+      branches:
+          - master
+          - main
+  pull_request:
+      branches:
+          - "*"
+  release:
+    types: [created]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Test
+        shell: pwsh
+        run: dotnet test -c Release
+
+      - name: Package
+        shell: pwsh
+        run: dotnet pack -c Release -o packages
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: application
+          path: packages/*.*
+
+      # publish to github pacakge repository
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.x'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - run: npm publish packages/*.tgz
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish the package to GPR
+        run: dotnet nuget push packages/*.nupkg -s https://nuget.pkg.github.com/tocsoft/index.json -k ${{secrets.GITHUB_TOKEN}}
+
+
+      #publish to npm & nuget
+      - uses: actions/setup-node@v1
+        if: github.event_name == 'release' && github.event.action == 'created'
+        with:
+          node-version: '10.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm publish packages/*.tgz --access public
+        if: github.event_name == 'release' && github.event.action == 'created'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Publish the package to nuget.org
+        if: github.event_name == 'release' && github.event.action == 'created'
+        run: dotnet nuget push packages/*.nupkg -k ${{secrets.NUGET_TOKEN}}

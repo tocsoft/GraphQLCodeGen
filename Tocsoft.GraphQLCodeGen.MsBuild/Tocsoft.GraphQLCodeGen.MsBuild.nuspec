@@ -5,15 +5,16 @@
     <version>$version$</version>
     <authors>Tocsoft</authors>
     <description>msbuild target for generating clinet libraries from targeting graphql server.</description>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+	<projectUrl>https://github.com/tocsoft/GraphQLCodeGen/</projectUrl>
+	<repository type="git" url="https://github.com/tocsoft/GraphQLCodeGen/" />
+	<requireLicenseAcceptance>false</requireLicenseAcceptance>
   </metadata>
   <files>
     <file src="build\*.*" target="build" />
     <file src="buildMultiTargeting\*.*" target="buildMultiTargeting" />
     <file src="bin\$configuration$\**\*.*" target="tasks" />
 
-    <file src="..\Tocsoft.GraphQLCodeGen.Cli\bin\$configuration$\net461\publish\**\*.*" target="tasks\binaries\net461" />
-    <file src="..\Tocsoft.GraphQLCodeGen.Cli\bin\$configuration$\netcoreapp2.0\publish\**\*.*" target="tasks\binaries\netcoreapp2.0" />
-    <file src="..\Tocsoft.GraphQLCodeGen.Cli\bin\$configuration$\netcoreapp3.1\publish\**\*.*" target="tasks\binaries\netcoreapp3.1" />
+    <file src="obj\binaries\net461\**\*.*" target="tasks\binaries\net461" />
+    <file src="obj\binaries\netcoreapp3.1\**\*.*" target="tasks\binaries\netcoreapp3.1" />
   </files>
 </package>

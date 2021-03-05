@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.Build.NoTargets/2.0.1">
+
+
+	<PropertyGroup>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<RootNamespace>Tocsoft.GraphQLCodeGen</RootNamespace>
+		<LangVersion>latest</LangVersion>
+		<IsTestable>false</IsTestable>
+		<DefaultItemExcludes>$(DefaultItemExcludes);binaries/**;</DefaultItemExcludes>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+
+	<Target Name="PackThis" BeforeTargets="Pack">
+		<PropertyGroup>
+			<_PublishDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\binaries\'))</_PublishDir>
+			<IsPackable>false</IsPackable>
+		</PropertyGroup>
+
+		<MSBuild Projects="../Tocsoft.GraphQLCodeGen.Cli/Tocsoft.GraphQLCodeGen.Cli.csproj" Targets="PublishAll" Properties="PublishDir=$(_PublishDir)" />
+
+		<Exec Command="npm version $(PackageVersion) --allow-same-version" />
+		<Exec Command="npm pack" />
+
+		<!-- reset afterwards -->
+		<Exec Command="npm version 1.0.0" />
+		
+		<Move DestinationFiles="$(PackageOutputPath.TrimEnd('\').TrimEnd('/'))\tocsoft.graphql-codegen-$(PackageVersion).tgz" SourceFiles="tocsoft.graphql-codegen-$(PackageVersion).tgz"  />
+	</Target>
+
+
+	<ItemGroup>
+		<PackageReference Include="MinVer" Version="2.4.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+
+</Project>

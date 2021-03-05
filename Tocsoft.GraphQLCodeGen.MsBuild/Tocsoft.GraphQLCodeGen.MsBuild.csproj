@@ -1,35 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;netcoreapp3.1;net461</TargetFrameworks>
-    <IncludeBuiltProjectOutputGroup>true</IncludeBuiltProjectOutputGroup>
-    <OutputType>Library</OutputType>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
-    <!-- Change the default location where NuGet will put the build output -->
-    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Authors>Tocsoft</Authors>
-    <Company>Tocsoft</Company>
-    <Description>msbuild targets for converting graphql queries to a strangle typed c# library</Description>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
+		<IncludeBuiltProjectOutputGroup>true</IncludeBuiltProjectOutputGroup>
+		<OutputType>Library</OutputType>
+		<NoPackageAnalysis>true</NoPackageAnalysis>
+		<!-- Change the default location where NuGet will put the build output -->
+		<BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<Authors>Tocsoft</Authors>
+		<Company>Tocsoft</Company>
+		<Description>msbuild targets for converting graphql queries to a strangle typed c# library</Description>
+		<NuspecFile>Tocsoft.GraphQLCodeGen.MsBuild.nuspec</NuspecFile>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP2_0</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
+		<DefineConstants>TRACE;DEBUG;NETCOREAPP2_0</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.3.409" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.3.409" />
-    
-    <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageReference Update="$(PackageReference)">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <ProjectReference Include="..\Tocsoft.GraphQLCodeGen.Cli\Tocsoft.GraphQLCodeGen.Cli.csproj">
-      <PrivateAssets>All</PrivateAssets>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-    </ProjectReference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Build.Framework" Version="15.3.409" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.3.409" />
+
+		<PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
+		<PackageReference Update="$(PackageReference)">
+			<PrivateAssets>All</PrivateAssets>
+		</PackageReference>
+
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MinVer" Version="2.4.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<Target Name="prePack" BeforeTargets="GenerateNuspec" DependsOnTargets="MinVer">
+		<PropertyGroup>
+			<_PublishDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\obj\binaries\'))</_PublishDir>
+		</PropertyGroup>
+		
+		<MSBuild Projects="../Tocsoft.GraphQLCodeGen.Cli/Tocsoft.GraphQLCodeGen.Cli.csproj" Targets="PublishAll" Properties="PublishDir=$(_PublishDir)" />
+
+		<PropertyGroup>
+			<nuspecproperties>version=$(PackageVersion);configuration=$(Configuration)</nuspecproperties>
+		</PropertyGroup>
+	</Target>
 
 </Project>
