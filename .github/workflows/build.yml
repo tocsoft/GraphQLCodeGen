@@ -80,12 +80,12 @@ jobs:
 
       - name: Package
         shell: pwsh
-        run: dotnet pack .\Tocsoft.GraphQLCodeGen.Npm\Tocsoft.GraphQLCodeGen.Npm.csproj -c Release -o ../packages
+        run: dotnet pack .\Tocsoft.GraphQLCodeGen.Npm\Tocsoft.GraphQLCodeGen.Npm.csproj -c Release -o packages
 
       - uses: actions/upload-artifact@v2
         with:
-          name: application
-          path: npm/*.*
+          name: npm
+          path: packages/*.tgz
 
       - name: Configure Github package registry
         shell: pwsh
