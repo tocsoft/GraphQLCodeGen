@@ -30,6 +30,7 @@ jobs:
 
   publish-nuget-pacakge:
     needs: test
+    if: (github.event_name == 'push')
 
     runs-on: windows-latest
 
