@@ -55,17 +55,28 @@ namespace Tocsoft.GraphQLCodeGen
                 string target = args[0].ToString();
 
                 var currentDirectory = Path.GetDirectoryName(model.OutputPath);
+                if (!currentDirectory.EndsWith(Path.DirectorySeparatorChar))
+                {
+                    currentDirectory += Path.DirectorySeparatorChar;
+                }
+
                 System.Uri uri1;
                 if (target.StartsWith("~/"))
                 {
-                    uri1 = new Uri(Path.GetFullPath(Path.Combine(model.RootPath, target.Substring(2))));
+                    var root = model.RootPath;
+                    if (!root.EndsWith(Path.DirectorySeparatorChar))
+                    {
+                        root += Path.DirectorySeparatorChar;
+                    }
+
+                    uri1 = new Uri(Path.GetFullPath(Path.Combine(root, target.Substring(2))));
                 }
                 else
                 {
                     uri1 = new Uri(target, UriKind.Relative);
                 }
 
-                System.Uri uri2 = new Uri(currentDirectory.TrimEnd() + "\\");
+                System.Uri uri2 = new Uri(currentDirectory);
 
                 Uri relativeUri = uri2.MakeRelativeUri(uri1);
 
