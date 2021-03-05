@@ -45,24 +45,25 @@ jobs:
 
       - name: Package
         shell: pwsh
-        run: dotnet pack .\Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj -c Release -o ../packages
+        run: dotnet pack .\Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj -c Release -o packages
 
       - uses: actions/upload-artifact@v2
         with:
-          name: application
-          path: nuget/*.*
+          name: nuget
+          path: packages/*.nupkg
 
       - name: Publish the package to GPR
         shell: pwsh
-        run: dotnet nuget push packages/*.nupkg -s https://nuget.pkg.github.com/tocsoft/index.json -k ${{secrets.GITHUB_TOKEN}}
+        run: dotnet nuget push "$((Resolve-Path packages/*.nupkg).Path)" -s https://nuget.pkg.github.com/tocsoft/index.json -k ${{secrets.GITHUB_TOKEN}}
         
       - name: Publish the package to nuget.org
         if: github.event_name == 'release' && github.event.action == 'created'
         shell: pwsh
-        run: dotnet nuget push packages/*.nupkg -k ${{secrets.NUGET_TOKEN}}
+        run: dotnet nuget push "$((Resolve-Path packages/*.nupkg).Path)" -k ${{secrets.NUGET_TOKEN}}
 
   publish-npm-pacakge:
     needs: test
+    if: "false"
 
     runs-on: windows-latest
 
