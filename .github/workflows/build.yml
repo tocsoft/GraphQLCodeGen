@@ -45,7 +45,7 @@ jobs:
 
       - name: Package
         shell: pwsh
-        run: dotnet pack .\Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj -c Release -o packages
+        run: dotnet pack .\Tocsoft.GraphQLCodeGen.MsBuild\Tocsoft.GraphQLCodeGen.MsBuild.csproj -c Release -o ../packages
 
       - uses: actions/upload-artifact@v2
         with:
@@ -78,7 +78,7 @@ jobs:
 
       - name: Package
         shell: pwsh
-        run: dotnet pack .\Tocsoft.GraphQLCodeGen.Npm\Tocsoft.GraphQLCodeGen.Npm.csproj -c Release -o packages
+        run: dotnet pack .\Tocsoft.GraphQLCodeGen.Npm\Tocsoft.GraphQLCodeGen.Npm.csproj -c Release -o ../packages
 
       - uses: actions/upload-artifact@v2
         with:
@@ -87,13 +87,13 @@ jobs:
 
       - name: Configure Github package registry
         shell: pwsh
-        run:  Set-Content -Path '.npmrc' -Value 'registry=https://npm.pkg.github.com'
+        run:  Set-Content -Path '.npmrc' -Value 'registry=https://dl.bintray.com/tocsoft/npm'
 
       - name: Publish npm package to Github package registry
         shell: pwsh
         run: npm publish "$((Resolve-Path packages/*.tgz).Path)"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.BINTRAY_TOKEN }}
 
       - name: Configure npmjs package registry
         if: github.event_name == 'release' && github.event.action == 'created'
