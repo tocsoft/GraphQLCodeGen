@@ -16,6 +16,7 @@
 		<PropertyGroup>
 			<_PublishDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\binaries\'))</_PublishDir>
 			<IsPackable>false</IsPackable>
+			<_PackageOutputPath>$([System.IO.Path]::GetFullPath('$(PackageOutputPath)').TrimEnd('\').TrimEnd('/'))\</_PackageOutputPath>
 		</PropertyGroup>
 
 		<MSBuild Projects="../Tocsoft.GraphQLCodeGen.Cli/Tocsoft.GraphQLCodeGen.Cli.csproj" Targets="PublishAll" Properties="PublishDir=$(_PublishDir)" />
@@ -26,7 +27,8 @@
 		<!-- reset afterwards -->
 		<Exec Command="npm version 1.0.0" />
 		
-		<Move DestinationFiles="$(PackageOutputPath.TrimEnd('\').TrimEnd('/'))\tocsoft.graphql-codegen-$(PackageVersion).tgz" SourceFiles="tocsoft.graphql-codegen-$(PackageVersion).tgz"  />
+		<Move DestinationFiles="$(_PackageOutputPath)tocsoft.graphql-codegen-$(PackageVersion).tgz" SourceFiles="tocsoft.graphql-codegen-$(PackageVersion).tgz"  />
+		<Message Text="tocsoft.graphql-codegen-$(PackageVersion).tgz -> $(_PackageOutputPath)tocsoft.graphql-codegen-$(PackageVersion).tgz"  Importance="high"  />
 	</Target>
 
 

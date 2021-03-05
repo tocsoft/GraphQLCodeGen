@@ -55,12 +55,12 @@ jobs:
 
       - name: Publish the package to GPR
         shell: pwsh
-        run: dotnet nuget push "$((Resolve-Path packages/*.nupkg).Path)" -s https://nuget.pkg.github.com/tocsoft/index.json -k ${{secrets.GITHUB_TOKEN}}
+        run: dotnet nuget push "$((Resolve-Path packages/*.nupkg).Path)" -s https://nuget.pkg.github.com/tocsoft/index.json -k ${{secrets.GITHUB_TOKEN}}  --skip-duplicate 
         
       - name: Publish the package to nuget.org
         if: github.event_name == 'release' && github.event.action == 'created'
         shell: pwsh
-        run: dotnet nuget push "$((Resolve-Path packages/*.nupkg).Path)" -k ${{secrets.NUGET_TOKEN}}
+        run: dotnet nuget push "$((Resolve-Path packages/*.nupkg).Path)" -k ${{secrets.NUGET_TOKEN}}  --skip-duplicate 
 
   publish-npm-pacakge:
     needs: test
@@ -89,13 +89,11 @@ jobs:
 
       - name: Configure Github package registry
         shell: pwsh
-        run:  Set-Content -Path '.npmrc' -Value 'registry=https://dl.bintray.com/tocsoft/npm'
+        run:  Set-Content -Path '.npmrc' -Value "${{ secrets.BINTRAY_NPMRC }}"
 
       - name: Publish npm package to Github package registry
         shell: pwsh
-        run: npm publish "$((Resolve-Path packages/*.tgz).Path)"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.BINTRAY_TOKEN }}
+        run: npm publish "$((Resolve-Path packages/*.tgz).Path)" --registry https://api.bintray.com/npm/tocsoft/npm
 
       - name: Configure npmjs package registry
         if: github.event_name == 'release' && github.event.action == 'created'
