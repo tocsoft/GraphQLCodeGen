@@ -55,7 +55,7 @@ namespace Tocsoft.GraphQLCodeGen
                 string target = args[0].ToString();
 
                 var currentDirectory = Path.GetDirectoryName(model.OutputPath);
-                if (!currentDirectory.EndsWith(Path.DirectorySeparatorChar))
+                if (!currentDirectory.EndsWith($"{Path.DirectorySeparatorChar}"))
                 {
                     currentDirectory += Path.DirectorySeparatorChar;
                 }
@@ -64,7 +64,7 @@ namespace Tocsoft.GraphQLCodeGen
                 if (target.StartsWith("~/"))
                 {
                     var root = model.RootPath;
-                    if (!root.EndsWith(Path.DirectorySeparatorChar))
+                    if (!root.EndsWith($"{Path.DirectorySeparatorChar}"))
                     {
                         root += Path.DirectorySeparatorChar;
                     }
