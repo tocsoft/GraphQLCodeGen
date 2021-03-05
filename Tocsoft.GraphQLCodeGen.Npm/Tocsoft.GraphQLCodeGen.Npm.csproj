@@ -8,6 +8,7 @@
 		<IsTestable>false</IsTestable>
 		<DefaultItemExcludes>$(DefaultItemExcludes);binaries/**;</DefaultItemExcludes>
 		<IsPackable>false</IsPackable>
+		<MinVerTagPrefix>v</MinVerTagPrefix>
 	</PropertyGroup>
 
 

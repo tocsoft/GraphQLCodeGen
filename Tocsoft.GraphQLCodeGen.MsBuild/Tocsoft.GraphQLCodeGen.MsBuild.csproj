@@ -10,6 +10,7 @@
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<Authors>Tocsoft</Authors>
 		<Company>Tocsoft</Company>
+		<MinVerTagPrefix>v</MinVerTagPrefix>
 		<Description>msbuild targets for converting graphql queries to a strangle typed c# library</Description>
 		<NuspecFile>Tocsoft.GraphQLCodeGen.MsBuild.nuspec</NuspecFile>
 	</PropertyGroup>
