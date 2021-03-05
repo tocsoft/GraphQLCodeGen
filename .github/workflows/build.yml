@@ -91,7 +91,7 @@ jobs:
 
       - name: Publish npm package to Github package registry
         shell: pwsh
-        run: npm publish packages/*.tgz
+        run: npm publish "$((Resolve-Path packages/*.tgz).Path)"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -102,7 +102,7 @@ jobs:
 
       - name: Publish npm package to Npmjs package registry
         shell: pwsh
-        run: npm publish packages/*.tgz --access public
+        run: npm publish "$((Resolve-Path packages/*.tgz).Path)" --access public
         if: github.event_name == 'release' && github.event.action == 'created'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
