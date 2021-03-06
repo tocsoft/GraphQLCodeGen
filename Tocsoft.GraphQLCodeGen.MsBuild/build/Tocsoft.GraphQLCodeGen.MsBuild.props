@@ -1,39 +1,35 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp3.1</GraphQLCodeGenAssemblyFolderRuntime>
-    <GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net461</GraphQLCodeGenAssemblyFolderRuntime>
-    <GraphQLCodeGenAssemblyFolder Condition =" '$(GraphQLCodeGenAssemblyFolder)' == '' ">$(MSBuildThisFileDirectory)..\tasks\$(GraphQLCodeGenAssemblyFolderRuntime)</GraphQLCodeGenAssemblyFolder>
+	<PropertyGroup>
+		<GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp3.1</GraphQLCodeGenAssemblyFolderRuntime>
+		<GraphQLCodeGenAssemblyFolderRuntime Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net461</GraphQLCodeGenAssemblyFolderRuntime>
+		<GraphQLCodeGenAssemblyFolder Condition =" '$(GraphQLCodeGenAssemblyFolder)' == '' ">$(MSBuildThisFileDirectory)..\tasks\$(GraphQLCodeGenAssemblyFolderRuntime)</GraphQLCodeGenAssemblyFolder>
 
-    <GraphQLCodeGenAssembly>$(GraphQLCodeGenAssemblyFolder)\Tocsoft.GraphQLCodeGen.MsBuild.dll</GraphQLCodeGenAssembly>
-    <RunGraphQLCodeGen Condition="'$(RunGraphQLCodeGen)' == ''">true</RunGraphQLCodeGen>
-    <GraphQLCodeGenTimeOut Condition="'$(GraphQLCodeGenTimeOut)' == ''">5000</GraphQLCodeGenTimeOut>
-    <!-- should be completely optional-->
-    <GraphQLCodeGenAdditionalSettingsPath Condition="'$(GraphQLCodeGenAdditionalSettingsPath)' == ''"></GraphQLCodeGenAdditionalSettingsPath>
-  </PropertyGroup>
+		<GraphQLCodeGenAssembly>$(GraphQLCodeGenAssemblyFolder)\Tocsoft.GraphQLCodeGen.MsBuild.dll</GraphQLCodeGenAssembly>
+		<RunGraphQLCodeGen Condition="'$(RunGraphQLCodeGen)' == ''">true</RunGraphQLCodeGen>
+		<GraphQLCodeGenTimeOut Condition="'$(GraphQLCodeGenTimeOut)' == ''">5000</GraphQLCodeGenTimeOut>
+		<!-- should be completely optional-->
+		<GraphQLCodeGenAdditionalSettingsPath Condition="'$(GraphQLCodeGenAdditionalSettingsPath)' == ''"></GraphQLCodeGenAdditionalSettingsPath>
+	</PropertyGroup>
 
-  <ItemDefinitionGroup>
-    <Compile>
-      <Generator>MSBuild:GenerateGraphQLClient</Generator>
-    </Compile>
-  </ItemDefinitionGroup>
+	<ItemDefinitionGroup>
+		<Compile>
+			<Generator>MSBuild:GenerateGraphQLClient</Generator>
+		</Compile>
+	</ItemDefinitionGroup>
 
-
-  <ItemGroup>
-    <None Update="**\*.gql">
-      <Generator>MSBuild:GenerateGraphQLClient</Generator>
-    </None>
-    <None Update="gqlsettings.json">
-      <Generator>MSBuild:GenerateGraphQLClient</Generator>
-    </None>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Content Update="**\*.gql">
-      <Generator>MSBuild:GenerateGraphQLClient</Generator>
-    </Content>
-    <Content Update="gqlsettings.json">
-      <Generator>MSBuild:GenerateGraphQLClient</Generator>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="**\*.gql">
+			<Generator>MSBuild:GenerateGraphQLClient</Generator>
+		</None>
+		<None Include="**\*.graphql">
+			<Generator>MSBuild:GenerateGraphQLClient</Generator>
+		</None>
+		<None Include="gqlsettings.json">
+			<Generator>MSBuild:GenerateGraphQLClient</Generator>
+		</None>
+		<Content Remove="**\*.graphql" />
+		<Content Remove="**\*.gql" />
+		<Content Remove="gqlsettings.json" />
+	</ItemGroup>
 </Project>
