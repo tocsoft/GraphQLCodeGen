@@ -292,5 +292,5 @@ __pycache__/
 /Sample/Client/GitHubTypescript/generated-real.ts
 /Sample/Client/GitHub/generated.ts
 /Tocsoft.GraphQLCodeGen.Cli/binaries
-*.tzg
+*.tgz
 *.binlog

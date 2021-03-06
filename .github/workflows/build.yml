@@ -62,7 +62,7 @@ jobs:
         shell: pwsh
         run: dotnet nuget push "$((Resolve-Path packages/*.nupkg).Path)" -k ${{secrets.NUGET_TOKEN}}  --skip-duplicate 
 
-  publish-npm-pacakge:
+  publish-npm-package:
     needs: test
     if: (github.event_name == 'push')
 
@@ -87,11 +87,11 @@ jobs:
           name: npm
           path: packages/*.tgz
 
-      - name: Configure Github package registry
+      - name: Configure authenticate bintray
         shell: pwsh
         run:  Set-Content -Path '.npmrc' -Value "${{ secrets.BINTRAY_NPMRC }}"
 
-      - name: Publish npm package to Github package registry
+      - name: Publish npm package to bintray
         shell: pwsh
         run: npm publish "$((Resolve-Path packages/*.tgz).Path)" --registry https://api.bintray.com/npm/tocsoft/npm
 

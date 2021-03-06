@@ -6,6 +6,7 @@
 		<RootNamespace>Tocsoft.GraphQLCodeGen</RootNamespace>
 		<LangVersion>latest</LangVersion>
 		<IsPackable>false</IsPackable>
+		<MinVerTagPrefix>v</MinVerTagPrefix>
 	</PropertyGroup>
 
 	<ItemGroup>
