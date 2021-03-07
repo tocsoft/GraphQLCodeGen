@@ -1,4 +1,4 @@
-﻿using GraphQLParser.AST;
+﻿using HotChocolate.Language;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,21 +11,21 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
     [DebuggerDisplay(@"\{{Name}\}")]
     internal class ObjectType : IGraphQLType, IGraphQLInitter, IGraphQLFieldCollection
     {
-        private readonly GraphQLObjectTypeDefinition definition;
-        private readonly GraphQLInputObjectTypeDefinition definitionInput;
+        private readonly ObjectTypeDefinitionNode definition;
+        private readonly InputObjectTypeDefinitionNode definitionInput;
 
         public string Name { get; set; }
 
         public IEnumerable<InterfaceType> Interfaces { get; set; }
         public IEnumerable<Field> Fields { get; private set; }
 
-        public ObjectType(GraphQLObjectTypeDefinition definition)
+        public ObjectType(ObjectTypeDefinitionNode definition)
         {
             this.definition = definition;
             this.Name = definition.Name?.Value;
         }
 
-        public ObjectType(GraphQLInputObjectTypeDefinition definition)
+        public ObjectType(InputObjectTypeDefinitionNode definition)
         {
             this.definitionInput = definition;
             this.Name = definition.Name?.Value;
@@ -54,7 +54,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         }
         private IEnumerable<InterfaceType> ResolveInterfaces(GraphQLDocument doc)
         {
-            foreach (GraphQLNamedType interfaceDefinitionLookup in this.definition.Interfaces)
+            foreach (NamedTypeNode interfaceDefinitionLookup in this.definition.Interfaces)
             {
                 IGraphQLType actualinterface = doc.ResolveType(interfaceDefinitionLookup);
                 yield return actualinterface as InterfaceType;

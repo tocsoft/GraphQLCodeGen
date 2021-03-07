@@ -1,5 +1,4 @@
-﻿using GraphQLParser;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tocsoft.GraphQLCodeGen.Cli;
+using Tocsoft.GraphQLCodeGen.ObjectModel;
 using Tocsoft.GraphQLCodeGen.SchemaIntrospection;
 using static Tocsoft.GraphQLCodeGen.IntrospectedSchemeParser;
 
@@ -26,7 +26,9 @@ namespace Tocsoft.GraphQLCodeGen
             : this(logger, settings, new IIntrosepctionProvider[] {
                 new SchemaIntrospection.JsonIntrospection(),
                 new SchemaIntrospection.HttpIntrospection(),
+                #if DLL_INTROSPECTION
                 new SchemaIntrospection.DllIntrospection(),
+                #endif
                 new SchemaIntrospection.SchemaFileIntrospection()
             })
         {
@@ -44,6 +46,7 @@ namespace Tocsoft.GraphQLCodeGen
         internal Models.ViewModel Model { get; set; }
         internal string GeneratedCode { get; set; }
         internal bool HasParsingErrors { get; set; }
+        internal bool HasRenderingErrors { get; set; }
 
         internal async Task LoadSource()
         {
@@ -70,7 +73,23 @@ namespace Tocsoft.GraphQLCodeGen
 
         internal void Render()
         {
-            this.GeneratedCode = new TemplateEngine(this.settings.Templates, this.settings.TemplateSettings, logger, Model).Generate();
+            if (!HasParsingErrors)
+            {
+                var errors = new List<GraphQLError>();
+                this.GeneratedCode = new TemplateEngine(this.settings.Templates, this.settings.TemplateSettings, logger, Model, errors).Generate();
+
+                if (errors.Any())
+                {
+                    foreach (var error in errors)
+                    {
+                        logger.Error(error.ToString());
+                    }
+                    HasRenderingErrors = true;
+                    return;
+                }
+
+                HasRenderingErrors = false;
+            }
         }
 
         internal void Parse()
@@ -104,6 +123,11 @@ namespace Tocsoft.GraphQLCodeGen
             }
 
             Render();
+
+            if (HasRenderingErrors)
+            {
+                return false;
+            }
 
             Export();
 

@@ -1,10 +1,8 @@
 ﻿using Tocsoft.GraphQLCodeGen.ObjectModel;
-using GraphQLParser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using GraphQLParser.Exceptions;
 
 namespace Tocsoft.GraphQLCodeGen
 {
@@ -42,22 +40,22 @@ namespace Tocsoft.GraphQLCodeGen
                     linecount += body.Count(x => x == '\n') + 1;
                 }
                 string final = sb.ToString();
-                var parser = new Parser(new Lexer());
-                var parsedDocument = parser.Parse(new Source(final));
 
-                return new GraphQLDocument(parsedDocument, sources, settings);
+                var bytes = Encoding.UTF8.GetBytes(final);
+                var hcparser = new HotChocolate.Language.Utf8GraphQLParser(bytes);
+                var doc = hcparser.Parse();
+
+                //var parser = new Parser(new Lexer());
+                //var parsedDocument = parser.Parse(new Source(final));
+
+                return new GraphQLDocument(doc, sources, settings);
             }
-            catch (GraphQLSyntaxErrorException ex)
+            catch (HotChocolate.Language.SyntaxException sex)
             {
-                var msg = ex.ToString();
-                var trimedStart = msg.Substring("GraphQLParser.Exceptions.GraphQLSyntaxErrorException: Syntax Error GraphQL (".Length);
-                var lineColSpliiter = trimedStart.IndexOf(':');
-                var lineColEnder = trimedStart.IndexOf(')');
-                int line = int.Parse(trimedStart.Substring(0, lineColSpliiter));
-                int col = int.Parse(trimedStart.Substring(lineColSpliiter + 1, lineColEnder - lineColSpliiter - 1));
+                var message = sex.Message;
 
-                var endOfLine = trimedStart.IndexOf('\n');
-                var message = trimedStart.Substring(lineColEnder + 1, endOfLine - lineColEnder - 1).Trim();
+                int col = sex.Column;
+                int line = sex.Line;
 
                 var source = sources.Where(x => x.LineStartAt <= line).OrderByDescending(x => x.LineStartAt).FirstOrDefault();
                 return GraphQLDocument.Error(new GraphQLError
@@ -69,9 +67,10 @@ namespace Tocsoft.GraphQLCodeGen
                     Message = message
                 });
             }
-            catch (Exception ex)
+            catch (Exception fex)
             {
-                return GraphQLDocument.Error(ErrorCodes.UnhandledException, ex.ToString());
+                var t = fex;
+                return GraphQLDocument.Error(ErrorCodes.UnhandledException, fex.ToString());
             }
         }
 

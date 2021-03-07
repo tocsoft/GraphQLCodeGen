@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using GraphQLParser.AST;
+using HotChocolate.Language;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel
 {
     internal class Argument : IGraphQLInitter
     {
-        private GraphQLInputValueDefinition definition;
+        private InputValueDefinitionNode definition;
 
         public string Name { get; private set; }
         public string DefaultValue { get; private set; }
         public ValueTypeReference Type { get; private set; }
 
-        public Argument(GraphQLInputValueDefinition definition)
+        public Argument(InputValueDefinitionNode definition)
         {
             this.definition = definition;
             this.Name = definition.Name.Value;
@@ -24,11 +24,11 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         {
             this.Type = doc.ResolveValueType(this.definition.Type);
 
-            if(this.definition.DefaultValue is GraphQLParser.AST.GraphQLScalarValue sv)
-            {
-                this.DefaultValue = sv.Value;
-            }
-            else
+            //if(this.definition.DefaultValue is ScalerValues sv)!!!
+            //{
+            //    this.DefaultValue = sv.Value;
+            //}
+            //else
             {
                 this.DefaultValue = this.definition.DefaultValue?.ToString();
             }

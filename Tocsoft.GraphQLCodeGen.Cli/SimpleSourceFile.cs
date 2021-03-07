@@ -11,6 +11,7 @@ namespace Tocsoft.GraphQLCodeGen
         public string Path { get; set; }
         public string Body { get; set; }
         public string Format { get; set; }
+        public string Flavor { get; set; }
         public string ClassName { get; set; }
         public string TypeNameDirective { get; set; }
         public string OutputPath { get; set; }

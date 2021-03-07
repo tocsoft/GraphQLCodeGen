@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using GraphQLParser.AST;
+using HotChocolate.Language;
 using System.Linq;
 using System.Diagnostics;
 
@@ -22,8 +22,8 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             return field;
         }
 
-        private GraphQLFieldDefinition definition;
-        private GraphQLInputValueDefinition definitionInput;
+        private FieldDefinitionNode definition;
+        private InputValueDefinitionNode definitionInput;
 
         public string Name { get; private set; }
         public IEnumerable<Argument> Arguments { get; private set; }
@@ -36,14 +36,14 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             this.Name = name;
             this.Arguments = Enumerable.Empty<Argument>();
         }
-        public Field(GraphQLFieldDefinition definition)
+        public Field(FieldDefinitionNode definition)
         {
             this.definition = definition;
             this.Name = definition.Name?.Value;
             this.Arguments = definition.Arguments.Select(x => new Argument(x)).ToList();
         }
 
-        public Field(GraphQLInputValueDefinition definitionInput)
+        public Field(InputValueDefinitionNode definitionInput)
         {
             this.definitionInput = definitionInput;
             this.Name = definitionInput.Name?.Value;
@@ -56,7 +56,6 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
             if (this.definition != null)
             {
-
                 this.Type = doc.ResolveValueType(this.definition.Type);
             }
             else if (this.definitionInput != null)

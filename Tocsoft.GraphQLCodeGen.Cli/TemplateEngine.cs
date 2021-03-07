@@ -9,22 +9,31 @@ using Tocsoft.GraphQLCodeGen.Cli;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices.ComTypes;
 using Tocsoft.GraphQLCodeGen.Models;
+using Tocsoft.GraphQLCodeGen.ObjectModel;
 
 namespace Tocsoft.GraphQLCodeGen
 {
-    public class TemplateEngine
+    internal class TemplateEngine
     {
         private readonly ILogger logger;
         private readonly ViewModel model;
         private IHandlebars engine;
 
-        public TemplateEngine(IEnumerable<string> templates, IDictionary<string, string> templateArguments, ILogger logger, Models.ViewModel model)
+        public TemplateEngine(IEnumerable<string> templates, IDictionary<string, string> templateArguments, ILogger logger, Models.ViewModel model, List<GraphQLError> errors)
         {
             this.logger = logger;
             this.model = model;
             this.engine = HandlebarsDotNet.Handlebars.Create(new HandlebarsConfiguration
             {
                 ThrowOnUnresolvedBindingExpression = true,
+            });
+
+            this.engine.RegisterHelper("error", (writer, context, args) =>
+            {
+                errors.Add(new GraphQLError{
+                    Code = ErrorCodes.TemplateError,
+                    Message = args.FirstOrDefault()?.ToString() 
+                });
             });
 
             this.engine.RegisterHelper("concat", (writer, context, args) =>

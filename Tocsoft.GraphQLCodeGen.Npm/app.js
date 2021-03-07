@@ -40,6 +40,11 @@ if (hasFullDotNet) {
     }
 }
 
+// load details from the package 
+
+
+
+
 var c = require('child_process');
 
 if (hasFullDotNet) {

@@ -35,7 +35,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             var code = generator.GeneratedCode;
 
             Assert.Contains(@"query q {
-  test(id: """"safsa""""){
+  test(id: """"safsa"""") {
     nullable
     nonnullable
   }

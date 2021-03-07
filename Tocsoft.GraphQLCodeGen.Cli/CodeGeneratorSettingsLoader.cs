@@ -17,14 +17,25 @@ namespace Tocsoft.GraphQLCodeGen
             this.logger = logger;
         }
 
-        private List<string> DefaultTemplates(string outputPath)
+        private List<string> DefaultTemplates(string outputPath, string flavor = null)
         {
             string type = Path.GetExtension(outputPath).Trim('.').ToLower();
+            
             TypeInfo info = typeof(CodeGeneratorSettings).GetTypeInfo();
-            string templateSet = info.Namespace + ".Templates." + type + ".";
+            var resourceNames = typeof(CodeGeneratorSettings).GetTypeInfo().Assembly.GetManifestResourceNames();
+
             List<string> templateFiles = new List<string>();
-            IEnumerable<string> templates = typeof(CodeGeneratorSettings).GetTypeInfo().Assembly.GetManifestResourceNames().Where(x => x.StartsWith(templateSet, StringComparison.OrdinalIgnoreCase));
+
+            string templateSet = $"{info.Namespace}.Templates.{ type }.Default.";
+            IEnumerable<string> templates = resourceNames.Where(x => x.StartsWith(templateSet, StringComparison.OrdinalIgnoreCase));
             templateFiles.AddRange(templates);
+
+            if (!string.IsNullOrWhiteSpace(flavor))
+            {
+                string templateSetFlavored = $"{info.Namespace}.Templates.{ type }.{flavor}.";
+                IEnumerable<string> templatesFlavored = resourceNames.Where(x => x.StartsWith(templateSetFlavored, StringComparison.OrdinalIgnoreCase));
+                templateFiles.AddRange(templatesFlavored.Where(x => !templateFiles.Contains(x)));
+            }
 
             return templateFiles;
         }
@@ -72,7 +83,9 @@ namespace Tocsoft.GraphQLCodeGen
                 }
                 cn = cn.Trim('.');
                 nspc = nspc.Trim('.');
-                var templates = DefaultTemplates(first.OutputPath);
+                var templates = DefaultTemplates(first.OutputPath, first.Flavor);
+                templates.AddRange(x.First().Templates);
+
                 templates.AddRange(x.First().Templates);
                 return new CodeGeneratorSettings
                 {
@@ -102,6 +115,8 @@ namespace Tocsoft.GraphQLCodeGen
             public string Output { get; set; }
 
             public string Format { get; set; }
+            
+            public string Flavor { get; set; }
 
             public string TypeNameDirective { get; set; }
 
@@ -198,6 +213,9 @@ namespace Tocsoft.GraphQLCodeGen
                     case "format":
                         file.Format = m.val;
                         break;
+                    case "flavor":
+                        file.Flavor = m.val;
+                        break;
                     case "settings":
                         ExpandSettings(GenerateFullPath(root, m.val), file);
                         break;
@@ -216,11 +234,16 @@ namespace Tocsoft.GraphQLCodeGen
 
             LoadSettingsTree(file);
 
+            if (File.Exists(settings.DefaultPath))
+            {
+                ExpandSettings(settings.DefaultPath, file, false);
+            }
+
             if (File.Exists(settings.OverridesPath))
             {
                 ExpandSettings(settings.OverridesPath, file, true);
             }
-
+            
             if (string.IsNullOrWhiteSpace(file.TypeNameDirective))
             {
                 file.TypeNameDirective = "__codeGenTypeName";
@@ -236,6 +259,13 @@ namespace Tocsoft.GraphQLCodeGen
                 if (string.IsNullOrWhiteSpace(file.Format))
                 {
                     file.Format = settings.Format ?? "cs";
+                }
+            }
+            if (string.IsNullOrWhiteSpace(file.Flavor))
+            {
+                if (string.IsNullOrWhiteSpace(file.Flavor))
+                {
+                    file.Flavor = settings.Flavor ?? "Default";
                 }
             }
 
@@ -288,6 +318,10 @@ namespace Tocsoft.GraphQLCodeGen
             if (!string.IsNullOrWhiteSpace(settings.Format) && (string.IsNullOrWhiteSpace(file.Format) || overwrite))
             {
                 file.Format = settings.Format;
+            }
+            if (!string.IsNullOrWhiteSpace(settings.Flavor) && (string.IsNullOrWhiteSpace(file.Flavor) || overwrite))
+            {
+                file.Flavor = settings.Flavor;
             }
             if (settings.Template != null)
             {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using GraphQLParser.AST;
+using HotChocolate.Language;
 using System.Linq;
 using System.Diagnostics;
 
@@ -10,9 +10,9 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
     [DebuggerDisplay(@"\{{Name}\}")]
     internal class EnumType : IGraphQLInitter, IGraphQLType
     {
-        private GraphQLEnumTypeDefinition op;
+        private EnumTypeDefinitionNode op;
 
-        public EnumType(GraphQLEnumTypeDefinition op)
+        public EnumType(EnumTypeDefinitionNode op)
         {
             this.op = op;
         }

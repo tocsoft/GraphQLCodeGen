@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using GraphQLParser.AST;
+
 using System.Linq;
 using Tocsoft.GraphQLCodeGen.ObjectModel.Selections;
+using HotChocolate.Language;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel
 {
     internal class Operation : IGraphQLInitter, IGraphQLASTNodeLinked
     {
-        private GraphQLOperationDefinition operation;
+        private OperationDefinitionNode operation;
 
         public string Name { get; set; }
         public IDictionary<string, ValueTypeReference> Paramaters { get; set; }
@@ -18,7 +19,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         public string Query { get; private set; }
         public string Path { get; private set; }
 
-        ASTNode IGraphQLASTNodeLinked.ASTNode => operation;
+        ISyntaxNode IGraphQLASTNodeLinked.ASTNode => operation;
 
         public IEnumerable<SetSelection> DecendentsAndSelf()
         {
@@ -29,7 +30,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             }
         }
 
-        public Operation(GraphQLOperationDefinition op)
+        public Operation(OperationDefinitionNode op)
         {
             this.operation = op;
 

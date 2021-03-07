@@ -48,6 +48,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             await generator.LoadSource();
             generator.Parse();
             generator.Render();
+            Assert.Empty(logger.ErrorMessages);
 
             Assert.Contains("public IEnumerable<string> ErrorMessages { get; private set; }", generator.GeneratedCode);
         }

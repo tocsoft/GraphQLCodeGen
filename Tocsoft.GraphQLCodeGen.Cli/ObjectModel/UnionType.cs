@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using GraphQLParser.AST;
+using HotChocolate.Language;
 using System.Linq;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel
 {
     internal class UnionType : IGraphQLInitter, IGraphQLType
     {
-        private GraphQLUnionTypeDefinition op;
+        private UnionTypeDefinitionNode op;
 
-        public UnionType(GraphQLUnionTypeDefinition op)
+        public UnionType(UnionTypeDefinitionNode op)
         {
             this.op = op;
         }

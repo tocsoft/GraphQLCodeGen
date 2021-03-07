@@ -50,9 +50,9 @@ namespace Tocsoft.GraphQLCodeGen.Tests
 
             Assert.Contains("interface IUser", code);
             Assert.Contains("class UserResult : IUser", code);
-            Assert.Contains(@"query ($login: ID!) {
-  User(id: $login){
-    ...user
+            Assert.Contains(@"query($login: ID!) {
+  User(id: $login) {
+    ... user
   }
 }
 fragment user on User {

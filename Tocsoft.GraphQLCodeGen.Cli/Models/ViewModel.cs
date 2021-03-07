@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HotChocolate.Language;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -61,6 +62,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
                 OperationViewModel opVM = new OperationViewModel()
                 {
                     Name = opName,
+                    OperationName = op.Name ?? opName,
                     Arguments = argCollection,
                     QueryFragment = op.Query,
                     NamedQuery = op.Name ?? string.Empty,
@@ -82,7 +84,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
         {
             this.query.AddError(ErrorCodes.Unknown, message, node.ASTNode);
         }
-        private void AddError(string message, GraphQLParser.AST.GraphQLLocation location)
+        private void AddError(string message, Location location)
         {
             this.query.AddError(ErrorCodes.Unknown, message, location);
         }

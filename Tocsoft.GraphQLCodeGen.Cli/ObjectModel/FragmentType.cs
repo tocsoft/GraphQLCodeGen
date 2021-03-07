@@ -1,4 +1,4 @@
-﻿using GraphQLParser.AST;
+﻿using HotChocolate.Language;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +11,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
     [DebuggerDisplay(@"... \{{Name}\}")]
     internal class FragmentType : IGraphQLType, IGraphQLInitter
     {
-        private readonly GraphQLFragmentDefinition definition;
+        private readonly FragmentDefinitionNode definition;
         private IGraphQLFieldCollection rootType;
 
         public string Name { get; set; }
@@ -22,11 +22,11 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
         public string Path { get; private set; }
 
-        public FragmentType(GraphQLFragmentDefinition definition)
+        public FragmentType(FragmentDefinitionNode definition)
         {
             this.definition = definition;
             this.Name = definition.Name?.Value;
-            this.Selection = new SetSelection(this.definition);
+            this.Selection = new SetSelection(this.definition.SelectionSet);
         }
 
         public void Resolve(GraphQLDocument doc)

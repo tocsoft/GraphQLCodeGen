@@ -43,7 +43,7 @@ namespace Tocsoft.GraphQLCodeGen.Tests
             generator.Render();
             var code = generator.GeneratedCode;
 
-            Assert.Contains("mutation ($repositoyId: ID!)", code);
+            Assert.Contains("mutation($repositoyId: ID!)", code);
         }
     }
 }

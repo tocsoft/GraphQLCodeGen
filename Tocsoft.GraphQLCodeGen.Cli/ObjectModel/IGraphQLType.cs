@@ -1,4 +1,4 @@
-﻿using GraphQLParser.AST;
+﻿using HotChocolate.Language;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -19,6 +19,6 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
     }
     internal interface IGraphQLASTNodeLinked
     {
-        ASTNode ASTNode { get; }
+        ISyntaxNode ASTNode { get; }
     }
 }

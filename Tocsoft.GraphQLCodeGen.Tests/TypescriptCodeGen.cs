@@ -35,5 +35,63 @@ namespace Tocsoft.GraphQLCodeGen.Tests
 
             Assert.Contains(@"import { str } from " + expected, code);
         }
+
+        [Fact]
+        public async Task SwitchFlavor()
+        {
+            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/TypescriptCodeGen/FunctionFlavor.gql" }).Single();
+
+            settings.TemplateSettings["ApiUrl"] = "https://example.com";
+
+            CodeGenerator generator = new CodeGenerator(logger, settings);
+
+            await generator.LoadSource();
+            generator.Parse();
+            generator.Render();
+
+            Assert.Empty(generator.Document.Errors);
+
+            var code = generator.GeneratedCode;
+
+            Assert.Contains(@"const url = ""https://example.com"";", code);
+            Assert.Contains(@"export function q(", code);
+        }
+
+        [Fact]
+        public async Task SwitchFlavor_OverrideUrlLoader()
+        {
+            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/TypescriptCodeGen/FunctionFlavor.gql" }).Single();
+
+            settings.TemplateSettings["Includes"] = @"import { apiRootUrl } from ""{{ resolve  ""~/src/client/urls"" }}""";
+            settings.TemplateSettings["UrlConfig"] = "const url = apiRootUrl;";
+
+            CodeGenerator generator = new CodeGenerator(logger, settings);
+
+            await generator.LoadSource();
+            generator.Parse();
+            generator.Render();
+
+            Assert.Empty(generator.Document.Errors);
+
+            var code = generator.GeneratedCode;
+
+            Assert.Contains(@"const url = apiRootUrl;", code);
+            Assert.Contains(@"export function q(", code);
+        }
+
+        [Fact]
+        public async Task SwitchFlavorRequiredSettings()
+        {
+            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/TypescriptCodeGen/FunctionFlavor.gql" }).Single();
+
+
+            CodeGenerator generator = new CodeGenerator(logger, settings);
+
+            await generator.LoadSource();
+            generator.Parse();
+            generator.Render();
+            
+            Assert.NotEmpty(logger.ErrorMessages);
+        }
     }
 }

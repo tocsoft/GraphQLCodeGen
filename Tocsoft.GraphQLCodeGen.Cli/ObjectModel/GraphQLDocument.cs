@@ -1,11 +1,10 @@
 ﻿using Tocsoft.GraphQLCodeGen.ObjectModel.Selections;
-using GraphQLParser.AST;
+using HotChocolate.Language;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static Tocsoft.GraphQLCodeGen.IntrospectedSchemeParser;
-using GraphQLParser;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel
 {
@@ -15,6 +14,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         UnhandledException = 1,
         UnknownField = 2,
         SyntaxError = 3,
+        TemplateError = 4,
     }
 
     internal class GraphQLError
@@ -60,7 +60,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         {
 
         }
-        public GraphQLDocument(GraphQLParser.AST.GraphQLDocument ast, IEnumerable<LocatedNamedSource> queryParts, CodeGeneratorSettings settings)
+        public GraphQLDocument(DocumentNode ast, IEnumerable<LocatedNamedSource> queryParts, CodeGeneratorSettings settings)
         {
             this.ast = ast;
 
@@ -80,11 +80,11 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             }
         }
 
-        internal GraphQLScalarValue ResolveSpecifiedTypeName(IEnumerable<GraphQLDirective> directives)
+        internal IValueNode<string> ResolveSpecifiedTypeName(IEnumerable<DirectiveNode> directives)
         {
             var directive = directives.SingleOrDefault(x => x.Name.Value == this.settings.TypeNameDirective);
             var value = directive?.Arguments.SingleOrDefault(x => x.Name.Value == "type")?.Value;
-            var scalar = value as GraphQLParser.AST.GraphQLScalarValue;
+            var scalar = value as IValueNode<string>;
             return scalar;
         }
 
@@ -100,10 +100,10 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             });
         }
 
-        internal void AddError(ErrorCodes code, string message, ASTNode node)
+        internal void AddError(ErrorCodes code, string message, ISyntaxNode node)
             => AddError(code, message, node.Location);
 
-        internal void AddError(ErrorCodes code, string message, GraphQLLocation location)
+        internal void AddError(ErrorCodes code, string message, Location location)
         {
             (LocatedNamedSource part, int offsetStart, int length) = ResolveNode(location);
 
@@ -124,7 +124,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
 
         public IEnumerable<Operation> Operations { get; }
 
-        private readonly GraphQLParser.AST.GraphQLDocument ast;
+        private readonly DocumentNode ast;
         private readonly CodeGeneratorSettings settings;
 
         public IEnumerable<LocatedNamedSource> QueryParts { get; private set; }
@@ -132,7 +132,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         private List<IGraphQLType> types;
         private readonly AstPrinter astPrinter;
 
-        internal ValueTypeReference ResolveValueType(GraphQLType type)
+        internal ValueTypeReference ResolveValueType(ITypeNode type)
         {
             ValueTypeReference result = new ValueTypeReference();
             UnPackType(type, result);
@@ -140,7 +140,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             return result;
         }
 
-        internal (LocatedNamedSource part, int offset, int length) ResolveNode(GraphQLLocation location)
+        internal (LocatedNamedSource part, int offset, int length) ResolveNode(Location location)
         {
             LocatedNamedSource part = this.QueryParts.Where(x => x.StartAt <= location.Start).OrderByDescending(x => x.StartAt).First();
             int offsetStart = location.Start - part.StartAt;
@@ -151,25 +151,26 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             }
             return (part, offsetStart, length);
         }
-        internal string ResolveQuerySource(GraphQLLocation location)
+
+        internal string ResolveQuerySource(Location location)
         {
             (LocatedNamedSource part, _, _) = ResolveNode(location);
 
             return part.Path;
         }
 
-        internal string ResolveQuery(GraphQLOperationDefinition operation)
+        internal string ResolveQuery(OperationDefinitionNode operation)
         {
             return astPrinter.Print(operation);
         }
-        internal string ResolveFragment(GraphQLFragmentDefinition operation)
+        internal string ResolveFragment(FragmentDefinitionNode operation)
         {
             return astPrinter.Print(operation);
         }
 
-        internal IGraphQLType ResolveType(GraphQLParser.AST.OperationType type)
+        internal IGraphQLType ResolveType(OperationType type)
         {
-            var schema = ast.Definitions.OfType<GraphQLSchemaDefinition>().FirstOrDefault();
+            var schema = ast.Definitions.OfType<SchemaDefinitionNode>().FirstOrDefault();
             if (schema != null)
             {
                 var namedType = schema.OperationTypes.FirstOrDefault(x => x.Operation == type)?.Type;
@@ -181,7 +182,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             return null;
         }
 
-        internal IGraphQLType ResolveType(GraphQLNamedType type)
+        internal IGraphQLType ResolveType(NamedTypeNode type)
         {
             return ResolveType(type.Name.Value);
         }
@@ -210,16 +211,16 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
         }
 
 
-        private void UnPackType(GraphQLType type, ValueTypeReference target)
+        private void UnPackType(ITypeNode type, ValueTypeReference target)
         {
             try
             {
-                if (type is GraphQLNonNullType nonNullType)
+                if (type is NonNullTypeNode nonNullType)
                 {
                     target.CanValueBeNull = false;
                     UnPackType(nonNullType.Type, target);
                 }
-                else if (type is GraphQLListType listType)
+                else if (type is ListTypeNode listType)
                 {
                     target.IsCollection = true;
                     if (target.CanValueBeNull)
@@ -229,7 +230,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
                     }
                     UnPackType(listType.Type, target);
                 }
-                else if (type is GraphQLNamedType namedType)
+                else if (type is NamedTypeNode namedType)
                 {
                     target.Type = ResolveType(namedType);
                 }
@@ -243,33 +244,25 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
                 throw;
             }
         }
-        private object VisitSelectionSet(GraphQLParser.AST.ASTNode node)
+      
+        private object Visit(ISyntaxNode node)
         {
             switch (node)
             {
-                case GraphQLFieldSelection op:
-                    return new FieldSelection(op);
-                default:
-                    return node;
-            }
-        }
-        private object Visit(GraphQLParser.AST.ASTNode node)
-        {
-            switch (node)
-            {
-                case GraphQLOperationDefinition op:
+                
+                case OperationDefinitionNode op:
                     return new Operation(op);
-                case GraphQLInterfaceTypeDefinition op:
+                case InterfaceTypeDefinitionNode op:
                     return new InterfaceType(op);
-                case GraphQLObjectTypeDefinition op:
+                case ObjectTypeDefinitionNode op:
                     return new ObjectType(op);
-                case GraphQLEnumTypeDefinition op:
+                case EnumTypeDefinitionNode op:
                     return new EnumType(op);
-                case GraphQLUnionTypeDefinition op:
+                case UnionTypeDefinitionNode op:
                     return new UnionType(op);
-                case GraphQLInputObjectTypeDefinition op:
+                case InputObjectTypeDefinitionNode op:
                     return new ObjectType(op);
-                case GraphQLFragmentDefinition op:
+                case FragmentDefinitionNode op:
                     return new FragmentType(op);
                 default:
                     return null;

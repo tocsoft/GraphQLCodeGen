@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using GraphQLParser.AST;
+using HotChocolate.Language;
 using System.Linq;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
@@ -9,10 +9,10 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
     // this is used to build to ResultObjectTypes
     internal class SetSelection: IGraphQLASTNodeLinked
     {
-        private GraphQLNamedType TypeCondition { get; set; }
-        private GraphQLSelectionSet op;
+        private NamedTypeNode TypeCondition { get; set; }
+        private SelectionSetNode op;
         public IGraphQLType RootType { get; set; }
-        public GraphQLScalarValue SpecifiedTypeName { get; set; }
+        public IValueNode<string> SpecifiedTypeName { get; set; }
 
         public string UniqueIdentifier { get; set; }
         public IEnumerable<FieldSelection> Fields => fields;
@@ -22,45 +22,45 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
         /// </summary>
         public IEnumerable<FragmentType> Fragments => fragmentsItems;
 
-        ASTNode IGraphQLASTNodeLinked.ASTNode => op;
+        ISyntaxNode IGraphQLASTNodeLinked.ASTNode => op;
 
         private List<FragmentType> fragmentsItems = new List<FragmentType>();
-        private List<GraphQLName> fragmentNames;
+        private List<NameNode> fragmentNames;
         private List<SetSelection> inlineFragments = new List<SetSelection>();
         private List<SetSelection> fragments = new List<SetSelection>();
         private List<FieldSelection> fields = new List<FieldSelection>();
 
-        public SetSelection(GraphQLSelectionSet op)
+        public SetSelection(SelectionSetNode op)
         {
             this.op = op;
             List<object> nodes = op.Selections.Select(this.Visit).ToList();
             this.fields.AddRange(nodes.OfType<FieldSelection>());
             this.inlineFragments.AddRange(nodes.OfType<SetSelection>());
-            this.fragmentNames = nodes.OfType<GraphQLName>().ToList();
+            this.fragmentNames = nodes.OfType<NameNode>().ToList();
         }
 
-        public SetSelection(GraphQLInlineFragment op)
+        public SetSelection(InlineFragmentNode op)
             : this(op.SelectionSet)
         {
             this.TypeCondition = op.TypeCondition;
         }
 
-        private object Visit(GraphQLParser.AST.ASTNode node)
+        private object Visit(ISyntaxNode node)
         {
             switch (node)
             {
-                case GraphQLFieldSelection op:
+                case HotChocolate.Language.FieldNode op:
                     return new FieldSelection(op);
-                case GraphQLInlineFragment op:
+                case InlineFragmentNode op:
                     return new SetSelection(op);
-                case GraphQLFragmentSpread op:
+                case FragmentSpreadNode op:
                     return op.Name;
                 default:
                     return node;
             }
         }
 
-        internal void Resolve(GraphQLDocument doc, IGraphQLType rootType, GraphQLScalarValue specifiedTypeName = null)
+        internal void Resolve(GraphQLDocument doc, IGraphQLType rootType, IValueNode<string> specifiedTypeName = null)
         {
             this.RootType = rootType;
 
@@ -77,7 +77,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
             }
 
             // do these after the inline fragments as they have been pre-resolved
-            foreach (GraphQLName name in this.fragmentNames)
+            foreach (NameNode name in this.fragmentNames)
             {
                 var fragmentRoot = doc.ResolveType(name.Value) as FragmentType;
                 this.fragmentsItems.Add(fragmentRoot);

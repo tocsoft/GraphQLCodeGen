@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using GraphQLParser.AST;
+using HotChocolate.Language;
 using System.Linq;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
 {
     internal class SelectionArgument
     {
-        private GraphQLArgument op;
+        private ArgumentNode op;
 
         public string Name { get; set; }
-        public SelectionArgument(GraphQLArgument op)
+        public SelectionArgument(ArgumentNode op)
         {
             this.op = op;
             this.Name = op.Name.Value;

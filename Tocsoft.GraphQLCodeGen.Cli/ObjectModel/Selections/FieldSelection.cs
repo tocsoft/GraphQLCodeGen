@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using GraphQLParser.AST;
+using HotChocolate.Language;
 using System.Linq;
 
 namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
 {
     internal class FieldSelection 
     {
-        private GraphQLFieldSelection op;
+        private FieldNode op;
 
         public string UniqueIdentifier => $"{this.Name}_{this.ScalerType}{this.Selection?.UniqueIdentifier}";
         public string Name { get; set; }
@@ -27,7 +27,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
             }
         }
 
-        public FieldSelection(GraphQLFieldSelection op)
+        public FieldSelection(FieldNode op)
         {
             this.op = op;
             this.Name = op.Alias?.Value ?? op.Name.Value;
@@ -64,7 +64,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel.Selections
                 this.Selection.Resolve(doc, root, specifiedTypeName);
             }
 
-            //if(selection != null)
+            //if (selection != null)
             //{
             //    // if we have subselction then it must be an object type really, unless an interface will work instead ???
             //    selection.Resolve(FieldType.Type.Type as IGraphQLFieldCollection);

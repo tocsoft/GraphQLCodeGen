@@ -5,6 +5,7 @@ namespace Tocsoft.GraphQLCodeGen.Models
     public class OperationViewModel
     {
         public string Name { get; set; }
+        public string OperationName { get; set; }
         public TypeReferenceModel ResultType { get; internal set; }
         public List<NamedTypeViewModel> Arguments { get; internal set; }
         public string Query { get; internal set; }

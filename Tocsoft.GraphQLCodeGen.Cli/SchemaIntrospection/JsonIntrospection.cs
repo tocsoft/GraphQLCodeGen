@@ -1,8 +1,14 @@
-﻿using System;
+﻿using HotChocolate.Language;
+using HotChocolate.Utilities.Introspection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static Tocsoft.GraphQLCodeGen.CodeGeneratorSettingsLoader;
 
@@ -30,14 +36,84 @@ namespace Tocsoft.GraphQLCodeGen.SchemaIntrospection
             return Task.FromResult(schema);
         }
 
+       
         public static string ConvertJsonToSchema(string json)
         {
-            wrapper.Rootobject model = Newtonsoft.Json.JsonConvert.DeserializeObject<wrapper.Rootobject>(json);
-            wrapper.__Schema scheme = model.__schema ?? model.data.__schema;
-            StringBuilder sb = new StringBuilder();
-            scheme.Generate(sb);
-            return sb.ToString();
+
+            var type = typeof(IntrospectionClient).Assembly.GetType("HotChocolate.Utilities.Introspection.IntrospectionResult");
+            var jobject = JObject.Parse(json);
+            if(!jobject.ContainsKey("data") && jobject.ContainsKey("__schema"))
+            {
+                jobject["data"] = new JObject();
+                jobject["data"]["schema"] = jobject["__schema"];
+                jobject.Remove("__schema");
+            }
+            if (jobject["data"]["__schema"] != null)
+            {
+                jobject["data"]["schema"] = jobject["data"]["__schema"];
+                (jobject["data"] as JObject).Remove("__schema");
+            }
+
+            var result = jobject.ToObject(type);
+            var typeDeserilizer = typeof(IntrospectionClient).Assembly.GetType("HotChocolate.Utilities.Introspection.IntrospectionDeserializer");
+            var method = typeDeserilizer.GetMethod("Deserialize", new[] { type });
+            var doc = (DocumentNode)method.Invoke(null, new[] { result });
+
+            var schema = doc.ToString(true);
+            return schema;
+
+            //wrapper.Rootobject model = Newtonsoft.Json.JsonConvert.DeserializeObject<wrapper.Rootobject>(json);
+            //wrapper.__Schema scheme = model.__schema ?? model.data.__schema;
+            //StringBuilder sb = new StringBuilder();
+            //scheme.Generate(sb);
+            //return sb.ToString();
         }
+
+        private class HttpFakeHandler : HttpMessageHandler
+        {
+            private readonly string json;
+
+            public HttpFakeHandler(string json)
+            {
+                this.json = json;
+            }
+            protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                var requestBody = await request.Content.ReadAsStringAsync();
+                if (requestBody.Contains("introspection_phase_1"))
+                {
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(@"
+{
+    ""data"":{""__schema"" : {
+        ""types"": [
+            {
+                ""name"": ""__Directive"",
+                ""Fields"": [
+                ]
+            },
+            {
+                ""name"": ""__Schema"",
+                ""Fields"": [
+                ]
+            }
+        ]
+    }}
+}
+", Encoding.UTF8, "application/json")
+                    };
+                }
+                else
+                {
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(json, Encoding.UTF8, "application/json")
+                    };
+                }
+            }
+        }
+
         private class wrapper
         {
             public class Rootobject
