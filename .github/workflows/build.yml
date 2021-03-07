@@ -30,7 +30,6 @@ jobs:
 
   publish-nuget-pacakge:
     needs: test
-    if: (github.event_name == 'push')
 
     runs-on: windows-latest
 
@@ -54,6 +53,7 @@ jobs:
           path: packages/*.nupkg
 
       - name: Publish the package to GPR
+        if: (github.event_name != 'pull_request')
         shell: pwsh
         run: dotnet nuget push "$((Resolve-Path packages/*.nupkg).Path)" -s https://nuget.pkg.github.com/tocsoft/index.json -k ${{secrets.GITHUB_TOKEN}}  --skip-duplicate 
         
@@ -64,7 +64,6 @@ jobs:
 
   publish-npm-package:
     needs: test
-    if: (github.event_name == 'push')
 
     runs-on: windows-latest
 
@@ -88,10 +87,12 @@ jobs:
           path: packages/*.tgz
 
       - name: Configure authenticate bintray
+        if: (github.event_name != 'pull_request')
         shell: pwsh
         run:  Set-Content -Path '.npmrc' -Value "${{ secrets.BINTRAY_NPMRC }}"
 
       - name: Publish npm package to bintray
+        if: (github.event_name != 'pull_request')
         shell: pwsh
         run: npm publish "$((Resolve-Path packages/*.tgz).Path)" --registry https://api.bintray.com/npm/tocsoft/npm
 
