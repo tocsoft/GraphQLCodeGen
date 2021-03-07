@@ -59,6 +59,21 @@ namespace Tocsoft.GraphQLCodeGen.Tests
         }
 
         [Fact]
+        public async Task CommentCanChangeExportedTypeName()
+        {
+            var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/ClientOnlyDirectives/QueryComment.gql" });
+
+            CodeGenerator generator = new CodeGenerator(logger, settings.Single());
+
+            await generator.LoadSource();
+            generator.Parse();
+
+            Assert.Empty(generator.Document.Errors);
+
+            Assert.Single(generator.Model.Types.Select(x => x.Name), "TestResultABCD");
+        }
+
+        [Fact]
         public async Task ShouldRecieveErrorAboutTwoClassesWithSameName()
         {
             var settings = settingsLoader.GenerateSettings(new CodeGeneratorSettingsLoaderDefaults(), new[] { "./Files/ClientOnlyDirectives/QueryDuplicatedType.gql" });

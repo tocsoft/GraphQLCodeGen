@@ -1,0 +1,9 @@
+﻿query q{
+    
+    #! typename: TestResultABCD
+    test(id: "safsa")
+	{
+        nullable,
+        nonnullable
+    }
+}

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace Tocsoft.GraphQLCodeGen
 {
@@ -81,8 +82,48 @@ namespace Tocsoft.GraphQLCodeGen
             public string Path { get; set; }
             public string Body { get; set; }
             public int LineStartAt { get; internal set; }
-        }
 
+            private string[] lines;
+
+            public string Line(int line)
+            {
+                line = line - 1;
+                if (lines == null)
+                {
+
+                    lines = GetLines(Body).ToArray();
+                }
+
+                if (line < 0)
+                {
+                    return null;
+                }
+
+                if (line >= lines.Length)
+                {
+
+                    return null;
+                }
+
+                return lines[line];
+            }
+
+            private static IEnumerable<string> GetLines(string str, bool removeEmptyLines = false)
+            {
+                using (var sr = new StringReader(str))
+                {
+                    string line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (removeEmptyLines && String.IsNullOrWhiteSpace(line))
+                        {
+                            continue;
+                        }
+                        yield return line;
+                    }
+                }
+            }
+        }
     }
 
     public class NamedSource

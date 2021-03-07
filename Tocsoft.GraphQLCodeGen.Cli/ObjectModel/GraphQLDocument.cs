@@ -68,7 +68,7 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             this.settings = settings;
             List<object> items = ast.Definitions.Select(this.Visit).ToList();
             this.Operations = items.OfType<Operation>().ToList();
-            this.types = items.OfType<IGraphQLType>().GroupBy(x=>x.Name).Select(x=>x.First()).ToList();
+            this.types = items.OfType<IGraphQLType>().GroupBy(x => x.Name).Select(x => x.First()).ToList();
             this.astPrinter = new AstPrinter(settings.TypeNameDirective);
             foreach (IGraphQLInitter i in items.OfType<IGraphQLInitter>().Where(x => !(x is Operation)))
             {
@@ -80,9 +80,45 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
             }
         }
 
-        internal IValueNode<string> ResolveSpecifiedTypeName(IEnumerable<DirectiveNode> directives)
+        internal IValueNode<string> ResolveSpecifiedTypeName(FieldNode field)
         {
-            var directive = directives.SingleOrDefault(x => x.Name.Value == this.settings.TypeNameDirective);
+            (LocatedNamedSource part, int offsetStart, int length) = ResolveNode(field.Location);
+
+            var allTextBeforeError = part.Body.Substring(0, offsetStart);
+            var lines = allTextBeforeError.Split('\n');
+            var line = lines.Count();
+
+            for (var i = line - 1; i > 0; i--)
+            {
+                // walk back looking to comment lines with a type name flag on it
+                var lineText = part.Line(i);
+                if (lineText == null)
+                {
+                    break;
+                }
+
+                lineText = lineText.Trim();
+                if (lineText.StartsWith("#!"))
+                {
+                    lineText = lineText.Substring(2);
+                    var p = lineText.Trim().Split(':').Select(x => x.Trim()).ToList();
+                    if (p[0].Equals("typename", StringComparison.OrdinalIgnoreCase) && p.Count > 1)
+                    {
+                        return new StringValueNode(p[1]);
+                    }
+                }
+                else if (lineText.StartsWith("\""))
+                {
+                    // skip as this is a description line
+                }
+                else if (lineText.Length != 0)
+                {
+                    // other lines stop looking as we have reached something else
+                    break;
+                }
+            }
+
+            var directive = field.Directives.SingleOrDefault(x => x.Name.Value == this.settings.TypeNameDirective);
             var value = directive?.Arguments.SingleOrDefault(x => x.Name.Value == "type")?.Value;
             var scalar = value as IValueNode<string>;
             return scalar;
@@ -244,12 +280,12 @@ namespace Tocsoft.GraphQLCodeGen.ObjectModel
                 throw;
             }
         }
-      
+
         private object Visit(ISyntaxNode node)
         {
             switch (node)
             {
-                
+
                 case OperationDefinitionNode op:
                     return new Operation(op);
                 case InterfaceTypeDefinitionNode op:
