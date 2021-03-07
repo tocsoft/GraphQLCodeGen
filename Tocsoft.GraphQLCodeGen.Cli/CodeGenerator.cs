@@ -68,9 +68,19 @@ namespace Tocsoft.GraphQLCodeGen
         internal void Export()
         {
             Directory.CreateDirectory(Path.GetDirectoryName(this.settings.OutputPath));
-            File.WriteAllText(this.settings.OutputPath, GeneratedCode);
-        }
+            bool skipWriteText = false;
+            if (File.Exists(this.settings.OutputPath))
+            {
+                var currentText = File.ReadAllText(this.settings.OutputPath);
+                skipWriteText = (currentText == GeneratedCode);
+            }
 
+            if (!skipWriteText)
+            {
+                File.WriteAllText(this.settings.OutputPath, GeneratedCode);
+            }
+        }
+        
         internal void Render()
         {
             if (!HasParsingErrors)
