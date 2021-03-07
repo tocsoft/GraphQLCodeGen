@@ -20,7 +20,7 @@ if (process.env["windir"]) {
 
 //we need to check if we are running from a packages/installed version or source
 var isDevMode = true;
-if (fs.existsSync(__dirname + '/Tocsoft.GraphQLCodeGen.Npm.csproj')) {
+if (!fs.existsSync(__dirname + '/Tocsoft.GraphQLCodeGen.Npm.csproj')) {
     //we are in a released mode
     isDevMode = false;
 }
