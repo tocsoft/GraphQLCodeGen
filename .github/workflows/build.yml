@@ -102,5 +102,6 @@ jobs:
         run:  Set-Content -Path '.npmrc' -Value "${{ secrets.NPMJS_NPMRC }}"
 
       - name: Publish npm package to Npmjs package registry
+        if: github.event_name == 'release' && github.event.action == 'created'
         shell: pwsh
         run: npm publish "$((Resolve-Path packages/*.tgz).Path)" --access public --registry https://registry.npmjs.org/
