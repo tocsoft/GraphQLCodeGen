@@ -27,7 +27,7 @@ const url = "{{>ApiUrl}}";
 {{> Includes }}
 
 const client = { 
-	fetch = {{> FetchCient }},
+	fetch : {{> FetchCient }},
 };
 {{>UrlConfig}}
 
