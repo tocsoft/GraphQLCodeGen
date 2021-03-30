@@ -58,7 +58,7 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                 }
             }
 
-            string exePath = Path.Combine(this.RootCliFolder, "net461\\Tocsoft.GraphQLCodeGen.Cli.exe");
+            string exePath = Path.GetFullPath(Path.Combine(this.RootCliFolder, "net461\\Tocsoft.GraphQLCodeGen.Cli.exe").Replace('\\', Path.DirectorySeparatorChar));
 
             string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
@@ -73,8 +73,10 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
             string realexe = exePath;
             if (!fullFramework)
             {
+                var dllPath = Path.GetFullPath(Path.Combine(this.RootCliFolder, "netcoreapp3.1\\Tocsoft.GraphQLCodeGen.Cli.dll").Replace('\\', Path.DirectorySeparatorChar));
+
                 realexe = "dotnet";
-                arguments = $"\"{Path.Combine(this.RootCliFolder, "netcoreapp3.1\\Tocsoft.GraphQLCodeGen.Cli.dll")}\" {arguments}";
+                arguments = $"\"{dllPath}\" {arguments}";
             }
 
             this.Log.LogMessage(MessageImportance.Low, "Executing  \"{0}\" {1}", realexe, arguments);
