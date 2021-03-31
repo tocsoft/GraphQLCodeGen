@@ -76,7 +76,7 @@ namespace Tocsoft.GraphQLCodeGen.MsBuild
                 var dllPath = Path.GetFullPath(Path.Combine(this.RootCliFolder, "netcoreapp3.1\\Tocsoft.GraphQLCodeGen.Cli.dll").Replace('\\', Path.DirectorySeparatorChar));
 
                 realexe = "dotnet";
-                arguments = $"\"{dllPath}\" {arguments}";
+                arguments = $"--roll-forward LatestMajor \"{dllPath}\" {arguments}";
             }
 
             this.Log.LogMessage(MessageImportance.Low, "Executing  \"{0}\" {1}", realexe, arguments);
