@@ -28,7 +28,7 @@
 		<PackageReference Include="HotChocolate.Language" Version="11.0.9" />
 		<PackageReference Include="HotChocolate.Utilities.Introspection" Version="11.0.9" />
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="3.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
 		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
